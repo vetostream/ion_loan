@@ -1,10 +1,24 @@
-from main.models import Client, Loan
+from main.models import Client, Loan, Loan_Detail
 from rest_framework import serializers
 
 
 class ClientSerializer(serializers.ModelSerializer):
+    active_loans = serializers.SerializerMethodField()
+
     class Meta:
         model = Client
+        fields = '__all__'
+
+    def get_active_loans(self, obj):
+        active_loans = obj.loan_set.filter(loan_status='approved').values_list('pk', flat=True)
+        loan_details = LoanDetailSerializer(Loan_Detail.objects.filter(loan__pk__in=active_loans), many=True).data
+
+        return loan_details
+
+
+class LoanDetailSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Loan_Detail
         fields = '__all__'
 
 
@@ -21,4 +35,3 @@ class LoanSerializer(serializers.ModelSerializer):
     
     def get_client_birth_date(self, obj):
         return obj.client.birth_date
-    

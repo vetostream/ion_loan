@@ -1,7 +1,17 @@
+from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
 from django.db import models
 
 
-class Client(models.Model):
+class Super_Model(models.Model):
+    date_created = models.DateTimeField(auto_now_add=True)
+    date_modified = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        abstract = True
+
+
+class Client(Super_Model):
     first_name = models.CharField(max_length=50, null=False)
     middle_name = models.CharField(max_length=50, null=False)
     last_name = models.CharField(max_length=50, null=False)
@@ -13,7 +23,7 @@ class Client(models.Model):
     co_maker = models.CharField(max_length=150)
 
 
-class Loan(models.Model):
+class Loan(Super_Model):
     LOAN_TYPES = [
         ('pension', 'Pension'),
         ('salary', 'Salary')
@@ -35,11 +45,25 @@ class Loan(models.Model):
     loan_type = models.CharField(max_length=50, choices=LOAN_TYPES, default='pension')
     is_advance = models.BooleanField(default=False)
     loan_status = models.CharField(max_length=50, choices=LOAN_STATUS, default='pending')
+    fee_others = models.DecimalField(max_digits=5, decimal_places=2, null=True)
 
 
-class Loan_Detail(models.Model):
+class Loan_Detail(Super_Model):
     loan = models.ForeignKey(Loan, on_delete=models.CASCADE)
     amount = models.DecimalField(max_digits=10, decimal_places=2, null=False)
     balance = models.DecimalField(max_digits=10, decimal_places=2, null=False)
     date_payment = models.DateField()
-    date_paid = models.DateField()
+    date_paid = models.DateField(null=True)
+
+
+class Collection(Super_Model):
+    client = models.ForeignKey(Client, on_delete=models.DO_NOTHING)
+    reference_code = models.TextField(max_length=300, null=False)
+    collection_amount = models.DecimalField(max_digits=10, decimal_places=2, null=False)
+
+
+class Collection_Detail(Super_Model):
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    object_id = models.PositiveIntegerField()
+    content_object = GenericForeignKey('content_type', 'object_id')
+    amount_used = models.DecimalField(max_digits=10, decimal_places=2, null=False)
