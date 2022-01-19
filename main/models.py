@@ -1,5 +1,5 @@
 from enum import unique
-from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
 
@@ -49,14 +49,6 @@ class Loan(Super_Model):
     fee_others = models.DecimalField(max_digits=5, decimal_places=2, null=True)
 
 
-class Loan_Detail(Super_Model):
-    loan = models.ForeignKey(Loan, on_delete=models.CASCADE)
-    amount = models.DecimalField(max_digits=10, decimal_places=2, null=False)
-    balance = models.DecimalField(max_digits=10, decimal_places=2, null=False)
-    date_payment = models.DateField()
-    date_paid = models.DateField(null=True)
-
-
 class Collection(Super_Model):
     client = models.ForeignKey(Client, on_delete=models.DO_NOTHING)
     reference_code = models.TextField(max_length=300, null=False)
@@ -69,3 +61,12 @@ class Collection_Detail(Super_Model):
     object_id = models.PositiveIntegerField()
     content_object = GenericForeignKey('content_type', 'object_id')
     amount_used = models.DecimalField(max_digits=10, decimal_places=2, null=False)
+
+
+class Loan_Detail(Super_Model):
+    loan = models.ForeignKey(Loan, on_delete=models.CASCADE)
+    amount = models.DecimalField(max_digits=10, decimal_places=2, null=False)
+    balance = models.DecimalField(max_digits=10, decimal_places=2, null=False)
+    date_payment = models.DateField()
+    date_paid = models.DateField(null=True)
+    collection_detail = GenericRelation(Collection_Detail)

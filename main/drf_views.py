@@ -1,9 +1,14 @@
 from dateutil.relativedelta import relativedelta
-from main.models import Client, Loan, Loan_Detail, Collection
+from main.models import Client, Collection_Detail, Loan, Loan_Detail, Collection
 from main.serializers import ClientSerializer, LoanSerializer, CollectionSerializer
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
+
+
+CONTENT_TYPES = {
+    'loan_detail': Loan_Detail
+}
 
 
 class ClientViewSet(viewsets.ModelViewSet):
@@ -78,3 +83,17 @@ class CollectionViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         return Collection.objects.all()
+
+    def perform_create(self, serializer):
+        collection = serializer.save()
+        details = self.request.data.get('detail', None)
+
+        for detail in details:
+            content_object = CONTENT_TYPES[detail.get('content_type')].objects.get(pk=detail.get('content_id'))
+            Collection_Detail.objects.create(
+                content_object=content_object,
+                collection=collection,
+                amount_used=detail.get('amount')
+            )
+
+        super().perform_create(serializer)
