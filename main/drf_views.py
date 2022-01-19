@@ -1,9 +1,10 @@
 from dateutil.relativedelta import relativedelta
-from main.models import Client, Loan, Loan_Detail
-from main.serializers import ClientSerializer, LoanSerializer
+from main.models import Client, Loan, Loan_Detail, Collection
+from main.serializers import ClientSerializer, LoanSerializer, CollectionSerializer
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
+
 
 class ClientViewSet(viewsets.ModelViewSet):
     queryset = Client.objects.none()
@@ -69,3 +70,11 @@ class LoanViewSet(viewsets.ModelViewSet):
             loan.save()
 
         return Response({'message': 'Loan Approved'}, status=status.HTTP_201_CREATED)
+
+
+class CollectionViewSet(viewsets.ModelViewSet):
+    queryset = Collection.objects.none()
+    serializer_class = CollectionSerializer
+
+    def get_queryset(self):
+        return Collection.objects.all()

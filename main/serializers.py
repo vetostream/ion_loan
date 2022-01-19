@@ -1,4 +1,4 @@
-from main.models import Client, Loan, Loan_Detail
+from main.models import Client, Loan, Loan_Detail, Collection
 from rest_framework import serializers
 
 
@@ -17,9 +17,14 @@ class ClientSerializer(serializers.ModelSerializer):
 
 
 class LoanDetailSerializer(serializers.ModelSerializer):
+    loan_amount = serializers.SerializerMethodField()
+
     class Meta:
         model = Loan_Detail
         fields = '__all__'
+
+    def get_loan_amount(self, obj):
+        return obj.loan.principal_amount
 
 
 class LoanSerializer(serializers.ModelSerializer):
@@ -35,3 +40,9 @@ class LoanSerializer(serializers.ModelSerializer):
     
     def get_client_birth_date(self, obj):
         return obj.client.birth_date
+
+
+class CollectionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Collection
+        fields = '__all__'
