@@ -53,10 +53,11 @@ class Collection(Super_Model):
     client = models.ForeignKey(Client, on_delete=models.DO_NOTHING)
     reference_code = models.TextField(max_length=300, null=False)
     collection_amount = models.DecimalField(max_digits=10, decimal_places=2, null=False)
+    refundable_amount = models.DecimalField(max_digits=10, decimal_places=2, null=False)
 
 
 class Collection_Detail(Super_Model):
-    collection = models.ForeignKey(Collection, on_delete=models.CASCADE, null=False)
+    collection = models.ForeignKey(Collection, on_delete=models.CASCADE, null=False, related_name="collection_details")
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField()
     content_object = GenericForeignKey('content_type', 'object_id')
@@ -70,3 +71,22 @@ class Loan_Detail(Super_Model):
     date_payment = models.DateField()
     date_paid = models.DateField(null=True)
     collection_detail = GenericRelation(Collection_Detail)
+
+
+class Transaction(Super_Model):
+    ACCOUNT_TYPES = (
+        ('assets', 'Assets'),
+        ('liabilities', 'Liabilities'),
+        ('equity', 'Equity')
+    )
+
+    TRANSACTION_TYPE = (
+        ('debit', 'Debit'),
+        ('credit', 'Credit')
+    )
+
+    account = models.CharField(max_length=50, choices=ACCOUNT_TYPES, null=False)
+    post_date = models.DateField(auto_now_add=True)
+    description = models.CharField(max_length=255, null=False)
+    amount = models.DecimalField(max_digits=10, decimal_places=2, null=False)
+    transaction_side = models.CharField(max_length=10, choices=TRANSACTION_TYPE, null=False)

@@ -1,9 +1,10 @@
-from main.models import Client, Loan, Loan_Detail, Collection
+from main.models import Client, Collection_Detail, Loan, Loan_Detail, Collection
 from rest_framework import serializers
 
 
 class ClientSerializer(serializers.ModelSerializer):
     active_loans = serializers.SerializerMethodField()
+    collections = serializers.SerializerMethodField()
 
     class Meta:
         model = Client
@@ -14,6 +15,16 @@ class ClientSerializer(serializers.ModelSerializer):
         loan_details = LoanDetailSerializer(Loan_Detail.objects.filter(loan__pk__in=active_loans), many=True).data
 
         return loan_details
+
+    def get_collections(self, obj):
+        # my_collection_details = Collection_Detail.objects.filter(collection__client=obj)
+        # serialized_collections = CollectionDetailSerializer(my_collection_details, many=True).data
+
+        # return serialized_collections
+        my_collections = obj.collection_set.all()
+        serialized_collections = CollectionSerializer(my_collections, many=True)
+
+        return serialized_collections.data
 
 
 class LoanDetailSerializer(serializers.ModelSerializer):
@@ -46,7 +57,28 @@ class LoanSerializer(serializers.ModelSerializer):
         return obj.client.birth_date
 
 
+class CollectionDetailSerializer(serializers.ModelSerializer):
+    paid_transaction_id = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Collection_Detail
+        fields = '__all__'
+
+    def get_paid_transaction_id(self, obj):
+        types = {
+            'loan_detail': 'LOAN',
+            'cash_advance': 'CA'
+        }
+
+        if obj.content_type.model == 'loan_detail':
+            return f"{types[obj.content_type.model]}-{obj.content_object.loan.pk}"
+        else:
+            return "CA"
+
+
 class CollectionSerializer(serializers.ModelSerializer):
+    collection_details = CollectionDetailSerializer(many=True, read_only=True)
+
     class Meta:
         model = Collection
         fields = '__all__'

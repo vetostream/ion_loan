@@ -1,6 +1,6 @@
 from dateutil.relativedelta import relativedelta
 from main.models import Client, Collection_Detail, Loan, Loan_Detail, Collection
-from main.serializers import ClientSerializer, LoanSerializer, CollectionSerializer
+from main.serializers import ClientSerializer, LoanSerializer, CollectionSerializer, CollectionDetailSerializer
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -97,3 +97,11 @@ class CollectionViewSet(viewsets.ModelViewSet):
             )
 
         super().perform_create(serializer)
+
+
+class CollectionDetailViewSet(viewsets.ModelViewSet):
+    queryset = Collection_Detail.objects.none()
+    serializer_class = CollectionDetailSerializer
+
+    def get_queryset(self):
+        return Collection_Detail.objects.all()
