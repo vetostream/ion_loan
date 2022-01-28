@@ -6,7 +6,7 @@ import NewLoan from '../components/NewLoan.vue'
 import NewClient from '../components/NewClient.vue'
 import Client from '../views/Client.vue'
 import CashFlowStatement from '../components/CashFlowStatement.vue'
-
+import Home from '../views/Home.vue'
 
 Vue.use(VueRouter)
 
@@ -14,6 +14,11 @@ const routes = [
   {
     path: '/',
     name: 'Home',
+    component: Home
+  },
+  {
+    path: '/clients',
+    name: 'Dashboard',
     component: Dashboard
   },
   {
@@ -58,7 +63,18 @@ const routes = [
   {
     path: '/cashFlowStatement',
     name: 'CashFlowStatement',
-    component: CashFlowStatement
+    component: CashFlowStatement,
+    props: {
+      initialType: 'daily'
+    }
+  },
+  {
+    path: '/rangedCashFlowStatement',
+    name: 'RangedCashFlowStatement',
+    component: CashFlowStatement,
+    props: {
+      initialType: 'ranged'
+    }
   },
 ]
 

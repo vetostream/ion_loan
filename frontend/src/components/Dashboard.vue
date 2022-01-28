@@ -9,7 +9,7 @@
             </b-input>
         </b-field>
         <div class="table">
-            <b-table :data="clients" :columns="clientTableColumns" :loading="isLoading" v-if="isSearching" @click="viewClient($event)" :selected.sync="selectedClient" focusable>
+            <b-table :data="clients" :columns="clientTableColumns" :loading="isLoading" @click="viewClient($event)" :selected.sync="selectedClient" focusable>
                 <template #empty>
                     <div class="has-text-centered">No Results Found</div>
                 </template>

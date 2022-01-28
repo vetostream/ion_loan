@@ -53,7 +53,7 @@
                 </div>
             </div>
             <hr>
-            <h1 class="is-size-4">Loans and CAs</h1>
+            <h1 class="is-size-4 has-text-left table-title">Loans and CAs</h1>
             <div class="columns" v-if="selectedRows.length > 0">
                 <div class="column is-4">
                     <b-field label="Reference" :label-position="labelPosition">
@@ -87,7 +87,7 @@
                 </div>
             </div>
             <hr>
-            <h1 class="is-size-4">Collections</h1>
+            <h1 class="is-size-4 has-text-left table-title">Collections</h1>
             <div class="columns">
                 <div class="column is-12">
                     <!-- <b-table :data="collections" :columns="collectionColumns" :loading="isLoading" checkable :checked-rows.sync="selectedCollections"
@@ -421,5 +421,10 @@ export default {
 
     tr.is-success {
         background-color: #cef3ce;
+    }
+
+    .table-title {
+        background-color: #def5f5;
+        padding: 0.5em;
     }
 </style>

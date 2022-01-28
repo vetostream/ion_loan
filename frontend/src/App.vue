@@ -1,9 +1,9 @@
 <template>
   <div id="app">
-    <b-navbar>
+    <b-navbar shadow spaced>
         <template #brand>
-            <b-navbar-item tag="router-link" :to="{ path: '/' }">
-              <a href="/">
+            <b-navbar-item>
+              <a>
                 <h1 class="is-size-5">
                   ION
                   <strong class="is-size-7">Loan Application</strong>
@@ -12,6 +12,38 @@
             </b-navbar-item>
         </template>
 
+        <template #start>
+            <b-navbar-item tag="router-link" :to="{ path: '/clients'}">
+                Clients
+            </b-navbar-item>
+            <b-navbar-dropdown label="Loan" boxed>
+                <b-navbar-item tag="router-link" :to="{ path: '/loans/pending'}">
+                    Pending
+                </b-navbar-item>
+                <b-navbar-item tag="router-link" :to="{ path: '/loans/approved'}">
+                    Approved
+                </b-navbar-item>
+                <!-- <b-navbar-item href="#">
+                    Declined
+                </b-navbar-item> -->
+            </b-navbar-dropdown>
+            <b-navbar-dropdown label="Financial Statements" boxed>
+                <b-navbar-item tag="router-link" :to="{ path: '/cashFlowStatement'}">
+                  Daily Cash Flow Statement
+                </b-navbar-item>
+                <b-navbar-item tag="router-link" :to="{ path: '/rangedCashFlowStatement'}">
+                  Date Ranged Cash Flow Statement
+                </b-navbar-item>
+            </b-navbar-dropdown>
+            <b-navbar-dropdown label="Create Actions" boxed>
+              <b-navbar-item tag="router-link" :to="{ path: '/createClient'}">
+                  Create Client
+              </b-navbar-item>
+              <b-navbar-item tag="router-link" :to="{ path: '/createLoan'}">
+                  Create Loan
+              </b-navbar-item>
+            </b-navbar-dropdown>
+        </template>
         <!-- <template #end>
             <b-navbar-item tag="div">
                 <div class="buttons">
@@ -26,43 +58,9 @@
         </template> -->
     </b-navbar>
 
-    <div class="container is-fluid" id="canvas">
-      <!-- <h1>Hello! Today is {{ today | longDate }}</h1> -->
-      <div class="columns">
-        <div class="column is-narrow">
-            <b-menu class="has-text-left" style="width: 300px;" :activable="false">
-              <b-menu-list>
-                <b-menu-item icon="users" label="Clients" tag="router-link" to="/"></b-menu-item>
-                <b-menu-item icon="university">
-                  <template #label="props">
-                    Loans
-                    <b-icon class="is-pulled-right" :icon="props.expanded ? 'caret-up' : 'caret-down'"></b-icon>
-                  </template>
-                  <b-menu-item label="Create New Loan" tag="router-link" to="/createLoan"></b-menu-item>
-                  <b-menu-item label="Pending" tag="router-link" :to="{ name: 'PendingLoans'}"></b-menu-item>
-                  <b-menu-item label="Approved" tag="router-link" :to="{ name: 'ApprovedLoans'}"></b-menu-item>
-                  <b-menu-item label="Declined" tag="router-link" :to="{ name: 'DeclinedLoans'}"></b-menu-item>
-                </b-menu-item>
-                <!-- <b-menu-item icon="money-bill-wave" label="Create CA"></b-menu-item> -->
-                <b-menu-item icon="user-plus" label="New Client" tag="router-link" :to="{ name: 'CreateClient'}"></b-menu-item>
-                <b-menu-item icon="print">
-                  <template #label="props">
-                    Financial Statements
-                    <b-icon class="is-pulled-right" :icon="props.expanded ? 'caret-up' : 'caret-down'"></b-icon>
-                  </template>
-                  <b-menu-item label="Cash Flow Statement" tag="router-link" :to="{ name: 'CashFlowStatement'}"></b-menu-item>
-                  <!-- <b-menu-item label="Daily General Report"></b-menu-item>
-                  <b-menu-item label="Daily Collection"></b-menu-item>
-                  <b-menu-item label="Daily Transaction"></b-menu-item> -->
-                </b-menu-item>
-              </b-menu-list>
-            </b-menu>
-        </div>
-        <div class="column">
-          <div class="box">
-            <router-view/>
-          </div>
-        </div>
+    <div class="container">
+      <div class="main-wrapper">
+        <router-view/>
       </div>
     </div>
   </div>
@@ -77,25 +75,29 @@
   color: #2c3e50;
 }
 
-#nav {
-  padding: 30px;
-}
-
-#nav a {
-  font-weight: bold;
-  color: #2c3e50;
-}
-
-#nav a.router-link-exact-active {
-  color: #42b983;
-}
-
 #canvas {
   margin-top: 2.0em;
 }
 
 .header {
   margin-bottom: 1.5em;
+}
+
+.main-wrapper {
+  margin-top: 2.5em;
+}
+
+.router-link-exact-active, a.navbar-item:focus, a.navbar-item:focus-within, a.navbar-item:hover {
+  background: #7957d5 !important;
+  color: white !important;
+}
+
+nav a {
+  margin-right: 0.5em;
+}
+
+.navbar-dropdown a {
+  margin-right: 0em;
 }
 
 </style>

@@ -132,8 +132,14 @@ class TransactionViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         transaction_date = self.request.query_params.get('transaction_date', None)
+        start_date = self.request.query_params.get('start_date', None)
+        end_date = self.request.query_params.get('end_date', None)
 
         if transaction_date:
             return Transaction.objects.filter(post_date=transaction_date)
+        else:
+            return Transaction.objects.filter(
+                post_date__gte=start_date,
+                post_date__lte=end_date
+            )
 
-        return Transaction.objects.all()
