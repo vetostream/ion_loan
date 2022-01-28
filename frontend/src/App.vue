@@ -1,12 +1,30 @@
 <template>
   <div id="app">
-    <div class="card">
-      <header class="card-header">
-        <p class="card-header-title">
-          ION Loan Application v1.0
-        </p>
-      </header>
-    </div>
+    <b-navbar>
+        <template #brand>
+            <b-navbar-item tag="router-link" :to="{ path: '/' }">
+              <a href="/">
+                <h1 class="is-size-5">
+                  ION
+                  <strong class="is-size-7">Loan Application</strong>
+                </h1>
+              </a>
+            </b-navbar-item>
+        </template>
+
+        <!-- <template #end>
+            <b-navbar-item tag="div">
+                <div class="buttons">
+                    <a class="button is-primary">
+                        <strong>Sign up</strong>
+                    </a>
+                    <a class="button is-light">
+                        Log in
+                    </a>
+                </div>
+            </b-navbar-item>
+        </template> -->
+    </b-navbar>
 
     <div class="container is-fluid" id="canvas">
       <!-- <h1>Hello! Today is {{ today | longDate }}</h1> -->
