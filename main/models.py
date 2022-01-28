@@ -47,6 +47,9 @@ class Loan(Super_Model):
     is_advance = models.BooleanField(default=False)
     loan_status = models.CharField(max_length=50, choices=LOAN_STATUS, default='pending')
     fee_others = models.DecimalField(max_digits=5, decimal_places=2, null=True)
+    llrf = models.DecimalField(max_digits=5, decimal_places=2, null=True)
+    processing_fee = models.DecimalField(max_digits=5, decimal_places=2, null=True)
+    net_cash_out =  models.DecimalField(max_digits=10, decimal_places=2, null=True)
 
 
 class Collection(Super_Model):
@@ -74,15 +77,22 @@ class Loan_Detail(Super_Model):
 
 
 class Transaction(Super_Model):
+    ASSETS = 'assets'
+    LIABILITIES = 'liabilities'
+    EQUITY = 'equity'
+
+    DEBIT = 'debit'
+    CREDIT = 'credit'
+
     ACCOUNT_TYPES = (
-        ('assets', 'Assets'),
-        ('liabilities', 'Liabilities'),
-        ('equity', 'Equity')
+        (ASSETS, 'Assets'),
+        (LIABILITIES, 'Liabilities'),
+        (EQUITY, 'Equity')
     )
 
     TRANSACTION_TYPE = (
-        ('debit', 'Debit'),
-        ('credit', 'Credit')
+        (DEBIT, 'Debit'),
+        (CREDIT, 'Credit')
     )
 
     account = models.CharField(max_length=50, choices=ACCOUNT_TYPES, null=False)

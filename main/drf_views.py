@@ -1,6 +1,6 @@
 from dateutil.relativedelta import relativedelta
-from main.models import Client, Collection_Detail, Loan, Loan_Detail, Collection
-from main.serializers import ClientSerializer, LoanSerializer, CollectionSerializer, CollectionDetailSerializer
+from main.models import Client, Collection_Detail, Loan, Loan_Detail, Collection, Transaction
+from main.serializers import ClientSerializer, LoanSerializer, CollectionSerializer, CollectionDetailSerializer, TransactionSerializer
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -43,10 +43,11 @@ class LoanViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['post'])
     def approve_loan(self, request, pk):
         loan_status = request.data.get('loan_status', None)
+        net_cash_out = request.data.get('net_cash_out', None)
         loan = Loan.objects.get(pk=pk)
         payment_schedules = []
 
-        if loan_status == 'approved':
+        if loan_status == 'approved' and net_cash_out:
             amount = loan.principal_amount / loan.term
 
             for cycle in range(0, loan.term):
@@ -72,7 +73,17 @@ class LoanViewSet(viewsets.ModelViewSet):
                 Loan_Detail.objects.create(**payment)
             
             loan.loan_status = loan_status
+            loan.net_cash_out = net_cash_out
+
             loan.save()
+
+            # Create a Transaction
+            Transaction.objects.create(
+                account=Transaction.LIABILITIES,
+                description=f"LOAN-{loan.pk} | Maturity Date: {loan.maturity_date} | {loan.client.last_name} {loan.client.first_name}",
+                transaction_side=Transaction.CREDIT,
+                amount=net_cash_out
+            )
 
         return Response({'message': 'Loan Approved'}, status=status.HTTP_201_CREATED)
 
@@ -96,6 +107,14 @@ class CollectionViewSet(viewsets.ModelViewSet):
                 amount_used=detail.get('amount')
             )
 
+        # Create a Transaction
+        Transaction.objects.create(
+            account=Transaction.ASSETS,
+            description=f"COLLECTION-{collection.pk}-{collection.reference_code} | {collection.client.last_name} {collection.client.first_name}",
+            transaction_side=Transaction.DEBIT,
+            amount=collection.collection_amount
+        )
+
         super().perform_create(serializer)
 
 
@@ -105,3 +124,16 @@ class CollectionDetailViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         return Collection_Detail.objects.all()
+
+
+class TransactionViewSet(viewsets.ModelViewSet):
+    queryset = Transaction.objects.none()
+    serializer_class = TransactionSerializer
+
+    def get_queryset(self):
+        transaction_date = self.request.query_params.get('transaction_date', None)
+
+        if transaction_date:
+            return Transaction.objects.filter(post_date=transaction_date)
+
+        return Transaction.objects.all()

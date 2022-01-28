@@ -17,13 +17,14 @@ from django.contrib import admin
 from django.urls import path, include
 from rest_framework import routers
 
-from main.drf_views import ClientViewSet, LoanViewSet, CollectionViewSet, CollectionDetailViewSet
+from main.drf_views import ClientViewSet, LoanViewSet, CollectionViewSet, CollectionDetailViewSet, TransactionViewSet
 
 router = routers.SimpleRouter()
 router.register(r'clients', ClientViewSet)
 router.register(r'loans', LoanViewSet)
 router.register(r'collections', CollectionViewSet)
 router.register(r'collectiondetails', CollectionDetailViewSet)
+router.register(r'transactions', TransactionViewSet)
 
 urlpatterns = [
     path('api/v1/', include(router.urls)),
