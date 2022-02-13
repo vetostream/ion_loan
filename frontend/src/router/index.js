@@ -4,6 +4,7 @@ import Dashboard from '../components/Dashboard.vue'
 import LoanList from '../components/LoanList.vue'
 import NewLoan from '../components/NewLoan.vue'
 import NewClient from '../components/NewClient.vue'
+import CreateExpense from '../components/CreateExpense.vue'
 import Client from '../views/Client.vue'
 import CashFlowStatement from '../components/CashFlowStatement.vue'
 import Home from '../views/Home.vue'
@@ -76,6 +77,11 @@ const routes = [
       initialType: 'ranged'
     }
   },
+  {
+    path: '/createExpense',
+    name: 'CreateExpense',
+    component: CreateExpense,
+  },  
 ]
 
 const router = new VueRouter({

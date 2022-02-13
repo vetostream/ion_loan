@@ -42,6 +42,9 @@
               <b-navbar-item tag="router-link" :to="{ path: '/createLoan'}">
                   Create Loan
               </b-navbar-item>
+              <b-navbar-item tag="router-link" :to="{ path: '/createExpense'}">
+                  Create Expense
+              </b-navbar-item>
             </b-navbar-dropdown>
         </template>
         <!-- <template #end>

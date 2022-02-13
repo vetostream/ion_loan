@@ -374,7 +374,7 @@ export default {
                     client: this.client.id,
                     reference_code: this.collection.reference_code,
                     collection_amount: this.collection.amount.replace(',', ''),
-                    refundable_amount: this.calculateAP()
+                    refundable_amount: parseFloat(this.calculateAP()).toFixed(2)
                 }
 
 

@@ -136,10 +136,9 @@ class TransactionViewSet(viewsets.ModelViewSet):
         end_date = self.request.query_params.get('end_date', None)
 
         if transaction_date:
-            return Transaction.objects.filter(post_date=transaction_date)
+            return Transaction.objects.filter(post_date=transaction_date).order_by('post_date')
         else:
             return Transaction.objects.filter(
                 post_date__gte=start_date,
                 post_date__lte=end_date
-            )
-
+            ).order_by('post_date')

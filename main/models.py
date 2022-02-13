@@ -1,3 +1,4 @@
+import datetime
 from enum import unique
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
@@ -96,7 +97,13 @@ class Transaction(Super_Model):
     )
 
     account = models.CharField(max_length=50, choices=ACCOUNT_TYPES, null=False)
-    post_date = models.DateField(auto_now_add=True)
+    post_date = models.DateField(null=True)
     description = models.CharField(max_length=255, null=False)
     amount = models.DecimalField(max_digits=10, decimal_places=2, null=False)
     transaction_side = models.CharField(max_length=10, choices=TRANSACTION_TYPE, null=False)
+
+    def save(self, *args, **kwargs):
+        if self.post_date is None:
+            self.post_date = datetime.date.today()
+
+        super().save(*args, **kwargs)

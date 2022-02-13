@@ -10,7 +10,12 @@ const fetchRangedTransactions = (data) => {
     return baseApi.get(resource, {params: data})
 }
 
+const createExpense = (data) => {
+    return baseApi.post(resource, data)
+}
+
 export {
     fetchTransactionsByDate,
-    fetchRangedTransactions
+    fetchRangedTransactions,
+    createExpense
 }
