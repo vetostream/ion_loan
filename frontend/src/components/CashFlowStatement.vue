@@ -23,6 +23,11 @@
                             Today
                         </b-button>
                     </p>
+                    <p class="control">
+                        <b-button class="button is-info" icon-left="print" @click="printReport()">
+                            Print
+                        </b-button>
+                    </p>
                 </b-field>
             </div>
         </div>
@@ -34,6 +39,11 @@
                     <p class="control">
                         <b-button class="button is-success" icon-left="arrow-right" @click="fetchTransactionsByRange()">
                             Filter
+                        </b-button>
+                    </p>
+                    <p class="control">
+                        <b-button class="button is-info" icon-left="print" @click="printReport()">
+                            Print
                         </b-button>
                     </p>
                 </b-field>
@@ -262,6 +272,20 @@ export default {
         resetToday() {
             this.filterDate = null
             this.fetchTransactions()
+        },
+        printReport() {
+            if (this.type === 'ranged') {
+                const startDate = moment(this.startDate).format("YYYY-MM-DD")
+                const endDate = moment(this.endDate).format("YYYY-MM-DD")
+                window.open(`http://localhost:8000/reports/cash_flow_statement/${startDate}/${endDate}/`)
+            } else {
+                let startDate = moment().format("YYYY-MM-DD")
+                if (this.filterDate) {
+                    startDate = moment(this.filterDate).format("YYYY-MM-DD")
+                }
+
+                window.open(`http://localhost:8000/reports/cash_flow_statement/${startDate}/`)
+            }
         }
     }
 }

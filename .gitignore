@@ -185,3 +185,6 @@ gwt-unitCache
 
 # psql
 data
+
+reports/*.html
+reports/*.pdf

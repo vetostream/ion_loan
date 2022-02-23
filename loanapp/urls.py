@@ -14,10 +14,12 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import path, include, register_converter
+from datetime import datetime
 from rest_framework import routers
 
 from main.drf_views import ClientViewSet, LoanViewSet, CollectionViewSet, CollectionDetailViewSet, TransactionViewSet
+from main.views import cash_flow_statement
 
 router = routers.SimpleRouter()
 router.register(r'clients', ClientViewSet)
@@ -26,7 +28,22 @@ router.register(r'collections', CollectionViewSet)
 router.register(r'collectiondetails', CollectionDetailViewSet)
 router.register(r'transactions', TransactionViewSet)
 
+class DateConverter:
+    regex = '\d{4}-\d{2}-\d{2}'
+
+    def to_python(self, value):
+        return datetime.strptime(value, '%Y-%m-%d')
+
+    def to_url(self, value):
+        return value
+
+register_converter(DateConverter, 'date')
+
 urlpatterns = [
     path('api/v1/', include(router.urls)),
     path('admin/', admin.site.urls),
+
+    # Reports
+    path('reports/cash_flow_statement/<date:start_date>/<date:end_date>/', cash_flow_statement),
+    path('reports/cash_flow_statement/<date:start_date>/', cash_flow_statement),
 ]

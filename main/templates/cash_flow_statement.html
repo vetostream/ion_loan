@@ -1,0 +1,93 @@
+{% load humanize %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>{{ report_title }}</title>
+
+    <style type="text/css">
+        body {
+            margin: 0 auto;
+            width: 80%;
+            display: grid;
+        }
+        .styled-table {
+            margin-left: auto;
+            margin-right: auto;
+            border-collapse: collapse;
+            margin: 25px 0;
+            font-size: 0.9em;
+            font-family: sans-serif;
+            min-width: 400px;
+        }
+
+        .styled-table thead tr {
+            color: black;
+            text-align: left;
+        }
+
+        .styled-table th,
+        .styled-table td {
+            padding: 12px 15px;
+        }
+
+        .styled-table tbody tr {
+            border-bottom: 1px solid #dddddd;
+        }
+
+        .debit {
+            color: #009879;
+        }
+
+        .credit {
+            color: red
+        }
+    </style>
+</head>
+<body>
+    <div style="text-align: center;">
+        <h3>{{ report_title }}</h3>
+        {% if ranged %}
+        <h5>{{ start_date|date:"F j, Y"}} to {{ end_date|date:"F j, Y" }}</h5>
+        {% else %}
+        <h5>{{ start_date|date:"F j, Y"}}</h5>
+        {% endif %}
+    </div>
+
+    {% if transactions %}
+    <table class="styled-table">
+        <thead>
+            {% if ranged %}
+            <th>Post Date</th>
+            {% endif %}
+            <th>Transaction Description</th>
+            <th>DEBIT</th>
+            <th>CREDIT</th>
+        </thead>
+        <tbody>
+            {% for transaction in transactions %}
+            <tr>
+                {% if ranged %}
+                <td>{{ transaction.post_date|date:'m/j/Y' }}</td>
+                {% endif %}
+                <td>{{ transaction.description }}</td>
+                <td class="debit">{% if transaction.transaction_side == 'debit' %} {{ transaction.amount|intcomma }} {% endif %}</td>
+                <td class="credit">{% if transaction.transaction_side == 'credit' %} -{{ transaction.amount|intcomma }} {% endif %}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+        <tfoot>
+            {% if ranged %}
+            <td></td>
+            {% endif %}
+            <td>
+                <b>TOTAL</b>
+            </td>
+            <td class="debit"><b>{{ total_debit.amount__sum|intcomma }}</b></td>
+            <td class="credit"><b>-{{ total_credit.amount__sum|intcomma }}</b></td>
+        </tfoot>
+    </table>
+    {% else %}
+    <h3 style="text-align: center">-- No Transactions --</h3>
+    {% endif %}
+</body>
+</html>
