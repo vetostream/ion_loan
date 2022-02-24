@@ -277,14 +277,14 @@ export default {
             if (this.type === 'ranged') {
                 const startDate = moment(this.startDate).format("YYYY-MM-DD")
                 const endDate = moment(this.endDate).format("YYYY-MM-DD")
-                window.open(`http://localhost:8000/reports/cash_flow_statement/${startDate}/${endDate}/`)
+                window.open(`${process.env.VUE_APP_API_ENDPOINT_URL}reports/cash_flow_statement/${startDate}/${endDate}/`)
             } else {
                 let startDate = moment().format("YYYY-MM-DD")
                 if (this.filterDate) {
                     startDate = moment(this.filterDate).format("YYYY-MM-DD")
                 }
 
-                window.open(`http://localhost:8000/reports/cash_flow_statement/${startDate}/`)
+                window.open(`${process.env.VUE_APP_API_ENDPOINT_URL}reports/cash_flow_statement/${startDate}/`)
             }
         }
     }
