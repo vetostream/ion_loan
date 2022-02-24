@@ -44,8 +44,8 @@ urlpatterns = [
     path('admin/', admin.site.urls),
 
     # Reports
-    path('reports/cash_flow_statement/<date:start_date>/<date:end_date>/', cash_flow_statement),
-    path('reports/cash_flow_statement/<date:start_date>/', cash_flow_statement),
+    path('api/v1/reports/cash_flow_statement/<date:start_date>/<date:end_date>/', cash_flow_statement),
+    path('api/v1/reports/cash_flow_statement/<date:start_date>/', cash_flow_statement),
     path('api/v1/set_csrf/', set_csrf_token),
     path('api/v1/login/', login_view),
     path('api/v1/logout/', logout_view),
