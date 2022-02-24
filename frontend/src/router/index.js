@@ -6,8 +6,10 @@ import NewLoan from '../components/NewLoan.vue'
 import NewClient from '../components/NewClient.vue'
 import CreateExpense from '../components/CreateExpense.vue'
 import Client from '../views/Client.vue'
+import Login from '../views/Login.vue'
 import CashFlowStatement from '../components/CashFlowStatement.vue'
 import Home from '../views/Home.vue'
+import store from "@/store"
 
 Vue.use(VueRouter)
 
@@ -15,17 +17,20 @@ const routes = [
   {
     path: '/',
     name: 'Home',
-    component: Home
+    component: Home,
+    meta: { requiresAuth: true }
   },
   {
     path: '/clients',
     name: 'Dashboard',
-    component: Dashboard
+    component: Dashboard,
+    meta: { requiresAuth: true }
   },
   {
     path: '/createClient',
     name: 'CreateClient',
     component: NewClient,
+    meta: { requiresAuth: true }
   },  
   {
     path: '/loans/pending',
@@ -33,7 +38,8 @@ const routes = [
     component: LoanList,
     props: {
       loan_status: 'pending'
-    }
+    },
+    meta: { requiresAuth: true }
   },
   {
     path: '/loans/approved',
@@ -41,7 +47,8 @@ const routes = [
     component: LoanList,
     props: {
       loan_status: 'approved'
-    }
+    },
+    meta: { requiresAuth: true }
   },
   {
     path: '/loans/declined',
@@ -49,17 +56,20 @@ const routes = [
     component: LoanList,
     props: {
       loan_status: 'declined'
-    }
+    },
+    meta: { requiresAuth: true }
   },
   {
     path: '/createLoan',
     name: 'createLoan',
-    component: NewLoan
+    component: NewLoan,
+    meta: { requiresAuth: true }
   },
   {
     path: '/client/:id',
     name: 'ClientDetail',
-    component: Client
+    component: Client,
+    meta: { requiresAuth: true }
   },
   {
     path: '/cashFlowStatement',
@@ -67,7 +77,8 @@ const routes = [
     component: CashFlowStatement,
     props: {
       initialType: 'daily'
-    }
+    },
+    meta: { requiresAuth: true }
   },
   {
     path: '/rangedCashFlowStatement',
@@ -75,13 +86,21 @@ const routes = [
     component: CashFlowStatement,
     props: {
       initialType: 'ranged'
-    }
+    },
+    meta: { requiresAuth: true }
   },
   {
     path: '/createExpense',
     name: 'CreateExpense',
     component: CreateExpense,
-  },  
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/login',
+    name: 'Login',
+    component: Login,
+    meta: { guest: true }
+  },
 ]
 
 const router = new VueRouter({
@@ -89,5 +108,29 @@ const router = new VueRouter({
   base: process.env.BASE_URL,
   routes
 })
+
+router.beforeEach((to, _, next) => {
+  if (to.matched.some((record) => record.meta.requiresAuth)) {
+    if (store.getters.isAuthenticated) {
+      next();
+      return;
+    }
+    next("/login");
+  } else {
+    next();
+  }
+});
+
+router.beforeEach((to, _, next) => {
+  if (to.matched.some((record) => record.meta.guest)) {
+    if (store.getters.isAuthenticated) {
+      next("/");
+      return;
+    }
+    next();
+  } else {
+    next();
+  }
+});
 
 export default router

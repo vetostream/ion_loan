@@ -12,7 +12,7 @@
             </b-navbar-item>
         </template>
 
-        <template #start>
+        <template #start v-if="isAuthenticated">
             <b-navbar-item tag="router-link" :to="{ path: '/clients'}">
                 Clients
             </b-navbar-item>
@@ -47,18 +47,15 @@
               </b-navbar-item>
             </b-navbar-dropdown>
         </template>
-        <!-- <template #end>
+        <template #end v-if="isAuthenticated">
             <b-navbar-item tag="div">
                 <div class="buttons">
-                    <a class="button is-primary">
-                        <strong>Sign up</strong>
-                    </a>
-                    <a class="button is-light">
-                        Log in
+                    <a class="button is-light" @click="signOut()">
+                        Log out
                     </a>
                 </div>
             </b-navbar-item>
-        </template> -->
+        </template>
     </b-navbar>
 
     <div class="container">
@@ -68,6 +65,23 @@
     </div>
   </div>
 </template>
+
+<script>
+import { mapGetters, mapActions } from 'vuex'
+
+export default {
+  computed: {
+    ...mapGetters(['isAuthenticated'])
+  },
+  methods: {
+    ...mapActions(['logout']),
+    signOut () {
+      this.logout()
+      this.$router.push('/login')
+    }
+  }
+}
+</script>
 
 <style>
 #app {

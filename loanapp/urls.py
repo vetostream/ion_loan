@@ -19,7 +19,7 @@ from datetime import datetime
 from rest_framework import routers
 
 from main.drf_views import ClientViewSet, LoanViewSet, CollectionViewSet, CollectionDetailViewSet, TransactionViewSet
-from main.views import cash_flow_statement
+from main.views import *
 
 router = routers.SimpleRouter()
 router.register(r'clients', ClientViewSet)
@@ -46,4 +46,8 @@ urlpatterns = [
     # Reports
     path('reports/cash_flow_statement/<date:start_date>/<date:end_date>/', cash_flow_statement),
     path('reports/cash_flow_statement/<date:start_date>/', cash_flow_statement),
+    path('api/v1/set_csrf/', set_csrf_token),
+    path('api/v1/login/', login_view),
+    path('api/v1/logout/', logout_view),
+    path('api/v1/check_session/', check_session),
 ]

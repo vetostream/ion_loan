@@ -1,9 +1,41 @@
-from random import sample
-from django.shortcuts import render
-from django.http import FileResponse
+import json
+from django.contrib.auth import authenticate, login, logout
+from django.views.decorators.http import require_POST
+from django.views.decorators.csrf import ensure_csrf_cookie
+from django.http import FileResponse, JsonResponse
 from .models import Transaction
 from django.db.models import Sum
 from .utils import generate_to_pdf
+
+@ensure_csrf_cookie
+def set_csrf_token(request):
+    return JsonResponse({"details": "CSRF cookie set"})
+
+@require_POST
+def login_view(request):
+    data = json.loads(request.body)
+    username = data.get('username')
+    password = data.get('password')
+    print(data)
+    user = authenticate(username=username, password=password)
+
+    if user is not None:
+        login(request, user)
+        return JsonResponse({"detail": "Success"})
+
+    return JsonResponse({"detail": "Invalid credentials"}, status=400)
+
+@require_POST
+def logout_view(request):
+    logout(request)
+    return JsonResponse({"detail": "Success"})
+
+def check_session(request):
+    print(request.user.is_authenticated)
+    if request.user.is_authenticated:
+        return JsonResponse({"user": request.user.username})
+
+    return JsonResponse({"detail": "No session user"}, status=400)
 
 def cash_flow_statement(request, start_date, end_date=None):
     report_title = "Daily Cash Flow Statement"
