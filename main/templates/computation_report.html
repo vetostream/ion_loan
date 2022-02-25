@@ -63,12 +63,6 @@
                         <td>Co-maker:</td>
                         <td>{{ loan.client.co_maker|default_if_none:"/" }}</td>
                     </tr>
-                    <!-- <tr>
-                        <td>Control Number:</td>
-                        <td>{{ loan.control_number }}</td>
-                        <td>Date Granted:</td>
-                        <td>{{ loan.date_granted }}</td>
-                    </tr> -->
                 </tbody>
             </table>
             <table style="margin-top: 1.5em; margin-bottom: 2em; line-height: 1.5em; font-weight: 600;">
@@ -83,11 +77,13 @@
                         <td>Start Payment:</td>
                         <td style="padding-right: 4.3em;">{{ loan.start_payment|date:"m/j/Y" }}</td>
                         <td>Installment:</td>
-                        <td>{{ loan.principal_amount|intcomma }}</td>
+                        <td>{{ installment|intcomma }}</td>
                     </tr>
                     <tr>
                         <td>Maturity:</td>
                         <td>{{ loan.maturity_date|date:"m/j/Y" }}</td>
+                        <td>Interest:</td>
+                        <td>{{ loan.interest }} %</td>
                     </tr>
                 </tbody>
             </table>

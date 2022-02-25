@@ -1,3 +1,4 @@
+from datetime import datetime, date
 from dateutil.relativedelta import relativedelta
 from main.models import Client, Collection_Detail, Loan, Loan_Detail, Collection, Transaction
 from main.serializers import ClientSerializer, LoanSerializer, CollectionSerializer, CollectionDetailSerializer, TransactionSerializer
@@ -79,6 +80,7 @@ class LoanViewSet(viewsets.ModelViewSet):
             
             loan.loan_status = loan_status
             loan.net_cash_out = net_cash_out
+            loan.date_granted = date.today()
 
             loan.save()
 

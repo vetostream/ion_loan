@@ -86,6 +86,7 @@ def computation_report(request, loan_id):
         'loan': loan,
         'total_loan_amount': loan.principal_amount + loan.udi,
         'total_deductions': total_deductions,
+        'installment': loan.loan_detail_set.first().amount
     }
 
     pdf = generate_to_pdf("computation_report.html", context, f"computation-report-{loan_id}")
