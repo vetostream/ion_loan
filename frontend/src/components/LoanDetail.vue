@@ -21,7 +21,7 @@
             </div>
             <div class="column is-4">
                 <label for="">Interest</label>
-                <h3>{{ loanDetail.interest }}</h3>
+                <h3>{{ loanDetail.interest }} %</h3>
             </div>
             <div class="column is-4">
                 <label for="">Loan Type</label>
@@ -38,7 +38,14 @@
                 <h3>{{ maturityDate | shortDate }}</h3>
             </div>
             <div class="column is-4">
-                <b-checkbox v-model="loanDetail.is_advanced" disabled>Advanced</b-checkbox>
+                <label for="">Control Number</label>
+                <h3>{{ loanDetail.control_number }}</h3>
+            </div>
+        </div>
+        <div class="columns">
+            <div class="column is-4">
+                <label for="">Advanced Interest:</label>
+                <h3>{{ loanDetail.is_advance ? "YES" : "NO" }}</h3>
             </div>
         </div>
         <hr>
@@ -61,7 +68,7 @@
                 <p>-------------------------------------</p>
             </div>
             <div class="column is-4">
-                ( {{ calculatedUDI | displayMoney }} )
+                ( {{ loanDetail.udi | displayMoney }} )
             </div>
         </div>
         <div class="columns">
@@ -83,7 +90,7 @@
                 <p>-------------------------------------</p>
             </div>
             <div class="column is-4">
-                {{ grossCashOut | displayMoney }}
+                {{ loanDetail.gross_cash_out | displayMoney }}
             </div>
         </div>
         <div class="columns">
@@ -99,7 +106,7 @@
                 <label class="has-text-right" for="">L.L.R.F</label>
             </div>
             <div class="column is-4">
-                ( {{ calculatedLLRF | displayMoney }} )
+                ( {{ loanDetail.llrf | displayMoney }} )
             </div>
         </div>
         <div class="columns">
@@ -110,10 +117,10 @@
                 <label for="">Processing Fee</label>
             </div>
             <div class="column is-4">
-                ( {{ processFee | displayMoney }} )
+                ( {{ loanDetail.processing_fee | displayMoney }} )
             </div>
         </div>
-        <div class="columns" v-if="feeOthers">
+        <div class="columns">
             <div class="column is-4">
                 <!-- <label for="">Processing Fee</label> -->
             </div>
@@ -121,7 +128,7 @@
                 <label for="">Others</label>
             </div>
             <div class="column is-4">
-                ( {{ feeOthers | displayMoney }} )
+                ( {{ loanDetail.fee_others | displayMoney }} )
             </div>
         </div>
         <div class="columns">
@@ -132,7 +139,7 @@
                 <p>-------------------------------------</p>
             </div>
             <div class="column is-4">
-                ( {{ calculatedLLRF + processFee + calculatedUDI + feeOthers | displayMoney }} )
+                ( {{ totalDeductions | displayMoney }} )
             </div>
         </div>
         <div class="columns">
@@ -143,7 +150,7 @@
                 <p>-------------------------------------</p>
             </div>
             <div class="column is-4">
-                {{ netCashout | displayMoney }}
+                {{ loanDetail.net_cash_out | displayMoney }}
             </div>
         </div>
         <b-table :data="payment_schedule" :columns="columns" v-if="payment_schedule.length > 0" />
@@ -246,7 +253,7 @@ export default {
         totalLoanAmount() {
             const parsedAmount = parseFloat(this.loanDetail.principal_amount)
 
-            return parsedAmount + this.calculatedUDI
+            return parsedAmount + parseFloat(this.loanDetail.udi)
         },
         grossCashOut() {
             const parsedAmount = parseFloat(this.loanDetail.principal_amount)
@@ -268,7 +275,11 @@ export default {
             return startPaymentDate.add(calculated_term - 1, "months")
         },
         totalDeductions() {
-            return this.calculatedLLRF + this.processFee + this.calculatedUDI + this.feeOthers
+            if (this.loanDetail.is_advance) {
+                return parseFloat(this.loanDetail.llrf) + parseFloat(this.loanDetail.processing_fee) + parseFloat(this.loanDetail.udi) + parseFloat(this.loanDetail.fee_others)
+            }
+
+            return parseFloat(this.loanDetail.llrf) + parseFloat(this.loanDetail.processing_fee) + parseFloat(this.loanDetail.fee_others)
         }
     },
     methods: {
@@ -278,12 +289,20 @@ export default {
             const startPaymentDate = moment(this.loanDetail.start_payment)
             const calculated_term = parseInt(this.loanDetail.term)
             const cycles = Array.from(Array(calculated_term).keys())
-            const amount = parseFloat(this.loanDetail.principal_amount) / calculated_term
+
+            let amount = parseFloat(this.loanDetail.principal_amount) / calculated_term
+            let principalAmount = this.loanDetail.principal_amount
+
+            if (!this.loanDetail.is_advance) {
+                principalAmount = parseFloat(this.loanDetail.principal_amount) + parseFloat(this.loanDetail.udi)
+                amount = principalAmount / calculated_term
+            }
 
             let dateCounter = null;
 
             this.payment_schedule = cycles.map((cycle) => {
-                const running_balance = (this.loanDetail.principal_amount) - (amount * (cycle + 1))
+                const running_balance = (principalAmount) - (amount * (cycle + 1))
+
                 if (cycle === 0) {
                     return {
                         payment_date: startPaymentDate.format('MM/DD/YYYY'),

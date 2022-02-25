@@ -117,7 +117,14 @@ export default {
                             interest: element.interest,
                             start_payment: element.start_payment,
                             fee_others: element.fee_others,
-                            client_display: `${element.client_full_name} (${element.client_birth_date})`
+                            client_display: `${element.client_full_name} (${element.client_birth_date})`,
+                            is_advance: element.is_advance,
+                            udi: element.udi,
+                            gross_cash_out: element.gross_cash_out,
+                            llrf: element.llrf,
+                            processing_fee: element.processing_fee,
+                            net_cash_out: element.net_cash_out,
+                            control_number: element.control_number
                         }
                     });
                     this.isLoading = false

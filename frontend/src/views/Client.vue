@@ -47,6 +47,17 @@
             </div>
             <hr>
             <div class="columns">
+                <div class="column is-6">
+                    <label for="">Bank Name</label>
+                    <p>{{ client.bank_name }}</p>
+                </div>
+                <div class="column is-6">
+                    <label for="">Account Number</label>
+                    <p>{{ client.account_number }}</p>
+                </div>
+            </div>            
+            <hr>
+            <div class="columns">
                 <div class="column is-12">
                     <label for="">Co-Maker Full Name</label>
                     <p>{{ client.co_maker }}</p>
@@ -90,12 +101,6 @@
             <h1 class="is-size-4 has-text-left table-title">Collections</h1>
             <div class="columns">
                 <div class="column is-12">
-                    <!-- <b-table :data="collections" :columns="collectionColumns" :loading="isLoading" checkable :checked-rows.sync="selectedCollections"
-                        :header-checkable="false">
-                        <template #empty>
-                            <div class="has-text-centered">No Results Found</div>
-                        </template>
-                    </b-table> -->
                     <b-table :data="collections" :columns="collectionColumns" :loading="isLoading" checkable :checked-rows.sync="selectedCollections"
                         :header-checkable="false"
                         detailed
@@ -162,12 +167,12 @@
             <div class="columns">
                 <div class="column is-6">
                     <b-field label="Bank Name" :label-position="labelPosition">
-                        <b-input></b-input>
+                        <b-input v-model="client.bank_name"></b-input>
                     </b-field>
                 </div>
                 <div class="column is-6">
                     <b-field label="Account Number" :label-position="labelPosition">
-                        <b-input></b-input>
+                        <b-input v-model="client.account_number"></b-input>
                     </b-field>
                 </div>
             </div>

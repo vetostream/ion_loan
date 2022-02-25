@@ -49,9 +49,14 @@ class LoanViewSet(viewsets.ModelViewSet):
 
         if loan_status == 'approved' and net_cash_out:
             amount = loan.principal_amount / loan.term
+            principal_amount = loan.principal_amount
+
+            if not loan.is_advance:
+                principal_amount = loan.principal_amount + loan.udi
+                amount = principal_amount / loan.term
 
             for cycle in range(0, loan.term):
-                running_balance = (loan.principal_amount) - (amount * (cycle + 1))
+                running_balance = (principal_amount) - (amount * (cycle + 1))
                 if cycle == 0:
                     payment_schedules.append({
                         'loan': loan,

@@ -40,12 +40,12 @@
         <div class="columns">
             <div class="column is-6">
                 <b-field label="Bank Name" :label-position="labelPosition">
-                    <b-input></b-input>
+                    <b-input v-model="client.bank_name"></b-input>
                 </b-field>
             </div>
             <div class="column is-6">
                 <b-field label="Account Number" :label-position="labelPosition">
-                    <b-input></b-input>
+                    <b-input v-model="client.account_number"></b-input>
                 </b-field>
             </div>
         </div>
@@ -127,25 +127,18 @@ export default {
                 this.isLoading = true
 
                 // transform date and amount
-                this.client.pension = parseFloat(this.client.pension.replace(/,/g, ''))
-                const response = await createClient(this.client)
+                const client = {...this.client}
+
+                client.pension = parseFloat(this.client.pension.replace(/,/g, ''))
+
+                const response = await createClient(client)
 
                 this.$buefy.toast.open({
                     message: `Client Successfully Created!`,
                     type: 'is-success'
                 })
 
-                this.client = {
-                    first_name: '',
-                    last_name: '',
-                    middle_name: '',
-                    address: '',
-                    contact_number: '',
-                    birth_date: '',
-                    pension: '',
-                    sss_no: '',
-                    co_maker: ''
-                }
+                this.client = {}
             } catch (err) {
                 this.$buefy.toast.open({
                     message: `Something went wrong: ${err.message}`,

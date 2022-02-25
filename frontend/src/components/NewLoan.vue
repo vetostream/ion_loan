@@ -31,7 +31,7 @@
         </div>
         <div class="columns">
             <div class="column is-6">
-                <b-field label="Interest" :label-position="labelPosition">
+                <b-field label="Interest (%)" :label-position="labelPosition">
                     <b-input v-model="new_loan.interest" v-cleave="masks.percentField"></b-input>
                 </b-field>
             </div>
@@ -55,14 +55,14 @@
                 </b-field>
             </div>
             <div class="column is-6">
-                <b-checkbox v-model="new_loan.is_advanced">Advanced</b-checkbox>
+                <b-field label="Control Number" :label-position="labelPosition">
+                    <b-input v-model="new_loan.control_number"></b-input>
+                </b-field>
             </div>
         </div>
         <div class="columns">
             <div class="column is-6">
-                <b-field label="Fee Others" :label-position="labelPosition">
-                    <b-input v-model="new_loan.fee_others" v-cleave="masks.moneyField"></b-input>
-                </b-field>
+                <b-checkbox v-model="new_loan.is_advance">Advanced</b-checkbox>
             </div>
         </div>
         <b-button icon-left="check" type="is-success" expanded @click="requestLoan()">Request</b-button>
