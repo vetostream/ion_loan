@@ -1,0 +1,196 @@
+{% load humanize %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Computation Report</title>
+
+    <style type="text/css">
+        .center {
+            text-align: center;
+            width: 800px;
+            margin: 0 auto;
+        }
+
+        h3.heading > strong {
+            display: block;
+        }
+
+        h3.heading > span {
+            font-size: 12px;
+        }
+
+        .loan-wrap {
+            text-align: initial;
+        }
+
+        table td{
+            overflow: hidden;
+            white-space: nowrap;
+        }
+    </style>
+</head>
+<body>
+    <div class="center">
+        <h3 class="heading">
+            <strong>D'LAST FRONTIER LENDING CORPORATION</strong>
+            <span>ZGU Building 11, Gov Alvares Street, Zamboanga City</span>
+        </h3>
+    
+        <h3 style="margin-top: 2.5em; margin-bottom: 2em;">LOAN COMPUTATION</h3>
+        <div class="loan-wrap">
+            <table style="font-weight: 600; line-height: 1.5em;">
+                <tbody>
+                    <tr>
+                        <td style="padding-right: 5em;">Account Name:</td>
+                        <td>{{ loan.client.last_name }}, {{ loan.client.first_name }}</td>
+                    </tr>
+                    <tr>
+                        <td>Address:</td>
+                        <td>{{ loan.client.address }}</td>
+                    </tr>
+                    <tr>
+                        <td>Classification:</td>
+                        <td>{{ loan.loan_type }}</td>
+                    </tr>
+                    <tr>
+                        <td>Bank/Acct No:</td>
+                        <td>{{ loan.client.bank_name }}/{{ loan.client.account_number }}</td>
+                    </tr>
+                    <tr>
+                        <td>Co-maker:</td>
+                        <td>{{ loan.client.co_maker|default_if_none:"/" }}</td>
+                    </tr>
+                    <!-- <tr>
+                        <td>Control Number:</td>
+                        <td>{{ loan.control_number }}</td>
+                        <td>Date Granted:</td>
+                        <td>{{ loan.date_granted }}</td>
+                    </tr> -->
+                </tbody>
+            </table>
+            <table style="margin-top: 1.5em; margin-bottom: 2em; line-height: 1.5em; font-weight: 600;">
+                <tbody>
+                    <tr>
+                        <td style="padding-right: 4.3em;">Control Number:</td>
+                        <td>{{ loan.control_number }}</td>
+                        <td>Date Granted:</td>
+                        <td>{{ loan.date_granted|date:"m/j/Y" }}</td>
+                    </tr>
+                    <tr>
+                        <td>Start Payment:</td>
+                        <td style="padding-right: 4.3em;">{{ loan.start_payment|date:"m/j/Y" }}</td>
+                        <td>Installment:</td>
+                        <td>{{ loan.principal_amount|intcomma }}</td>
+                    </tr>
+                    <tr>
+                        <td>Maturity:</td>
+                        <td>{{ loan.maturity_date|date:"m/j/Y" }}</td>
+                    </tr>
+                </tbody>
+            </table>
+            <hr>
+            <table style="margin-top: 2em; margin-bottom: 2em; font-size: 18px; line-height: 2em;">
+                <tbody>
+                    <tr>
+                        <td>
+                            <b>Principal</b>
+                        </td>
+                        <td>--------------------------------------&nbsp;&nbsp;</td>
+                        <td>
+                            <b>
+                                {{loan.principal_amount|intcomma }}
+                            </b>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>U.D.I</td>
+                        <td>--------------------------------------&nbsp;&nbsp;</td>
+                        <td>( {{ loan.udi|intcomma }} )</td>
+                    </tr>
+                    <tr>
+                        <td style="padding-right: 1.5em;">Total Amount of Loan</td>
+                        <td>--------------------------------------&nbsp;&nbsp;</td>
+                        <td>{{ total_loan_amount|intcomma }}</td>
+                    </tr>
+                    <tr>
+                        <td>LESS</td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td>L.L.R.F</td>
+                        <td>{{ loan.llrf|intcomma }}</td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td>P/FEE</td>
+                        <td>{{ loan.processing_fee|intcomma }}</td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td>OTHERS</td>
+                        <td>{{ loan.fee_others|intcomma }}</td>
+                    </tr>
+                    <tr>
+                        <td>Total Deductions</td>
+                        <td>--------------------------------------&nbsp;&nbsp;</td>
+                        <td>( {{ total_deductions|intcomma }} )</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <b>Net Cash Out</b>
+                        </td>
+                        <td>--------------------------------------&nbsp;&nbsp;</td>
+                        <td>
+                            <b>
+                                {{ loan.net_cash_out|intcomma }}
+                            </b>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <hr>
+            <table style="margin-top: 2em; margin-bottom: 2em; line-height: 3em;">
+                <tbody>
+                    <tr>
+                        <td>Apply to Account:&nbsp;&nbsp;</td>
+                        <td>___________________________________________________________________</td>
+                    </tr>
+                    <tr>
+                        <td>Amount of Check:&nbsp;&nbsp;</td>
+                        <td>___________________________________________________________________</td>
+                    </tr>
+                    <tr>
+                        <td>Bank/Check No:&nbsp;&nbsp;</td>
+                        <td>___________________________________________________________________</td>
+                    </tr>
+                </tbody>
+            </table>
+            <table style="margin-top: 2em; line-height: 3em;">
+                <tbody>
+                    <tr>
+                        <td>Computed by:</td>
+                        <td>Prepared by:</td>
+                    </tr>
+                    <tr>
+                        <td style="padding-right: 10em;">_______________________________</td>
+                        <td>_______________________________</td>
+                    </tr>
+                    <tr>
+                        <td>Checked by:</td>
+                        <td>Approved by:</td>
+                    </tr>
+                    <tr>
+                        <td>_______________________________</td>
+                        <td>_______________________________</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>

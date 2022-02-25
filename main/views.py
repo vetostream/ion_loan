@@ -3,7 +3,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.http import FileResponse, JsonResponse
-from .models import Transaction
+from .models import Transaction, Loan
 from django.db.models import Sum
 from .utils import generate_to_pdf
 
@@ -71,5 +71,23 @@ def cash_flow_statement(request, start_date, end_date=None):
     }
 
     pdf = generate_to_pdf("cash_flow_statement.html", context, f"cash-flow-statement-{start_date.strftime('%Y-%m-%d')}")
+
+    return FileResponse(open(pdf, 'rb'), content_type="application/pdf")
+
+def computation_report(request, loan_id):
+    loan = Loan.objects.get(pk=loan_id)
+
+    total_deductions = round(loan.udi + loan.llrf + loan.processing_fee + loan.fee_others, 2)
+
+    if not loan.is_advance:
+        total_deductions = round(loan.llrf + loan.processing_fee + loan.fee_others, 2)
+
+    context = {
+        'loan': loan,
+        'total_loan_amount': loan.principal_amount + loan.udi,
+        'total_deductions': total_deductions,
+    }
+
+    pdf = generate_to_pdf("computation_report.html", context, f"computation-report-{loan_id}")
 
     return FileResponse(open(pdf, 'rb'), content_type="application/pdf")

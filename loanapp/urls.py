@@ -46,6 +46,7 @@ urlpatterns = [
     # Reports
     path('api/v1/reports/cash_flow_statement/<date:start_date>/<date:end_date>/', cash_flow_statement),
     path('api/v1/reports/cash_flow_statement/<date:start_date>/', cash_flow_statement),
+    path('api/v1/reports/computation_report/<int:loan_id>/', computation_report),
     path('api/v1/set_csrf/', set_csrf_token),
     path('api/v1/login/', login_view),
     path('api/v1/logout/', logout_view),
