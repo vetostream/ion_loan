@@ -56,6 +56,10 @@
                         <td>{{ loan.loan_type }}</td>
                     </tr>
                     <tr>
+                        <td>Pension:</td>
+                        <td>{{ loan.client.pension|intcomma }}</td>
+                    </tr>
+                    <tr>
                         <td>Bank/Acct No:</td>
                         <td>{{ loan.client.bank_name }}/{{ loan.client.account_number }}</td>
                     </tr>
@@ -112,7 +116,9 @@
                         <td>{{ total_loan_amount|intcomma }}</td>
                     </tr>
                     <tr>
-                        <td>LESS</td>
+                        <td>
+                            <b>LESS</b>
+                        </td>
                         <td></td>
                         <td></td>
                     </tr>
