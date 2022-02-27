@@ -122,3 +122,24 @@ def promissory_report(request, loan_id):
     pdf = generate_to_pdf("promissory_report.html", context, f"promissory-report-{loan_id}")
 
     return FileResponse(open(pdf, 'rb'), content_type="application/pdf")
+
+def disclosure_of_loan(request, loan_id):
+    loan = Loan.objects.get(pk=loan_id)
+    
+    non_financial_charge_total = loan.llrf + loan.processing_fee + loan.fee_others
+
+    installment = loan.principal_amount / loan.term
+    principal_amount = loan.principal_amount
+
+    if not loan.is_advance:
+        principal_amount = loan.principal_amount + loan.udi
+        installment = principal_amount / loan.term
+
+    context = {
+        'loan': loan,
+        'non_financial_charge_total': non_financial_charge_total,
+        'installment': installment
+    }
+
+    pdf = generate_to_pdf("disclosure_of_loan.html", context, f"disclosure-form-{loan_id}")
+    return FileResponse(open(pdf, 'rb'), content_type="application/pdf")

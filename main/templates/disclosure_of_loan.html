@@ -1,0 +1,234 @@
+{% load humanize %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Computation Report</title>
+
+    <style type="text/css">
+        .center {
+            text-align: center;
+            width: 800px;
+            margin: 0 auto;
+        }
+
+        h3.heading > strong {
+            display: block;
+        }
+
+        h3.heading > span {
+            font-size: 12px;
+        }
+
+        .loan-wrap {
+            text-align: initial;
+        }
+
+        table td{
+            overflow: hidden;
+            white-space: nowrap;
+        }
+
+        .value-bold-underlined {
+            text-transform: uppercase;
+            font-weight: bold;
+            text-decoration: underline;
+        }
+
+        .wrap-items {
+            display: flex;
+            justify-content: space-between;
+            padding: 0em 1em;
+            font-size: 18px;
+        }
+
+        .wrap-items > p {
+            margin: none;
+            line-height: none;
+        }
+
+        ol li {
+            line-height: 1em;
+        }
+
+        table.additional-payments td {
+            border-bottom: 1px solid #000;
+        }
+    </style>
+</head>
+<body>
+    <div class="center">
+        <h3 class="heading">
+            <strong>DISCLOSURE OF LOAN CREDIT TRANSACTION</strong>
+            <span>(As required under R.A. 3765, Truth in Lending Act)</span>
+        </h3>
+    </div>
+
+    <div>
+        <table>
+            <tbody>
+                <tr>
+                    <td style="padding-right: 1em;">Name of Borrower</td>
+                    <td class="value-bold-underlined">{{ loan.client.last_name }}, {{ loan.client.first_name }}</td>
+                </tr>
+                <tr>
+                    <td>Address</td>
+                    <td class="value-bold-underlined">{{ loan.client.address }}</td>
+                </tr>
+            </tbody>
+        </table>
+        <div class="wrap-items">
+            <div>
+                <p>1. LOAN GRANTED</p>
+            </div>
+            <div>
+                <p><u>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{ loan.principal_amount|intcomma }}</u></p>
+            </div>
+        </div>
+        <div class="wrap-items">
+            <div>
+                <p>2. Non-Finance Charges</p>
+            </div>
+            <div>
+                <p><u>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{ non_financial_charge_total|intcomma }}</u></p>
+            </div>
+        </div>
+        <div class="wrap-items">
+            <div>
+                <p>3. Financed Charges</p>
+                <ol type="a">
+                    <li>
+                        <p>
+                            Interest {{ loan.interest}} % p.m.<br>
+                            From <b><u>{{ loan.start_payment|date:'F j, Y' }} to {{ loan.maturity_date|date:'F j, Y' }}</u></b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<u>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{ loan.udi|intcomma }}</u><br>
+                            ( X ) Simple&nbsp;&nbsp;&nbsp; ( X ) Monthly
+                        </p>
+                    </li>
+                    <li>
+                        Discounts
+                    </li>
+                    <li>Service / Handling Charges</li>
+                    <li>Collection Charges</li>
+                    <li>Credit Investigation Fee</li>
+                    <li>Appraisal Fees</li>
+                    <li>Attorney's / Legal Fees</li>
+                    <li>Other charges incident to the extensions of credit ( specify )</li>
+                </ol>
+            </div>
+        </div>
+        <div class="wrap-items">
+            <div>
+                <p>&nbsp;&nbsp;Total Finance Charges</p>
+            </div>
+            <div>
+                <p><u>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{ loan.udi|intcomma }}</u></p>
+            </div>
+        </div>
+        <div class="wrap-items">
+            <div>
+                <p>4. Net Proceeds of Loan</p>
+            </div>
+            <div>
+                <p><u>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{ loan.net_cash_out|intcomma }}</u></p>
+            </div>
+        </div>
+        <div class="wrap-items">
+            <div>
+                <p>5. Percentage of Finance Charges to<br>&nbsp;&nbsp;&nbsp;&nbsp;Total Amount Financed (Computed in accordance with Subsec. 4305Q.2)</p>
+            </div>
+            <div>
+                <p><u>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;%</u></p>
+            </div>
+        </div>
+        <div class="wrap-items">
+            <div>
+                <p>6. Effective Interest Rate (Method of computation attached)</p>
+            </div>
+            <div>
+                <p><u>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;%</u></p>
+            </div>
+        </div>
+        <div class="wrap-items">
+            <div>
+                <p>7. Payment</p>
+                <ol type="a">
+                    <li>
+                        <p>Single Payment due&nbsp;&nbsp;&nbsp;&nbsp;<u>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</u></p>
+                    </li>
+                    <li>
+                        <p>Total Installment Payments<br>Payable in {{loan.term}} months @ P <b><u>{{ installment|intcomma }}</u></b></p>
+                    </li>
+                </ol>
+            </div>
+        </div>
+        <div class="wrap-items">
+            <div>
+                <p>8. Additional charges in case certain stipulations in the contact are not met by the debtor:</p>
+            </div>
+        </div>
+        <div style="padding: 1em;">
+            <table class="additional-payments" style="width: 100%; border-spacing: 20px;">
+                <tr>
+                    <th>Nature</th>
+                    <th>Rate</th>
+                    <th>Amount</th>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+            </table>
+        </div>
+        <div>
+            <p>
+                I ACKOWLEDGE RECEIPT OF A COPY OF THIS STATEMENT PRIOR TO THE CONSUMMATION OF THE CREDIT TRANSACTION AND THAT I UNDERSTAND AND 
+                FULLY AGREE TO THE TERMS AND CONDITIONS THEREOF.
+            </p>
+            <p>CERTIFIED CORRECT:</p>
+        </div>
+        <table style="margin-top: 2em; line-height: 5em;">
+            <tbody>
+                <tr>
+                    <td width="500px" style="padding-right: 4em;">
+                        <p style="border-bottom: 1px solid #000; margin: 0; line-height: 1.5em; font-weight: bold;">CORAZON B. GO</p>
+                        <p style="margin: 0; line-height: 1.5em;">(Signature of Creditor / Authorized Reprensentative Over Printed Name)</p>
+                    </td>
+                    <td>
+                        <p style="border-bottom: 1px solid #000; margin: 0; line-height: 1.5em; text-transform: uppercase; font-weight: bold;">{{ loan.client.last_name }}, {{ loan.client.first_name }}</p>
+                        <p style="margin: 0; line-height: 1.5em;">(Signature of Borrowe / Over Printed Name)</p>
+                    </td>
+                </tr>
+                <tr>
+                    <td width="50%" style="padding-right: 4em;">
+                    </td>
+                    <td>
+                        <p style="border-bottom: 1px solid #000; margin: 0; line-height: 1.5em;">&nbsp;</p>
+                        <p style="margin: 0; line-height: 1.5em;">Co-Borrower</p>
+                    </td>
+                </tr>
+                <tr>
+                    <td width="50%" style="padding-right: 4em;">
+                    </td>
+                    <td>
+                        <p style="border-bottom: 1px solid #000; margin: 0; line-height: 1.5em;">&nbsp;</p>
+                        <p style="margin: 0; line-height: 1.5em;">Co-Borrower</p>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>
