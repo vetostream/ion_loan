@@ -59,24 +59,22 @@ class LoanViewSet(viewsets.ModelViewSet):
             for cycle in range(0, loan.term):
                 running_balance = (principal_amount) - (amount * (cycle + 1))
                 if cycle == 0:
-                    payment_schedules.append({
-                        'loan': loan,
-                        'date_payment': loan.start_payment,
-                        'amount': amount,
-                        'balance': running_balance
-                    })
+                    payment_schedules.append(Loan_Detail(
+                        loan=loan,
+                        date_payment=loan.start_payment,
+                        amount=amount,
+                        balance=running_balance
+                    ))
                 else:
                     date_counter = loan.start_payment + relativedelta(months=cycle)
-                    payment_schedules.append({
-                        'loan': loan,
-                        'date_payment': date_counter,
-                        'amount': amount,
-                        'balance': running_balance
-                    })
+                    payment_schedules.append(Loan_Detail(
+                        loan=loan,
+                        date_payment=date_counter,
+                        amount=amount,
+                        balance=running_balance
+                    ))
 
-            # Create Loan Detail
-            for payment in payment_schedules:
-                Loan_Detail.objects.create(**payment)
+            Loan_Detail.objects.bulk_create(payment_schedules)
             
             loan.loan_status = loan_status
             loan.net_cash_out = net_cash_out

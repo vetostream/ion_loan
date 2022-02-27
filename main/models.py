@@ -60,8 +60,8 @@ class Loan(Super_Model):
 
     def save(self, *args, **kwargs):
         # calculate UDI
-        interest_rate = self.interest / 100
-        self.udi = round(self.principal_amount * interest_rate, 2)
+        interest_rate = round(self.interest * self.term, 2)
+        self.udi = round((self.principal_amount * interest_rate) / 100, 2)
 
         # calculate llrf
         self.llrf = round((self.principal_amount / 1000) * (self.term + 1), 2)

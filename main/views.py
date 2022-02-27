@@ -6,6 +6,7 @@ from django.http import FileResponse, JsonResponse
 from .models import Transaction, Loan
 from django.db.models import Sum
 from .utils import generate_to_pdf
+from num2words import num2words
 
 @ensure_csrf_cookie
 def set_csrf_token(request):
@@ -78,17 +79,46 @@ def computation_report(request, loan_id):
     loan = Loan.objects.get(pk=loan_id)
 
     total_deductions = round(loan.udi + loan.llrf + loan.processing_fee + loan.fee_others, 2)
+    installment = loan.principal_amount / loan.term
+    principal_amount = loan.principal_amount
 
     if not loan.is_advance:
         total_deductions = round(loan.llrf + loan.processing_fee + loan.fee_others, 2)
+        principal_amount = loan.principal_amount + loan.udi
+        installment = principal_amount / loan.term
 
     context = {
         'loan': loan,
         'total_loan_amount': loan.principal_amount + loan.udi,
         'total_deductions': total_deductions,
-        'installment': loan.loan_detail_set.first().amount
+        'installment': installment
     }
 
     pdf = generate_to_pdf("computation_report.html", context, f"computation-report-{loan_id}")
+
+    return FileResponse(open(pdf, 'rb'), content_type="application/pdf")
+
+def promissory_report(request, loan_id):
+    loan = Loan.objects.get(pk=loan_id)
+
+    total_deductions = round(loan.udi + loan.llrf + loan.processing_fee + loan.fee_others, 2)
+    installment = loan.principal_amount / loan.term
+    principal_amount = loan.principal_amount
+
+    if not loan.is_advance:
+        total_deductions = round(loan.llrf + loan.processing_fee + loan.fee_others, 2)
+        principal_amount = loan.principal_amount + loan.udi
+        installment = principal_amount / loan.term
+
+    context = {
+        'loan': loan,
+        'total_loan_amount': loan.principal_amount + loan.udi,
+        'total_deductions': total_deductions,
+        'installment': installment,
+        'principal_amount_words': num2words(loan.principal_amount).upper(),
+        'loan_detail': loan.loan_detail_set.all()
+    }
+
+    pdf = generate_to_pdf("promissory_report.html", context, f"promissory-report-{loan_id}")
 
     return FileResponse(open(pdf, 'rb'), content_type="application/pdf")

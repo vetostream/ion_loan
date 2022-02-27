@@ -1,0 +1,140 @@
+{% load humanize %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Promissory Report</title>
+
+    <style type="text/css">
+        .center {
+            text-align: center;
+            width: 800px;
+            margin: 0 auto;
+        }
+
+        h3.heading > strong {
+            display: block;
+        }
+
+        h3.heading > span {
+            font-size: 12px;
+        }
+
+        .loan-wrap {
+            text-align: initial;
+        }
+
+        table td{
+            overflow: hidden;
+            white-space: nowrap;
+        }
+    </style>
+</head>
+<body>
+    <div class="center">
+        <h2 style="margin-bottom: 2em;">PROMISSORY NOTE</h2>
+        <div class="loan-wrap">
+            <table style="margin-top: 1.5em; margin-bottom: 2em; line-height: 1.5em; font-weight: 600;">
+                <tbody>
+                    <tr>
+                        <td style="padding-right: 4.3em;">Principal Amount:</td>
+                        <td>{{ loan.principal_amount|intcomma }}</td>
+                        <td>Place:</td>
+                        <td>Zamboanga City</td>
+                    </tr>
+                    <tr>
+                        <td>Interest:</td>
+                        <td style="padding-right: 4.3em;">{{ loan.interest }}&nbsp;&nbsp;%/mo</td>
+                        <td>Value Date:</td>
+                        <td>{{ loan.date_created|date:"m/j/Y" }}</td>
+                    </tr>
+                    <tr>
+                        <td>Terms:</td>
+                        <td>{{ loan.term }}&nbsp;&nbsp;months</td>
+                        <td>Maturity:</td>
+                        <td>{{ loan.maturity_date|date:"m/j/Y" }}</td>
+                    </tr>
+                </tbody>
+            </table>
+            <p>
+                On or before {{ loan.maturity_date }}, for value received, I promise to pay D'LAST FRONTIER LENDING INVESTOR, or order, at its office in the City of Zamboanga, the sum of {{ principal_amount_words}} PESOS ONLY (P {{ loan.principal_amount|intcomma }}) PESOS,  Philippine currency,
+                with interest from value date hereof at the rate of {{ loan.interest }}% per month in lumpsum on maturity date hereof. Payable on installment in the amount and on datehereinafter set forth, to wit:
+            </p>
+            <table>
+                <thead>
+                    <th style="padding-right: 2em;"></th>
+                    <th style="padding-right: 3em;">Installment Dates</th>
+                    <th>Amounts</th>
+                </thead>
+                <tbody>
+                    {% for item in loan_detail %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>{{ item.date_payment }}</td>
+                        <td>{{ item.amount|intcomma }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <hr>
+            <p>
+                In case of non-payment of this note, I/We jointly and severally agree to pay an additional amount equivalent to (5%) per month based on the total amount due and demandable as penalty
+                until paid:and the further sum of Twenty Five Percent (25%) thereof as and for the attorney's fees exclusive of cost and judicial/extra-judicial expense: moreover, I/We, Jointly and severally, further empower and authorize D'Last Frontier Lending Corporation
+                and its option, and without notice to set-off or to apply to the payment of this note and all funds, which may be in its hands on deposit or otherwise belonging to anyone or all of us, and
+                to hold as security therefore any real or personal property which may be in its possession on or controlby virtue of any other contract.
+            </p>
+            <p>
+                It is expressly understood that D'Last Frontier Lending Corporation shall have the option to declare all my/our other loans/obligations with D'Last Frontier Lending Corporation immediately
+                due and demandable in case of non-payment of this note when due. Conversely, D'Last Frontier Lending Corporation shall likewise have the option to declare this note immediately due and demandable in case
+                of default/non-payment of any of my/our other loans/obligations with D'Last Frontier Lending Corporation or any financial institution when due.
+            </p>
+            <p>
+                Acceptance by the holder of payment or any part thereof after due date shall not be considered as extending the time for the payment of any of the installment aforesaid or as modification 
+                of any of the conditions thereof.
+            </p>
+            <p>
+                All actions arising from or connected with this note shall be brought only at the proper courts of Zamboanga City, Philippines, or the place of execution of this note, at the sold option of D'Last Frontier Lending Corporation.
+            </p>
+
+            <h4>SIGNED IN THE PRESENCE OF</h4>
+
+            <table style="margin-top: 2em; line-height: 5em;">
+                <tbody>
+                    <tr>
+                        <td width="500px" style="padding-right: 4em;">
+                            <p style="border-bottom: 1px solid #000; margin: 0; line-height: 1.5em;">{% if name_one %}{{ name_one }}{% else %}&nbsp;{% endif %}</p>
+                            <p style="margin: 0; line-height: 1.5em;">&nbsp;</p>
+                        </td>
+                        <td>
+                            <p style="border-bottom: 1px solid #000; margin: 0; line-height: 1.5em; text-transform: uppercase;">{{ loan.client.last_name }}, {{ loan.client.first_name }}</p>
+                            <p style="margin: 0; line-height: 1.5em;">Name of Borrower</p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td width="50%" style="padding-right: 4em;">
+                            <p style="border-bottom: 1px solid #000; margin: 0; line-height: 1.5em;">{% if name_two %}{{ name_two }}{% else %}&nbsp;{% endif %}</p>
+                            <p style="margin: 0; line-height: 1.5em;">&nbsp;</p>
+                        </td>
+                        <td>
+                            <p style="border-bottom: 1px solid #000; margin: 0; line-height: 1.5em;">&nbsp;</p>
+                            <p style="margin: 0; line-height: 1.5em;">Co-Borrower</p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td width="50%" style="padding-right: 4em;">
+                            <p style="border-bottom: 1px solid #000; margin: 0; line-height: 1.5em;">{% if name_three %}{{ name_three }}{% else %}&nbsp;{% endif %}</p>
+                            <p style="margin: 0; line-height: 1.5em;">&nbsp;</p>
+                        </td>
+                        <td>
+                            <p style="border-bottom: 1px solid #000; margin: 0; line-height: 1.5em;">&nbsp;</p>
+                            <p style="margin: 0; line-height: 1.5em;">CoBorrower</p>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>

@@ -171,23 +171,17 @@ export default {
                 this.isLoading = true
 
                 // transform date and amount
-                this.new_loan.start_payment = moment(this.new_loan.start_payment).format("YYYY-MM-DD")
-                this.new_loan.maturity_date = moment(this.new_loan.start_payment).add(this.new_loan.term - 1, "months").format("YYYY-MM-DD")
-                this.new_loan.principal_amount = parseFloat(this.new_loan.principal_amount.replace(/,/g, ''))
+                const new_loan = {...this.new_loan}
+                new_loan.start_payment = moment(new_loan.start_payment).format("YYYY-MM-DD")
+                new_loan.maturity_date = moment(new_loan.start_payment).add(new_loan.term - 1, "months").format("YYYY-MM-DD")
+                new_loan.principal_amount = parseFloat(new_loan.principal_amount.replace(/,/g, ''))
 
                 await createLoan({
-                    ...this.new_loan,
+                    ...new_loan,
                     client: this.selectedClient.id
                 })
                 this.isLoading = false
-                this.new_loan = {
-                    client: null,
-                    term: '',
-                    interest: '',
-                    principal_amount: '',
-                    loan_type: '',
-                    is_advance: false
-                }
+                this.new_loan = {}
                 this.selectedClient = null
                 this.$buefy.toast.open({
                     message: 'Loan Request Saved Successfully.',
