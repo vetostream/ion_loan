@@ -30,6 +30,7 @@ class ClientSerializer(serializers.ModelSerializer):
 class LoanDetailSerializer(serializers.ModelSerializer):
     loan_amount = serializers.SerializerMethodField()
     is_paid = serializers.SerializerMethodField()
+    loan_control_number = serializers.SerializerMethodField()
 
     class Meta:
         model = Loan_Detail
@@ -40,6 +41,9 @@ class LoanDetailSerializer(serializers.ModelSerializer):
 
     def get_is_paid(self, obj):
         return obj.collection_detail.count() > 0
+
+    def get_loan_control_number(self, obj):
+        return obj.loan.control_number
 
 
 class LoanSerializer(serializers.ModelSerializer):

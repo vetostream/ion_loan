@@ -15,14 +15,14 @@ class Super_Model(models.Model):
 
 class Client(Super_Model):
     first_name = models.CharField(max_length=50, null=False)
-    middle_name = models.CharField(max_length=50, null=True)
+    middle_name = models.CharField(max_length=50, null=True, blank=True)
     last_name = models.CharField(max_length=50, null=False)
     address = models.TextField(max_length=300, null=False)
     contact_number = models.CharField(max_length=50, null=True)
     birth_date = models.CharField(max_length=50, null=True)
     pension = models.DecimalField(max_digits=10, decimal_places=2)
     sss_no = models.CharField(max_length=150, null=True)
-    co_maker = models.CharField(max_length=150, null=True)
+    co_maker = models.CharField(max_length=150, null=True, blank=True)
     bank_name = models.CharField(max_length=150, null=True)
     account_number = models.CharField(max_length=150, null=True)
 

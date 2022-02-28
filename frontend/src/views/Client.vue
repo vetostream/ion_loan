@@ -1,201 +1,208 @@
 <template>
     <div class="container is-fluid">
-        <div v-if="readMode">
-            <h1 class="has-text-left header is-size-4">Client Ledger</h1>
-            <div class="columns">
-                <div class="column is-4">
-                    <label for="">First Name</label>
-                    <p>{{ client.first_name }}</p>
-                </div>
-                <div class="column is-4">
-                    <label for="">Middle Name</label>
-                    <p>{{ client.middle_name }}</p>
-                </div>
-                <div class="column is-4">
-                    <label for="">Last Name</label>
-                    <p>{{ client.last_name }}</p>
-                </div>
-            </div>
-            <hr>
-            <div class="columns">
-                <div class="column is-12">
-                    <label for="">Address</label>
-                    <p>{{ client.address }}</p>
-                </div>
-            </div>
-            <hr>
-            <div class="columns">
-                <div class="column is-6">
-                    <label for="">Contact No</label>
-                    <p>{{ client.contact_number }}</p>
-                </div>
-                <div class="column is-6">
-                    <label for="">Date of Birth</label>
-                    <p>{{ client.birth_date }}</p>
-                </div>
-            </div>
-            <hr>
-            <div class="columns">
-                <div class="column is-6">
-                    <label for="">Pension Amount</label>
-                    <p>{{ client.pension }}</p>
-                </div>
-                <div class="column is-6">
-                    <label for="">SSS Number</label>
-                    <p>{{ client.sss_no }}</p>
-                </div>
-            </div>
-            <hr>
-            <div class="columns">
-                <div class="column is-6">
-                    <label for="">Bank Name</label>
-                    <p>{{ client.bank_name }}</p>
-                </div>
-                <div class="column is-6">
-                    <label for="">Account Number</label>
-                    <p>{{ client.account_number }}</p>
-                </div>
-            </div>            
-            <hr>
-            <div class="columns">
-                <div class="column is-12">
-                    <label for="">Co-Maker Full Name</label>
-                    <p>{{ client.co_maker }}</p>
-                </div>
-            </div>
-            <hr>
-            <h1 class="is-size-4 has-text-left table-title">Loans and CAs</h1>
-            <div class="columns" v-if="selectedRows.length > 0">
-                <div class="column is-4">
-                    <b-field label="Reference" :label-position="labelPosition">
-                        <b-input v-model="collection.reference_code"></b-input>
-                    </b-field>
-                </div>
-                <div class="column is-4">
-                    <b-field label="Amount" :label-position="labelPosition">
-                        <b-input v-model="collection.amount" v-cleave="masks.moneyField"></b-input>
-                    </b-field>
-                </div>
-                <div class="column is-4">
-                    <b-button
-                        label="Create Collection"
-                        type="is-info"
-                        size="is-medium"
-                        :disabled="!canCreateCollection"
-                        @click="confirmCreateCollection" />
-                </div>
-            </div>
-            <div class="columns">
-                <div class="column is-12">
-                    <b-table :data="loans" :columns="columns" :loading="isLoading" checkable :checked-rows.sync="selectedRows"
-                        :row-class="(row) => row.is_collected && 'is-success'"
-                        :header-checkable="false"
-                        :is-row-checkable="(row) => !row.is_collected">
-                        <template #empty>
-                            <div class="has-text-centered">No Results Found</div>
-                        </template>
-                    </b-table>
-                </div>
-            </div>
-            <hr>
-            <h1 class="is-size-4 has-text-left table-title">Collections</h1>
-            <div class="columns">
-                <div class="column is-12">
-                    <b-table :data="collections" :columns="collectionColumns" :loading="isLoading" checkable :checked-rows.sync="selectedCollections"
-                        :header-checkable="false"
-                        detailed
-                        detail-key="id"
-                        >
-                        <b-table-column field="date_created_short" label="Date Created" v-slot="props">
-                            <a @click="props.toggleDetails(props.row)">
-                                {{ props.row.date_created_short }}
-                            </a>
-                        </b-table-column>
-                        <template #empty>
-                            <div class="has-text-centered">No Results Found</div>
-                        </template>
-
-                        <template #detail="props">
-                            <div class="columns" v-for="detail in props.row.collection_details" :key="detail.id">
-                                <div class="column is-12 collection-detail">
-                                    <p>{{ detail.paid_transaction_id }} | Amount: {{ detail.amount_used }}</p>
-                                </div>
+        <b-tabs type="is-boxed" expanded>
+            <b-tab-item label="Client" icon="user">
+                <div class="tab-container">
+                    <div v-if="readMode">
+                        <div class="columns">
+                            <div class="column is-4">
+                                <label for="">First Name</label>
+                                <p>{{ client.first_name }}</p>
                             </div>
-                        </template>
-                    </b-table>
+                            <div class="column is-4">
+                                <label for="">Middle Name</label>
+                                <p>{{ client.middle_name }}</p>
+                            </div>
+                            <div class="column is-4">
+                                <label for="">Last Name</label>
+                                <p>{{ client.last_name }}</p>
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="columns">
+                            <div class="column is-12">
+                                <label for="">Address</label>
+                                <p>{{ client.address }}</p>
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="columns">
+                            <div class="column is-6">
+                                <label for="">Contact No</label>
+                                <p>{{ client.contact_number }}</p>
+                            </div>
+                            <div class="column is-6">
+                                <label for="">Date of Birth</label>
+                                <p>{{ client.birth_date }}</p>
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="columns">
+                            <div class="column is-6">
+                                <label for="">Pension Amount</label>
+                                <p>{{ client.pension }}</p>
+                            </div>
+                            <div class="column is-6">
+                                <label for="">SSS Number</label>
+                                <p>{{ client.sss_no }}</p>
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="columns">
+                            <div class="column is-6">
+                                <label for="">Bank Name</label>
+                                <p>{{ client.bank_name }}</p>
+                            </div>
+                            <div class="column is-6">
+                                <label for="">Account Number</label>
+                                <p>{{ client.account_number }}</p>
+                            </div>
+                        </div>            
+                        <hr>
+                        <div class="columns">
+                            <div class="column is-12">
+                                <label for="">Co-Maker Full Name</label>
+                                <p>{{ client.co_maker }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div v-else>
+                        <h1 class="has-text-left header">Edit Client</h1>
+                        <div class="columns">
+                            <div class="column is-4">
+                                <b-field label="First Name" :label-position="labelPosition">
+                                    <b-input v-model="client.first_name"></b-input>
+                                </b-field>
+                            </div>
+                            <div class="column is-4">
+                                <b-field label="Middle Name" :label-position="labelPosition">
+                                    <b-input v-model="client.middle_name"></b-input>
+                                </b-field>
+                            </div>
+                            <div class="column is-4">
+                                <b-field label="Last Name" :label-position="labelPosition">
+                                    <b-input v-model="client.last_name"></b-input>
+                                </b-field>
+                            </div>
+                        </div>
+                        <div class="columns">
+                            <div class="column is-12">
+                                <b-field label="Address" :label-position="labelPosition">
+                                    <b-input v-model="client.address"></b-input>
+                                </b-field>
+                            </div>
+                        </div>
+                        <div class="columns">
+                            <div class="column is-6">
+                                <b-field label="Contact No" :label-position="labelPosition">
+                                    <b-input v-model="client.contact_number"></b-input>
+                                </b-field>
+                            </div>
+                            <div class="column is-6">
+                                <b-field label="Date of Birth" :label-position="labelPosition">
+                                    <b-input v-model="client.birth_date" v-cleave="masks.dateField" placeholder="MM/DD/YYYY"></b-input>
+                                </b-field>
+                            </div>
+                        </div>
+                        <div class="columns">
+                            <div class="column is-6">
+                                <b-field label="Bank Name" :label-position="labelPosition">
+                                    <b-input v-model="client.bank_name"></b-input>
+                                </b-field>
+                            </div>
+                            <div class="column is-6">
+                                <b-field label="Account Number" :label-position="labelPosition">
+                                    <b-input v-model="client.account_number"></b-input>
+                                </b-field>
+                            </div>
+                        </div>
+                        <div class="columns">
+                            <div class="column is-6">
+                                <b-field label="Pension Amount" :label-position="labelPosition">
+                                    <b-input v-model="client.pension" v-cleave="masks.moneyField"></b-input>
+                                </b-field>
+                            </div>
+                            <div class="column is-6">
+                                <b-field label="SSS Number" :label-position="labelPosition">
+                                    <b-input v-model="client.sss_no"></b-input>
+                                </b-field>
+                            </div>
+                        </div>
+                        <div class="columns">
+                            <div class="column is-12">
+                                <b-field label="Co-Maker Full Name" :label-position="labelPosition">
+                                    <b-input v-model="client.co_maker"></b-input>
+                                </b-field>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            </div>
-        </div>
-        <div v-else>
-            <h1 class="has-text-left header">Edit Client</h1>
-            <div class="columns">
-                <div class="column is-4">
-                    <b-field label="First Name" :label-position="labelPosition">
-                        <b-input v-model="client.first_name"></b-input>
-                    </b-field>
+            </b-tab-item>
+            <b-tab-item label="Loans" icon="coins">
+                <div class="tab-container">
+                    <div class="columns" v-if="selectedRows.length > 0">
+                        <div class="column is-4">
+                            <b-field label="Reference" :label-position="labelPosition">
+                                <b-input v-model="collection.reference_code"></b-input>
+                            </b-field>
+                        </div>
+                        <div class="column is-4">
+                            <b-field label="Amount" :label-position="labelPosition">
+                                <b-input v-model="collection.amount" v-cleave="masks.moneyField"></b-input>
+                            </b-field>
+                        </div>
+                        <div class="column is-4">
+                            <b-button
+                                label="Create Collection"
+                                type="is-info"
+                                size="is-medium"
+                                :disabled="!canCreateCollection"
+                                @click="confirmCreateCollection" />
+                        </div>
+                    </div>
+                    <div class="columns">
+                        <div class="column is-12">
+                            <b-table :data="loans" :columns="columns" :loading="isLoading" checkable :checked-rows.sync="selectedRows"
+                                :row-class="(row) => row.is_collected && 'is-success'"
+                                :header-checkable="false"
+                                :is-row-checkable="(row) => !row.is_collected">
+                                <template #empty>
+                                    <div class="has-text-centered">No Results Found</div>
+                                </template>
+                            </b-table>
+                        </div>
+                    </div>
+                    <hr>
+                    <h1 class="is-size-4 has-text-left table-title">Collections</h1>
+                    <div class="columns">
+                        <div class="column is-12">
+                            <b-table :data="collections" :columns="collectionColumns" :loading="isLoading" checkable :checked-rows.sync="selectedCollections"
+                                :header-checkable="false"
+                                detailed
+                                detail-key="id"
+                                >
+                                <b-table-column field="date_created_short" label="Date Created" v-slot="props">
+                                    <a @click="props.toggleDetails(props.row)">
+                                        {{ props.row.date_created_short }}
+                                    </a>
+                                </b-table-column>
+                                <template #empty>
+                                    <div class="has-text-centered">No Results Found</div>
+                                </template>
+
+                                <template #detail="props">
+                                    <div class="columns" v-for="detail in props.row.collection_details" :key="detail.id">
+                                        <div class="column is-12 collection-detail">
+                                            <p>{{ detail.paid_transaction_id }} | Amount: {{ detail.amount_used }}</p>
+                                        </div>
+                                    </div>
+                                </template>
+                            </b-table>
+                        </div>
+                    </div>
                 </div>
-                <div class="column is-4">
-                    <b-field label="Middle Name" :label-position="labelPosition">
-                        <b-input v-model="client.middle_name"></b-input>
-                    </b-field>
-                </div>
-                <div class="column is-4">
-                    <b-field label="Last Name" :label-position="labelPosition">
-                        <b-input v-model="client.last_name"></b-input>
-                    </b-field>
-                </div>
-            </div>
-            <div class="columns">
-                <div class="column is-12">
-                    <b-field label="Address" :label-position="labelPosition">
-                        <b-input v-model="client.address"></b-input>
-                    </b-field>
-                </div>
-            </div>
-            <div class="columns">
-                <div class="column is-6">
-                    <b-field label="Contact No" :label-position="labelPosition">
-                        <b-input v-model="client.contact_number"></b-input>
-                    </b-field>
-                </div>
-                <div class="column is-6">
-                    <b-field label="Date of Birth" :label-position="labelPosition">
-                        <b-input v-model="client.birth_date" v-cleave="masks.dateField" placeholder="MM/DD/YYYY"></b-input>
-                    </b-field>
-                </div>
-            </div>
-            <div class="columns">
-                <div class="column is-6">
-                    <b-field label="Bank Name" :label-position="labelPosition">
-                        <b-input v-model="client.bank_name"></b-input>
-                    </b-field>
-                </div>
-                <div class="column is-6">
-                    <b-field label="Account Number" :label-position="labelPosition">
-                        <b-input v-model="client.account_number"></b-input>
-                    </b-field>
-                </div>
-            </div>
-            <div class="columns">
-                <div class="column is-6">
-                    <b-field label="Pension Amount" :label-position="labelPosition">
-                        <b-input v-model="client.pension" v-cleave="masks.moneyField"></b-input>
-                    </b-field>
-                </div>
-                <div class="column is-6">
-                    <b-field label="SSS Number" :label-position="labelPosition">
-                        <b-input v-model="client.sss_no"></b-input>
-                    </b-field>
-                </div>
-            </div>
-            <div class="columns">
-                <div class="column is-12">
-                    <b-field label="Co-Maker Full Name" :label-position="labelPosition">
-                        <b-input v-model="client.co_maker"></b-input>
-                    </b-field>
-                </div>
-            </div>
-        </div>
+            </b-tab-item>
+        </b-tabs>
     </div>
 </template>
 
@@ -257,25 +264,25 @@ export default {
             },
             columns: [
                 {
-                    field: 'id_display',
-                    label: 'ID'
+                    field: 'control_number',
+                    label: 'Control Number'
                 },
                 {
-                    field: 'date_payment',
+                    field: 'humanized_date_payment',
                     label: 'Payment Due Date',
                 },
                 {
-                    field: 'loan_amount',
+                    field: 'humanized_loan_amount',
                     label: 'Principal Amount',
                     centered: true
                 },
                 {
-                    field: 'amount',
+                    field: 'humanized_amount',
                     label: 'Amount',
                     centered: true
                 },
                 {
-                    field: 'balance',
+                    field: 'humanized_balance',
                     label: 'Running Balance',
                     centered: true
                 },
@@ -333,7 +340,12 @@ export default {
                     id_display: `LOAN-${loan.loan}`,
                     is_paid: loan.is_paid ? 'Collected' : '',
                     is_collected: loan.is_paid,
-                    payable: 0
+                    humanized_date_payment: moment(loan.date_payment).format('MM/DD/YYYY'),
+                    humanized_loan_amount: toCurrency.format(loan.loan_amount),
+                    humanized_amount: toCurrency.format(loan.amount),
+                    humanized_balance: toCurrency.format(loan.balance),
+                    payable: 0,
+                    control_number: loan.loan_control_number
                 }
             })
             this.collections = this.client.collections.map((collection) => {
@@ -431,5 +443,9 @@ export default {
     .table-title {
         background-color: #def5f5;
         padding: 0.5em;
+    }
+
+    .tab-container {
+        padding: 2em;
     }
 </style>

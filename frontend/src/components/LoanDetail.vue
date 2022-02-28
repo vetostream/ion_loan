@@ -1,5 +1,16 @@
 <template>
     <div class="container is-fluid">
+        <div class="columns" v-if="is_approved">
+            <div class="column is-4">
+                <b-button type="is-info" icon-left="print" @click="printReport('computation')">Computation Report</b-button>
+            </div>
+            <div class="column is-4">
+                <b-button type="is-info" icon-left="print" @click="printReport('promissory')">Promissory Note</b-button>
+            </div>
+            <div class="column is-4">
+                <b-button type="is-info" icon-left="print" @click="printReport('disclosure')">Disclosure of Loan</b-button>
+            </div>
+        </div>
         <div class="columns">
             <div class="column is-4">
                 <label for="">Client</label>
@@ -319,6 +330,15 @@ export default {
                     }
                 }
             });
+        },
+        printReport (type) {
+            if (type === 'computation') {
+                window.open(`${process.env.VUE_APP_API_ENDPOINT_URL}reports/computation_report/${this.loanDetail.id}/`)
+            } else if (type === 'promissory') {
+                window.open(`${process.env.VUE_APP_API_ENDPOINT_URL}reports/promissory_report/${this.loanDetail.id}/`)
+            } else {
+                window.open(`${process.env.VUE_APP_API_ENDPOINT_URL}reports/disclosure_of_loan/${this.loanDetail.id}/`)
+            }
         },
         async approveLoan() {
             try {
