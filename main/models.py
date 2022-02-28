@@ -104,6 +104,8 @@ class Loan_Detail(Super_Model):
     date_payment = models.DateField()
     date_paid = models.DateField(null=True)
     collection_detail = GenericRelation(Collection_Detail)
+    receivable = models.DecimalField(max_digits=10, decimal_places=2, null=True)
+    payable = models.DecimalField(max_digits=10, decimal_places=2, null=True)
 
 
 class Transaction(Super_Model):

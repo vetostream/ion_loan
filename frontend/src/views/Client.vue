@@ -172,6 +172,7 @@
                             </b-table>
                         </div>
                     </div>
+                    <!--
                     <hr>
                     <h1 class="is-size-4 has-text-left table-title">Collections</h1>
                     <div class="columns">
@@ -200,6 +201,7 @@
                             </b-table>
                         </div>
                     </div>
+                    -->
                 </div>
             </b-tab-item>
         </b-tabs>
