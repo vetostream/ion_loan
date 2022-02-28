@@ -102,23 +102,59 @@ class CollectionViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         collection = serializer.save()
-        details = self.request.data.get('detail', None)
+        # details = self.request.data.get('detail', None)
 
-        for detail in details:
-            content_object = CONTENT_TYPES[detail.get('content_type')].objects.get(pk=detail.get('content_id'))
-            Collection_Detail.objects.create(
-                content_object=content_object,
-                collection=collection,
-                amount_used=detail.get('amount')
-            )
+        # for detail in details:
+        #     content_object = CONTENT_TYPES[detail.get('content_type')].objects.get(pk=detail.get('content_id'))
+        #     Collection_Detail.objects.create(
+        #         content_object=content_object,
+        #         collection=collection,
+        #         amount_used=detail.get('amount')
+        #     )
 
-        # Create a Transaction
-        Transaction.objects.create(
-            account=Transaction.ASSETS,
-            description=f"COLLECTION-{collection.pk}-{collection.reference_code} | {collection.client.last_name} {collection.client.first_name}",
-            transaction_side=Transaction.DEBIT,
-            amount=collection.collection_amount
-        )
+        # # Create a Transaction
+        # Transaction.objects.create(
+        #     account=Transaction.ASSETS,
+        #     description=f"COLLECTION-{collection.pk}-{collection.reference_code} | {collection.client.last_name} {collection.client.first_name}",
+        #     transaction_side=Transaction.DEBIT,
+        #     amount=collection.collection_amount
+        # )
+
+        # Create Detail
+        active_loans = collection.client.loan_set.all()
+
+        payment = collection.collection_amount
+
+        for loan in active_loans:
+            loan_detail = loan.loan_detail_set.filter(date_paid__isnull=True, date_payment__lte=collection.post_date)
+            # last_loan_item = loan.loan_detail_set.filter(date_paid__isnull=True, date_payment__lte=collection.post_date).last()
+
+            # Distribute collection amount
+            if loan_detail:
+                if payment < 0:
+                    break
+
+                for item in loan_detail:
+                    if payment < 0:
+                        break
+
+                    payment = payment - item.amount
+
+                    Collection_Detail.objects.create(
+                        collection=collection,
+                        content_object=item,
+                        amount_used=abs(payment)
+                    )
+
+                    item.date_paid = collection.post_date
+                    item.save()
+
+                if payment > 0:
+                    item.payable = payment
+                elif payment < 0:
+                    item.receivable = abs(payment)
+
+                item.save()
 
         super().perform_create(serializer)
 

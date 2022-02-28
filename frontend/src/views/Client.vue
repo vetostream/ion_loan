@@ -140,6 +140,11 @@
             </b-tab-item>
             <b-tab-item label="Loans" icon="coins">
                 <div class="tab-container">
+                    <div class="columns">
+                        <div class="column is-12">
+                            <b-button class="button is-success" icon-left="money-check" @click="paymentModalActive=true">Post Payment</b-button>
+                        </div>
+                    </div>
                     <div class="columns" v-if="selectedRows.length > 0">
                         <div class="column is-4">
                             <b-field label="Reference" :label-position="labelPosition">
@@ -205,6 +210,53 @@
                 </div>
             </b-tab-item>
         </b-tabs>
+
+        <b-modal
+            :active="paymentModalActive"
+            has-modal-card
+            trap-focus
+            aria-role="dialog"
+            aria-label="Post Payment"
+            close-button-aria-label="Close"
+            aria-modal>
+            <div class="modal-card" style="width: auto">
+                <header class="modal-card-head">
+                    <p class="modal-card-title">Post Payment</p>
+                </header>
+                <section class="modal-card-body">
+                    <div class="columns">
+                        <div class="column is-12">
+                            <b-field label="Post Date" :label-position="labelPosition">
+                                <b-input v-model="collection.post_date" v-cleave="masks.dateField" placeholder="mm/dd/yyyy"></b-input>
+                            </b-field>
+                        </div>
+                    </div>
+                    <div class="columns">
+                        <div class="column is-12">
+                            <b-field label="Amount" :label-position="labelPosition">
+                                <b-input v-model="collection.amount" v-cleave="masks.moneyField"></b-input>
+                            </b-field>
+                        </div>
+                    </div>
+                    <div class="columns">
+                        <div class="column is-12">
+                            <b-field label="Reference Code" :label-position="labelPosition">
+                                <b-input v-model="collection.reference_code"></b-input>
+                            </b-field>
+                        </div>
+                    </div>
+                </section>
+                <footer class="modal-card-foot">
+                    <b-button
+                        label="Cancel"
+                        @click="paymentModalActive=false" />
+                    <b-button
+                        label="Post"
+                        type="is-success"
+                        @click="processPayment()" />
+                </footer>
+            </div>
+        </b-modal>
     </div>
 </template>
 
@@ -253,6 +305,7 @@ export default {
                 reference_code: '',
                 amount: ''
             },
+            paymentModalActive: false,
             masks: {
                 dateField: {
                     date: true,
@@ -289,8 +342,12 @@ export default {
                     centered: true
                 },
                 {
-                    field: 'is_paid',
-                    label: 'Status'
+                    field: 'receivable',
+                    label: 'AR'
+                },
+                {
+                    field: 'payable',
+                    label: 'AP'
                 },
             ],
             selectedCollections: [],
@@ -346,7 +403,6 @@ export default {
                     humanized_loan_amount: toCurrency.format(loan.loan_amount),
                     humanized_amount: toCurrency.format(loan.amount),
                     humanized_balance: toCurrency.format(loan.balance),
-                    payable: 0,
                     control_number: loan.loan_control_number
                 }
             })
@@ -420,6 +476,40 @@ export default {
 
                 // Refetch Client
                 this.fetchClients();
+            } catch (err) {
+                this.$buefy.toast.open({
+                    message: `Something went wrong! ${err.message}`,
+                    type: 'is-danger'
+                })
+            } finally {
+                this.isLoading = false
+            }
+        },
+        async processPayment () {
+            try {
+                this.isLoading = true
+                const collection = {...this.collection}
+
+                const data = {
+                    ...collection,
+                    client: this.client.id,
+                    collection_amount: collection.amount.replace(',', ''),
+                    post_date: moment(collection.post_date).format('YYYY-MM-DD')
+                }
+
+                await createCollection(data)
+
+                this.collection = {}
+
+                this.$buefy.toast.open({
+                    message: 'Collection Successfully Posted!',
+                    type: 'is-success'
+                })
+
+                // Refetch Client
+                this.fetchClients()
+
+                this.paymentModalActive = false
             } catch (err) {
                 this.$buefy.toast.open({
                     message: `Something went wrong! ${err.message}`,

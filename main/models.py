@@ -86,7 +86,8 @@ class Collection(Super_Model):
     client = models.ForeignKey(Client, on_delete=models.DO_NOTHING)
     reference_code = models.TextField(max_length=300, null=False)
     collection_amount = models.DecimalField(max_digits=10, decimal_places=2, null=False)
-    refundable_amount = models.DecimalField(max_digits=10, decimal_places=2, null=False)
+    refundable_amount = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    post_date = models.DateField(null=False)
 
 
 class Collection_Detail(Super_Model):
