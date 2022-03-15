@@ -69,8 +69,8 @@ export default {
                     label: 'Full Name (DOB)'
                 },
                 {
-                    field: 'loan_type',
-                    label: 'Type',
+                    field: 'control_number',
+                    label: 'Control Number',
                 },
             ]
         }
