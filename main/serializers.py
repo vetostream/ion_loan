@@ -5,6 +5,7 @@ from rest_framework import serializers
 class ClientSerializer(serializers.ModelSerializer):
     active_loans = serializers.SerializerMethodField()
     collections = serializers.SerializerMethodField()
+    active_loan_headers = serializers.SerializerMethodField()
 
     class Meta:
         model = Client
@@ -15,6 +16,9 @@ class ClientSerializer(serializers.ModelSerializer):
         loan_details = LoanDetailSerializer(Loan_Detail.objects.filter(loan__pk__in=active_loans), many=True).data
 
         return loan_details
+
+    def get_active_loan_headers(self, obj):
+        return LoanSerializer(obj.loan_set.filter(loan_status='approved'), many=True).data
 
     def get_collections(self, obj):
         # my_collection_details = Collection_Detail.objects.filter(collection__client=obj)
@@ -49,6 +53,8 @@ class LoanDetailSerializer(serializers.ModelSerializer):
 class LoanSerializer(serializers.ModelSerializer):
     client_full_name = serializers.SerializerMethodField()
     client_birth_date = serializers.SerializerMethodField()
+    running_balance = serializers.SerializerMethodField()
+    loan_detail = serializers.SerializerMethodField()
 
     class Meta:
         model = Loan
@@ -60,6 +66,11 @@ class LoanSerializer(serializers.ModelSerializer):
     def get_client_birth_date(self, obj):
         return obj.client.birth_date
 
+    def get_running_balance(self, obj):
+        return 0
+
+    def get_loan_detail(self, obj):
+        return LoanDetailSerializer(obj.loan_detail_set.all(), many=True).data
 
 class CollectionDetailSerializer(serializers.ModelSerializer):
     paid_transaction_id = serializers.SerializerMethodField()

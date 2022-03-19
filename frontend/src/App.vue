@@ -58,7 +58,7 @@
         </template>
     </b-navbar>
 
-    <div class="container">
+    <div class="container-fluid">
       <div class="main-wrapper">
         <router-view/>
       </div>
@@ -101,7 +101,9 @@ export default {
 }
 
 .main-wrapper {
-  margin-top: 2.5em;
+  margin-top: 1.5em;
+  padding-top: 0;
+  padding: 1.5em;
 }
 
 .router-link-exact-active, a.navbar-item:focus, a.navbar-item:focus-within, a.navbar-item:hover {
