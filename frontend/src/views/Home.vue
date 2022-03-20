@@ -2,17 +2,17 @@
   <div class="home">
     <div class="columns">
       <div class="column is-1">
-        <b-button class="button is-success" @click="newClientModal=true">
+        <b-button class="button is-info is-light" @click="newClientModal=true" rounded>
             New Client
         </b-button>
       </div>
       <div class="column is-1" v-if="selectedClient">
-        <b-button class="button is-success" @click="newLoanModal=true">
+        <b-button class="button is-info is-light" @click="newLoanModal=true" rounded>
             New Loan
         </b-button>
       </div>
       <div class="column is-1" v-if="selectedClient">
-        <b-button class="button is-success">
+        <b-button class="button is-info is-light" rounded>
             New CA
         </b-button>
       </div>     
@@ -27,7 +27,7 @@
                 <div class="columns">
                   <div class="column">
                     <label for="">Pension Amount</label>
-                    <p>{{selectedClient.pension}}</p>
+                    <p>{{selectedClient.pension | displayMoney}}</p>
                   </div>
                 </div>
                 <div class="columns">
@@ -66,10 +66,25 @@
         <div class="tile is-parent">
           <div class="tile is-child box">
             <p class="is-size-4">Loans and CAs</p>
-              <b-table :data="selectedClient.active_loan_headers" :columns="loanColumns" :selected.sync="selectedLoan" focusable v-if="selectedClient">
-                  <template #empty>
-                      <div class="has-text-centered">No Results Found</div>
-                  </template>
+              <b-table :data="selectedClient.active_loan_headers" :selected.sync="selectedLoan" focusable v-if="selectedClient">
+                <b-table-column field="control_number" label="Control Number" v-slot="props">
+                  {{ props.row.control_number }}
+                </b-table-column>
+                <b-table-column field="principal_amount" label="Principal Amount" v-slot="props">
+                  {{ props.row.principal_amount | displayMoney }}
+                </b-table-column>
+                <b-table-column field="term" label="Term in Months" v-slot="props">
+                  {{ props.row.term}}
+                </b-table-column>
+                <b-table-column field="interest" label="Interest %" v-slot="props">
+                  {{ props.row.interest}}
+                </b-table-column>
+                <b-table-column field="running_balance" label="Running Balance" v-slot="props">
+                  {{ props.row.running_balance |displayMoney }}
+                </b-table-column>
+                <template #empty>
+                  <div class="has-text-centered">No Results Found</div>
+                </template>
               </b-table>
           </div>
         </div>
@@ -115,7 +130,7 @@
                 </div>
                 <div class="column">
                   <b-field label="Date of Birth*" :label-position="labelPosition">
-                    <b-input v-model="newClient.birth_date"></b-input>
+                    <b-input v-mask="'##/##/####'" v-model="newClient.birth_date" placeholder="MM/DD/YYYY"></b-input>
                   </b-field>
                 </div>
               </div>
@@ -133,8 +148,8 @@
               </div>
               <div class="columns">
                 <div class="column">
-                    <b-field label="Pension Amount" :label-position="labelPosition">
-                        <b-input v-model="newClient.pension"></b-input>
+                    <b-field label="Pension Amount*" :label-position="labelPosition">
+                        <b-input v-mask="currencyMask" v-model="newClient.pension"></b-input>
                     </b-field>
                 </div>
                 <div class="column">
@@ -254,6 +269,14 @@
 <script>
 import ClientSelector from '@/components/ClientSelector.vue';
 import moment from 'moment';
+import createNumberMask from 'text-mask-addons/dist/createNumberMask'
+
+const currencyMask = createNumberMask({
+  prefix: '',
+  allowDecimal: true,
+  includeThousandsSeparator: true,
+  allowNegative: false,
+});
 
 export default {
   name: 'Home',
@@ -262,6 +285,7 @@ export default {
   },
   data() {
     return {
+      currencyMask,
       labelPosition: 'inside',
       selectedClient: null,
       selectedLoan: null,
@@ -283,28 +307,6 @@ export default {
       ],
 
       // columns
-      loanColumns: [
-          {
-              field: 'control_number',
-              label: 'Control Number'
-          },
-          {
-              field: 'principal_amount',
-              label: 'Principal Amount'
-          },
-          {
-              field: 'term',
-              label: 'Terms (Months)'
-          },
-          {
-              field: 'interest',
-              label: 'Interest'
-          },
-          {
-              field: 'running_balance',
-              label: 'Running Balance'
-          },
-      ],
       computationColumns: [
           {
               field: 'number',

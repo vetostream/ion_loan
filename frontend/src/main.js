@@ -7,6 +7,7 @@ import 'buefy/dist/buefy.css'
 import "@fortawesome/fontawesome-free/css/all.css"
 import "@fortawesome/fontawesome-free/css/fontawesome.css"
 import VueFormulate from '@braid/vue-formulate'
+import VueMask from 'v-mask'
 
 const toCurrency = new Intl.NumberFormat('en-US', {
   style: 'currency',
@@ -14,7 +15,7 @@ const toCurrency = new Intl.NumberFormat('en-US', {
 })
 
 Vue.use(VueFormulate)
-
+Vue.use(VueMask)
 Vue.use(Buefy, {
   defaultIconPack: 'fas'
 })

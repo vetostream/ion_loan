@@ -46,7 +46,7 @@
         <template #end v-if="isAuthenticated">
             <b-navbar-item tag="div">
                 <div class="buttons">
-                    <b-button class="button is-warning" icon-left="calculator" @click="calculatorModal=true">
+                    <b-button class="button is-warning is-light" icon-left="calculator" @click="calculatorModal=true">
                         Loan Calculator
                     </b-button>
                 </div>
@@ -77,7 +77,7 @@
               <div class="columns">
                 <div class="column">
                     <b-field label="Desired Amortization*" :label-position="labelPosition">
-                        <b-input v-model="sampleLoan.amortization"></b-input>
+                        <b-input v-model="sampleLoan.amortization" v-mask="currencyMask"></b-input>
                     </b-field>
                 </div>
                 <div class="column">
@@ -220,10 +220,20 @@
 
 <script>
 import { mapGetters, mapActions } from 'vuex'
+import createNumberMask from 'text-mask-addons/dist/createNumberMask'
+
+const currencyMask = createNumberMask({
+  prefix: '',
+  allowDecimal: true,
+  includeThousandsSeparator: true,
+  allowNegative: false,
+});
 
 export default {
   data() {
     return {
+      currencyMask,
+      labelPosition: 'inside',
       calculatorModal: false,
       sampleLoan: {is_advance: false},
     }
@@ -233,11 +243,11 @@ export default {
     computedSampleLoan () {
       if (!!this.sampleLoan.amortization && !!this.sampleLoan.term && !!this.sampleLoan.interest) {
 
-        const principalAmount = this.sampleLoan.amortization * this.sampleLoan.term
+        const principalAmount = parseInt(this.sampleLoan.amortization.replace(/,/g, '')) * this.sampleLoan.term
         const interestRate = this.sampleLoan.interest * this.sampleLoan.term
         const udi = (principalAmount * interestRate) / 100
         const totalAmount = principalAmount + udi
-        const grossCashOut = principalAmount - udi
+        let grossCashOut = 0
         const llrf = (principalAmount / 1000) * (this.sampleLoan.term + 1)
         const processingFee = 150
         const feeOthers = udi * 0.05
@@ -245,12 +255,14 @@ export default {
         let totalDeductions = 0
 
         if (this.sampleLoan.is_advance) {
+          grossCashOut = principalAmount - udi
           totalDeductions = llrf + processingFee + udi + feeOthers
         } else {
+          grossCashOut = principalAmount
           totalDeductions = llrf + processingFee + feeOthers
         }
 
-        const netCashout = principalAmount - totalDeductions
+        const netCashout = grossCashOut - totalDeductions
 
         return {
           principalAmount,
