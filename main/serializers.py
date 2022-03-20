@@ -55,6 +55,7 @@ class LoanSerializer(serializers.ModelSerializer):
     client_birth_date = serializers.SerializerMethodField()
     running_balance = serializers.SerializerMethodField()
     loan_detail = serializers.SerializerMethodField()
+    amortization = serializers.SerializerMethodField()
 
     class Meta:
         model = Loan
@@ -67,28 +68,20 @@ class LoanSerializer(serializers.ModelSerializer):
         return obj.client.birth_date
 
     def get_running_balance(self, obj):
-        return 0
+        return obj.running_balance
 
     def get_loan_detail(self, obj):
         return LoanDetailSerializer(obj.loan_detail_set.all(), many=True).data
 
+    def get_amortization(self, obj):
+        return obj.loan_detail_set.first().amount
+
 class CollectionDetailSerializer(serializers.ModelSerializer):
-    paid_transaction_id = serializers.SerializerMethodField()
+    loan = LoanSerializer(read_only=True)
 
     class Meta:
         model = Collection_Detail
         fields = '__all__'
-
-    def get_paid_transaction_id(self, obj):
-        types = {
-            'loan_detail': 'LOAN',
-            'cash_advance': 'CA'
-        }
-
-        if obj.content_type.model == 'loan_detail':
-            return f"{types[obj.content_type.model]}-{obj.content_object.loan.pk}"
-        else:
-            return "CA"
 
 
 class CollectionSerializer(serializers.ModelSerializer):

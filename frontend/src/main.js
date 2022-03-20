@@ -8,6 +8,7 @@ import "@fortawesome/fontawesome-free/css/all.css"
 import "@fortawesome/fontawesome-free/css/fontawesome.css"
 import VueFormulate from '@braid/vue-formulate'
 import VueMask from 'v-mask'
+import moment from 'moment'
 
 const toCurrency = new Intl.NumberFormat('en-US', {
   style: 'currency',
@@ -22,6 +23,10 @@ Vue.use(Buefy, {
 
 Vue.filter('displayMoney', (value) => {
     return toCurrency.format(value)
+});
+
+Vue.filter('shortDate', (value) => {
+  return moment(value).format('MM/DD/YYYY')
 });
 
 Vue.config.productionTip = false

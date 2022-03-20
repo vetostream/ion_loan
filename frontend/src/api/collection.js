@@ -6,8 +6,8 @@ const createCollection = (data) => {
     return baseApi.post(resource, data)
 }
 
-const fetchCollections = (data) => {
-    return baseApi.get(resource, data)
+const fetchCollections = (params) => {
+    return baseApi.get(resource, { params })
 }
 
 export {

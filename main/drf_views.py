@@ -32,6 +32,13 @@ class LoanViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         lastname = self.request.query_params.get('client_last_name', None)
         loan_status = self.request.query_params.get('loan_status', None)
+        client_id = self.request.query_params.get('client_id', None)
+
+        if client_id:
+            return Loan.objects.filter(
+                client=client_id,
+                loan_status='approved'
+            )
 
         if lastname:
             return Loan.objects.filter(
@@ -47,6 +54,9 @@ class LoanViewSet(viewsets.ModelViewSet):
         net_cash_out = request.data.get('net_cash_out', None)
         loan = Loan.objects.get(pk=pk)
         payment_schedules = []
+
+        if not net_cash_out:
+            net_cash_out = loan.net_cash_out
 
         if loan_status == 'approved' and net_cash_out:
             amount = loan.principal_amount / loan.term
@@ -96,21 +106,58 @@ class LoanViewSet(viewsets.ModelViewSet):
 class CollectionViewSet(viewsets.ModelViewSet):
     queryset = Collection.objects.none()
     serializer_class = CollectionSerializer
-
+ 
     def get_queryset(self):
+        client_id = self.request.query_params.get('client_id', None)
+
+        if client_id:
+            return Collection.objects.filter(
+                client=client_id,
+            )
+
         return Collection.objects.all()
 
     def perform_create(self, serializer):
         collection = serializer.save()
-        # details = self.request.data.get('detail', None)
+        selected_loans_pk = self.request.data.get('selected_loans', None)
 
-        # for detail in details:
-        #     content_object = CONTENT_TYPES[detail.get('content_type')].objects.get(pk=detail.get('content_id'))
-        #     Collection_Detail.objects.create(
-        #         content_object=content_object,
-        #         collection=collection,
-        #         amount_used=detail.get('amount')
-        #     )
+        selected_loans = Loan.objects.filter(pk__in=selected_loans_pk)
+
+        collection_amount = collection.collection_amount
+
+        for loan in selected_loans:
+            if collection_amount > 0:
+                amortization = loan.loan_detail_set.first().amount
+
+                if collection_amount > amortization:
+                    if amortization > loan.running_balance:
+                        amortization = loan.running_balance
+
+                    Collection_Detail.objects.create(
+                        collection=collection,
+                        loan=loan,
+                        amount_used=amortization
+                    )
+                    collection_amount = collection_amount - amortization
+                elif collection_amount > loan.running_balance:
+                    Collection_Detail.objects.create(
+                        collection=collection,
+                        loan=loan,
+                        amount_used=loan.running_balance
+                    )
+                    collection_amount = collection_amount - loan.running_balance
+                else:
+                    Collection_Detail.objects.create(
+                        collection=collection,
+                        loan=loan,
+                        amount_used=collection_amount
+                    )
+                    collection_amount = 0
+
+        if (collection_amount > 0):
+            # There is AP for this collection
+            collection.refundable_amount = collection_amount
+            collection.save()
 
         # # Create a Transaction
         # Transaction.objects.create(
@@ -119,42 +166,6 @@ class CollectionViewSet(viewsets.ModelViewSet):
         #     transaction_side=Transaction.DEBIT,
         #     amount=collection.collection_amount
         # )
-
-        # Create Detail
-        active_loans = collection.client.loan_set.all()
-
-        payment = collection.collection_amount
-
-        for loan in active_loans:
-            loan_detail = loan.loan_detail_set.filter(date_paid__isnull=True, date_payment__lte=collection.post_date)
-            # last_loan_item = loan.loan_detail_set.filter(date_paid__isnull=True, date_payment__lte=collection.post_date).last()
-
-            # Distribute collection amount
-            if loan_detail:
-                if payment < 0:
-                    break
-
-                for item in loan_detail:
-                    if payment < 0:
-                        break
-
-                    payment = payment - item.amount
-
-                    Collection_Detail.objects.create(
-                        collection=collection,
-                        content_object=item,
-                        amount_used=abs(payment)
-                    )
-
-                    item.date_paid = collection.post_date
-                    item.save()
-
-                if payment > 0:
-                    item.payable = payment
-                elif payment < 0:
-                    item.receivable = abs(payment)
-
-                item.save()
 
         super().perform_create(serializer)
 
