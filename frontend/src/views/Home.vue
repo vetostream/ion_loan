@@ -15,12 +15,7 @@
         <b-button class="button is-success">
             New CA
         </b-button>
-      </div>
-      <div class="column is-1">
-        <b-button class="button is-info" icon-left="calculator" @click="calculatorModal=true">
-            Loan Calculator
-        </b-button>
-      </div>      
+      </div>     
     </div>
     <div class="tile is-ancestor">
       <div class="tile is-vertical is-12">
@@ -240,153 +235,6 @@
             </footer>
         </div>
     </b-modal>
-
-    <b-modal v-model="calculatorModal" :width="640" scroll="keep">
-        <div class="modal-card">
-            <header class="modal-card-head">
-              <p class="modal-card-title">Loan Calculator</p>
-            </header>
-            <section class="modal-card-body">
-              <div class="columns">
-                <div class="column">
-                    <b-field label="Desired Amortization*" :label-position="labelPosition">
-                        <b-input v-model="sampleLoan.amortization"></b-input>
-                    </b-field>
-                </div>
-                <div class="column">
-                    <b-field label="Term in Months*" :label-position="labelPosition">
-                        <b-input v-model="sampleLoan.term"></b-input>
-                    </b-field>
-                </div>
-              </div>
-              <div class="columns">
-                <div class="column">
-                    <b-field label="Interest (%)*" :label-position="labelPosition">
-                        <b-input v-model="sampleLoan.interest"></b-input>
-                    </b-field>
-                </div>
-              </div>
-              <div class="columns">
-                <div class="column">
-                  <b-checkbox v-model="sampleLoan.is_advance">Advanced</b-checkbox>
-                </div>
-              </div>
-              <hr>
-              <div class="columns">
-                  <div class="column is-4">
-                      <label for="">Principal Amount</label>
-                  </div>
-                  <div class="column is-4">
-                      <p>------------------------------</p>
-                  </div>
-                  <div class="column is-4">
-                      {{ computedSampleLoan.principalAmount | displayMoney }}
-                  </div>
-              </div>
-              <div class="columns">
-                  <div class="column is-4">
-                      <label for="">U.D.I</label>
-                  </div>
-                  <div class="column is-4">
-                      <p>------------------------------</p>
-                  </div>
-                  <div class="column is-4">
-                      ( {{ computedSampleLoan.udi | displayMoney }} )
-                  </div>
-              </div>
-              <div class="columns">
-                  <div class="column is-4">
-                      <label for="">Total Amount of Loan</label>
-                  </div>
-                  <div class="column is-4">
-                      <p>------------------------------</p>
-                  </div>
-                  <div class="column is-4">
-                      {{ computedSampleLoan.totalAmount | displayMoney }}
-                  </div>
-              </div>
-              <div class="columns">
-                  <div class="column is-4">
-                      <label for="">Gross Cash Out</label>
-                  </div>
-                  <div class="column is-4">
-                      <p>------------------------------</p>
-                  </div>
-                  <div class="column is-4">
-                      {{ computedSampleLoan.grossCashOut | displayMoney }}
-                  </div>
-              </div>
-              <div class="columns">
-                  <div class="column is-12">
-                      <label for="">LESS Fees:</label>
-                  </div>
-              </div>
-              <div class="columns">
-                  <div class="column is-4">
-                      <!-- <label class="has-text-right" for="">L.L.R.F</label> -->
-                  </div>
-                  <div class="column is-4">
-                      <label class="has-text-right" for="">L.L.R.F</label>
-                  </div>
-                  <div class="column is-4">
-                      ( {{ computedSampleLoan.llrf | displayMoney }} )
-                  </div>
-              </div>
-              <div class="columns">
-                  <div class="column is-4">
-                      <!-- <label for="">Processing Fee</label> -->
-                  </div>
-                  <div class="column is-4">
-                      <label for="">Processing Fee</label>
-                  </div>
-                  <div class="column is-4">
-                      ( {{ computedSampleLoan.processingFee | displayMoney }} )
-                  </div>
-              </div>
-              <div class="columns">
-                  <div class="column is-4">
-                      <!-- <label for="">Processing Fee</label> -->
-                  </div>
-                  <div class="column is-4">
-                      <label for="">Others</label>
-                  </div>
-                  <div class="column is-4">
-                      ( {{ computedSampleLoan.feeOthers | displayMoney }} )
-                  </div>
-              </div>
-              <div class="columns">
-                  <div class="column is-4">
-                      <label for="">Total Deductions</label>
-                  </div>
-                  <div class="column is-4">
-                      <p>------------------------------</p>
-                  </div>
-                  <div class="column is-4">
-                      ( {{ computedSampleLoan.totalDeductions | displayMoney }} )
-                  </div>
-              </div>
-              <div class="columns">
-                  <div class="column is-4">
-                      <label for="">Net Cash Out</label>
-                  </div>
-                  <div class="column is-4">
-                      <p>------------------------------</p>
-                  </div>
-                  <div class="column is-4">
-                      {{ computedSampleLoan.netCashout | displayMoney }}
-                  </div>
-              </div>
-            </section>
-            <footer class="modal-card-foot">
-              <b-button
-                label="Close"
-                @click="() => {
-                  calculatorModal = false;
-                  sampleLoan = {};
-                }"/>
-            </footer>
-        </div>
-    </b-modal>
     <!-- End Modals -->
 
     <!-- Loading -->
@@ -407,20 +255,10 @@
 import ClientSelector from '@/components/ClientSelector.vue';
 import moment from 'moment';
 
-const toCurrency = new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'PHP'
-})
-
 export default {
   name: 'Home',
   components: {
     ClientSelector
-  },
-  filters: {
-    displayMoney(value) {
-      return toCurrency.format(value)
-    },
   },
   data() {
     return {
@@ -432,13 +270,11 @@ export default {
       // models
       newClient: {},
       newLoan: {},
-      sampleLoan: {is_advance: false},
 
       // modals
       newClientModal: false,
       newLoanModal: false,
       newCAModal: false,
-      calculatorModal: false,
 
       //selectOptions
       loanTypes: [
@@ -510,53 +346,6 @@ export default {
 
       return []
     },
-    computedSampleLoan () {
-      if (!!this.sampleLoan.amortization && !!this.sampleLoan.term && !!this.sampleLoan.interest) {
-
-        const principalAmount = this.sampleLoan.amortization * this.sampleLoan.term
-        const interestRate = this.sampleLoan.interest * this.sampleLoan.term
-        const udi = (principalAmount * interestRate) / 100
-        const totalAmount = principalAmount + udi
-        const grossCashOut = principalAmount - udi
-        const llrf = (principalAmount / 1000) * (this.sampleLoan.term + 1)
-        const processingFee = 150
-        const feeOthers = udi * 0.05
-
-        let totalDeductions = 0
-
-        if (this.sampleLoan.is_advance) {
-          totalDeductions = llrf + processingFee + udi + feeOthers
-        } else {
-          totalDeductions = llrf + processingFee + feeOthers
-        }
-
-        const netCashout = principalAmount - totalDeductions
-
-        return {
-          principalAmount,
-          udi,
-          totalAmount,
-          grossCashOut,
-          llrf,
-          processingFee,
-          feeOthers,
-          totalDeductions,
-          netCashout
-        }
-      }
-
-      return {
-        principalAmount: 0,
-        udi: 0,
-        totalAmount: 0,
-        grossCashOut: 0,
-        llrf: 0,
-        processingFee: 0,
-        feeOthers: 0,
-        totalDeductions: 0,
-        netCashout: 0,
-      }
-    }
   }
 }
 </script>

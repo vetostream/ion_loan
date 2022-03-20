@@ -8,11 +8,20 @@ import "@fortawesome/fontawesome-free/css/all.css"
 import "@fortawesome/fontawesome-free/css/fontawesome.css"
 import VueFormulate from '@braid/vue-formulate'
 
+const toCurrency = new Intl.NumberFormat('en-US', {
+  style: 'currency',
+  currency: 'PHP'
+})
+
 Vue.use(VueFormulate)
 
 Vue.use(Buefy, {
   defaultIconPack: 'fas'
 })
+
+Vue.filter('displayMoney', (value) => {
+    return toCurrency.format(value)
+});
 
 Vue.config.productionTip = false
 
