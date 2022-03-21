@@ -95,7 +95,7 @@ class LoanViewSet(viewsets.ModelViewSet):
             # Create a Transaction
             Transaction.objects.create(
                 account=Transaction.LIABILITIES,
-                description=f"LOAN-{loan.pk} | Maturity Date: {loan.maturity_date} | {loan.client.last_name} {loan.client.first_name}",
+                description=f"{loan.control_number} | {loan.client.last_name} {loan.client.first_name}",
                 transaction_side=Transaction.CREDIT,
                 amount=net_cash_out
             )
@@ -159,13 +159,14 @@ class CollectionViewSet(viewsets.ModelViewSet):
             collection.refundable_amount = collection_amount
             collection.save()
 
-        # # Create a Transaction
-        # Transaction.objects.create(
-        #     account=Transaction.ASSETS,
-        #     description=f"COLLECTION-{collection.pk}-{collection.reference_code} | {collection.client.last_name} {collection.client.first_name}",
-        #     transaction_side=Transaction.DEBIT,
-        #     amount=collection.collection_amount
-        # )
+        # Create a Transaction
+        Transaction.objects.create(
+            account=Transaction.ASSETS,
+            description=f"COLLECTION-{collection.post_date.strftime('%m/%d/%Y')}-{collection.reference_code} | {collection.client.last_name} {collection.client.first_name}",
+            transaction_side=Transaction.DEBIT,
+            amount=collection.collection_amount,
+            post_date=collection.post_date
+        )
 
         super().perform_create(serializer)
 
