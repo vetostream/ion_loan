@@ -12,9 +12,9 @@
         </template>
 
         <template #start v-if="isAuthenticated">
-            <!-- <b-navbar-item tag="router-link" :to="{ path: '/clients'}">
-                Clients
-            </b-navbar-item> -->
+            <b-navbar-item tag="router-link" :to="{ path: '/'}">
+                Dashboard
+            </b-navbar-item>
             <!-- <b-navbar-dropdown label="Loan" boxed>
                 <b-navbar-item tag="router-link" :to="{ path: '/loans/pending'}">
                     Pending
@@ -209,7 +209,7 @@
                 label="Close"
                 @click="() => {
                   calculatorModal = false;
-                  sampleLoan = {};
+                  sampleLoan = {is_advance: true};
                 }"/>
             </footer>
         </div>
@@ -235,17 +235,23 @@ export default {
       currencyMask,
       labelPosition: 'inside',
       calculatorModal: false,
-      sampleLoan: {is_advance: false},
+      sampleLoan: {is_advance: true},
     }
   },
   computed: {
     ...mapGetters(['isAuthenticated']),
     computedSampleLoan () {
       if (!!this.sampleLoan.amortization && !!this.sampleLoan.term && !!this.sampleLoan.interest) {
-
-        const principalAmount = parseInt(this.sampleLoan.amortization.replace(/,/g, '')) * this.sampleLoan.term
+        // Calculate Principal
+        let principalAmount = parseInt(this.sampleLoan.amortization.replace(/,/g, '')) * this.sampleLoan.term
         const interestRate = this.sampleLoan.interest * this.sampleLoan.term
-        const udi = (principalAmount * interestRate) / 100
+        let udi = (principalAmount * interestRate) / 100
+
+        if (!this.sampleLoan.is_advance) {
+          principalAmount = (parseInt(this.sampleLoan.amortization.replace(/,/g, '')) * this.sampleLoan.term) - udi
+          udi = (principalAmount * interestRate) / 100
+        }
+
         const totalAmount = principalAmount + udi
         let grossCashOut = 0
         const llrf = (principalAmount / 1000) * (this.sampleLoan.term + 1)
@@ -320,11 +326,6 @@ export default {
   margin-top: 1.5em;
   padding-top: 0;
   padding: 1.5em;
-}
-
-.router-link-exact-active, a.navbar-item:focus, a.navbar-item:focus-within, a.navbar-item:hover {
-  background: #7957d5 !important;
-  color: white !important;
 }
 
 </style>

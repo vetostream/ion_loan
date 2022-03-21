@@ -74,6 +74,9 @@ class LoanSerializer(serializers.ModelSerializer):
         return LoanDetailSerializer(obj.loan_detail_set.all(), many=True).data
 
     def get_amortization(self, obj):
+        if obj.loan_detail_set.count() == 0:
+            return 0
+
         return obj.loan_detail_set.first().amount
 
 class CollectionDetailSerializer(serializers.ModelSerializer):

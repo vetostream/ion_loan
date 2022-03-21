@@ -1,4 +1,5 @@
 import datetime
+from email.policy import default
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
@@ -61,6 +62,7 @@ class Loan(Super_Model):
     gross_cash_out =  models.DecimalField(max_digits=10, decimal_places=2, null=True)
     net_cash_out =  models.DecimalField(max_digits=10, decimal_places=2, null=True)
     net_adjustment = models.DecimalField(max_digits=10, decimal_places=2, null=True, help_text="To deduct on net cash out when there is outstanding balance")
+    is_cash_advance = models.BooleanField(default=False)
 
     def __str__(self):
         return f"{self.control_number} - {self.client.first_name} {self.client.last_name} - {self.principal_amount}"
@@ -71,9 +73,14 @@ class Loan(Super_Model):
         self.udi = round((self.principal_amount * interest_rate) / 100, 2)
 
         # calculate llrf
-        self.llrf = round((self.principal_amount / 1000) * (self.term + 1), 2)
-        self.processing_fee = round(decimal.Decimal(150.0), 2) #fixed
-        self.fee_others = round(decimal.Decimal(0.05) * self.udi, 2)
+        if not self.is_cash_advance:
+            self.llrf = round((self.principal_amount / 1000) * (self.term + 1), 2)
+            self.processing_fee = round(decimal.Decimal(150.0), 2) #fixed
+            self.fee_others = round(decimal.Decimal(0.05) * self.udi, 2)
+        else:
+            self.llrf = 0
+            self.processing_fee = 0
+            self.fee_others = 0
 
         total_deductions = round(self.llrf + self.processing_fee + self.fee_others, 2)
 
@@ -95,6 +102,9 @@ class Loan(Super_Model):
         total_collections = Collection_Detail.objects.filter(
             loan=self,
         ).aggregate(Sum('amount_used'))
+
+        if not total_collections.get('amount_used__sum', None):
+            return self.principal_amount
 
         return self.principal_amount - total_collections['amount_used__sum']
 

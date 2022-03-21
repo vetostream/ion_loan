@@ -12,7 +12,7 @@
         </b-button>
       </div>
       <div class="column is-1" v-if="selectedClient">
-        <b-button class="button is-info is-light" rounded>
+        <b-button class="button is-info is-light" @click="newCAModal=true" rounded>
             New CA
         </b-button>
       </div>     
@@ -28,6 +28,10 @@
                   <div class="column">
                     <label for="">Pension Amount</label>
                     <p>{{selectedClient.pension | displayMoney}}</p>
+                  </div>
+                  <div class="column">
+                    <label for="">Potential AP</label>
+                    <p>{{clientPotentialAP | displayMoney}}</p>
                   </div>
                 </div>
                 <div class="columns">
@@ -64,9 +68,12 @@
                 <b-table-column field="reference_code" label="Ref Code" v-slot="props">
                   {{ props.row.reference_code }}
                 </b-table-column>
-                <b-table-column field="collection_amount" label="Amount" v-slot="props">
+                <b-table-column field="collection_amount" label="Amount Collected" v-slot="props">
                   {{ props.row.collection_amount | displayMoney }}
                 </b-table-column>
+                <b-table-column field="collection_amount" label="Total Amount Used" v-slot="props">
+                  {{ calculateCollectionTotal(props.row.collection_details) | displayMoney }}
+                </b-table-column>                
                 <b-table-column field="post_date" label="Payment Date" v-slot="props">
                   {{ props.row.post_date | shortDate }}
                 </b-table-column>
@@ -118,12 +125,16 @@
                   </div>
               </div>
 
-              <b-table :data="loans" :selected.sync="selectedLoan" focusable checkable :checked-rows.sync="selectedLoanRows" narrowed striped>
+              <b-table :data="loans" :selected.sync="selectedLoan" focusable checkable :checked-rows.sync="selectedLoanRows" narrowed striped
+                :is-row-checkable="(row) => row.running_balance != 0">
                 <b-table-column field="control_number" label="Loan Control Number" v-slot="props">
                   {{ props.row.control_number }}
                 </b-table-column>
                 <b-table-column field="principal_amount" label="Principal Amount" v-slot="props">
                   {{ props.row.principal_amount | displayMoney }}
+                </b-table-column>
+                <b-table-column field="udi" label="UDI" v-slot="props">
+                  {{ props.row.udi | displayMoney }}
                 </b-table-column>
                 <b-table-column field="amortization" label="Amortization" v-slot="props">
                   {{ props.row.amortization | displayMoney }}
@@ -134,9 +145,39 @@
                 <b-table-column field="interest" label="Interest %" v-slot="props">
                   {{ props.row.interest}}
                 </b-table-column>
+                <b-table-column field="llrf" label="L.L.R.F" v-slot="props">
+                  {{ props.row.llrf | displayMoney }}
+                </b-table-column>
+                <b-table-column field="processing_fee" label="Processing Fee" v-slot="props">
+                  {{ props.row.processing_fee | displayMoney }}
+                </b-table-column>
+                <b-table-column field="others" label="Others" v-slot="props">
+                  {{ props.row.fee_others |displayMoney }}
+                </b-table-column>
                 <b-table-column field="running_balance" label="Running Balance" v-slot="props">
                   {{ props.row.running_balance |displayMoney }}
                 </b-table-column>
+                <template #footer>
+                    <th>
+                        <div class="th-wrap">
+                            <h1 class="is-size-4">TOTALS</h1>
+                        </div>
+                    </th>
+                    <th></th>
+                    <th></th>
+                    <th></th>                    
+                    <th>
+                      <h1 class="is-size-4">{{ totalAmortization | displayMoney }}</h1>
+                    </th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th>
+                        <h1 class="is-size-4">{{ loanTotalRunningBalance | displayMoney }}</h1>
+                    </th>
+                </template>
                 <template #empty>
                   <div class="has-text-centered">No Results Found</div>
                 </template>
@@ -179,7 +220,7 @@
               </div>
               <div class="columns">
                 <div class="column">
-                    <b-field label="Contact No*" :label-position="labelPosition">
+                    <b-field label="Contact No" :label-position="labelPosition">
                         <b-input v-model="newClient.contact_number"></b-input>
                     </b-field>
                 </div>
@@ -296,7 +337,7 @@
                 label="Cancel"
                 @click="() => {
                   newLoanModal = false;
-                  newLoan = {};
+                  newLoan = {is_advance: true};
                 }"/>
               <b-button
                 label="Submit"
@@ -306,6 +347,58 @@
         </div>
     </b-modal>
 
+    <b-modal v-model="newCAModal" :width="640" scroll="keep">
+        <div class="modal-card">
+            <header class="modal-card-head">
+              <p class="modal-card-title">New Cash Advance</p>
+            </header>
+            <section class="modal-card-body">
+              <div class="columns">
+                <div class="column">
+                    <b-field label="Principal Amount" :label-position="labelPosition">
+                        <b-input v-mask="currencyMask" v-model="newLoan.principal_amount"></b-input>
+                    </b-field>
+                </div>
+                <div class="column">
+                    <b-field label="Term in Months" :label-position="labelPosition">
+                        <b-input v-model="newLoan.term" type="number"></b-input>
+                    </b-field>
+                </div>
+              </div>
+              <div class="columns">
+                <div class="column">
+                    <b-field label="Interest (%)" :label-position="labelPosition">
+                        <b-input v-mask="currencyMask" v-model="newLoan.interest"></b-input>
+                    </b-field>
+                </div>
+              </div>
+              <div class="columns">
+                <div class="column">
+                    <b-field label="Payment Start Date" :label-position="labelPosition">
+                        <b-input v-mask="'##/##/####'" v-model="newLoan.start_payment" placeholder="MM/DD/YYYY"></b-input>
+                    </b-field>
+                </div>
+                <div class="column">
+                    <b-field label="Control Number" :label-position="labelPosition">
+                        <b-input v-model="newLoan.control_number"></b-input>
+                    </b-field>
+                </div>
+              </div>
+            </section>
+            <footer class="modal-card-foot">
+              <b-button
+                label="Cancel"
+                @click="() => {
+                  newCAModal = false;
+                  newLoan = {is_advance: true};
+                }"/>
+              <b-button
+                label="Submit"
+                type="is-success"
+                @click="createLoan(is_cash_advance = true)"/>
+            </footer>
+        </div>
+    </b-modal>
 
     <b-modal v-model="collectionDetailModal" :width="640" scroll="keep">
         <div class="modal-card">
@@ -384,7 +477,8 @@ export default {
 
       // models
       newClient: {},
-      newLoan: {},
+      newLoan: {is_advance: true},
+      newCA: {is_advance: true, is_cash_advance: true},
       loans: [],
       selectedLoanRows: [],
       newCollection: {},
@@ -445,6 +539,12 @@ export default {
           onConfirm: () => this.createCollection()
       })
     },
+    calculateCollectionTotal (collectionDetails) {
+      const details = [...collectionDetails]
+      return details.reduce((partial_sum, a) => {
+        return partial_sum + parseFloat(a.amount_used)
+      }, 0);
+    },
     async createCollection() {
         try {
             this.isLoading = true
@@ -501,7 +601,7 @@ export default {
         this.isLoading = false
       }
     },
-    async createLoan () {
+    async createLoan (is_cash_advance = false) {
       try {
         this.isLoading = true
 
@@ -509,6 +609,8 @@ export default {
         loan.start_payment = moment(loan.start_payment).format('YYYY-MM-DD')
         loan.maturity_date = moment(loan.start_payment).add(loan.term - 1, 'months').format('YYYY-MM-DD')
         loan.principal_amount = parseFloat(loan.principal_amount.replace(/,/g, ''))
+
+        loan.is_cash_advance = is_cash_advance
 
         const response = await createLoan({
             ...loan,
@@ -522,7 +624,7 @@ export default {
             type: 'is-success'
         })
         this.newLoanModal = false
-        this.newLoan = {}
+        this.newLoan = {is_advance: true}
         this.fetchLoans()
       } catch (err) {
         this.$buefy.toast.open({
@@ -591,6 +693,21 @@ export default {
 
         return true
     },
+    loanTotalRunningBalance () {
+      const loans = [...this.loans]
+      return loans.reduce((partial_sum, a) => {
+        return partial_sum + parseFloat(a.running_balance)
+      }, 0);
+    },
+    totalAmortization () {
+      const loans = [...this.loans]
+      return loans.reduce((partial_sum, a) => {
+        return partial_sum + parseFloat(a.amortization)
+      }, 0);
+    },
+    clientPotentialAP () {
+      return this.selectedClient.pension - this.totalAmortization
+    }
   },
   watch: {
     selectedLoanRows(newSelectedLoanRows, _) {

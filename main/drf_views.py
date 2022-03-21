@@ -113,7 +113,7 @@ class CollectionViewSet(viewsets.ModelViewSet):
         if client_id:
             return Collection.objects.filter(
                 client=client_id,
-            )
+            ).order_by('-post_date')
 
         return Collection.objects.all()
 
