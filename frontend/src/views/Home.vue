@@ -624,6 +624,7 @@ export default {
             type: 'is-success'
         })
         this.newLoanModal = false
+        this.newCAModal = false
         this.newLoan = {is_advance: true}
         this.fetchLoans()
       } catch (err) {
