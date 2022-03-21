@@ -76,8 +76,8 @@
             <section class="modal-card-body">
               <div class="columns">
                 <div class="column">
-                    <b-field label="Desired Amortization*" :label-position="labelPosition">
-                        <b-input v-model="sampleLoan.amortization" v-mask="currencyMask"></b-input>
+                    <b-field label="Principal Amount*" :label-position="labelPosition">
+                        <b-input v-model="sampleLoan.principalAmount" v-mask="currencyMask"></b-input>
                     </b-field>
                 </div>
                 <div class="column">
@@ -99,6 +99,17 @@
                 </div>
               </div>
               <hr>
+              <div class="columns">
+                  <div class="column is-4">
+                      <label for="">Amortization</label>
+                  </div>
+                  <div class="column is-4">
+                      <p>------------------------------</p>
+                  </div>
+                  <div class="column is-4">
+                      {{ computedSampleLoan.amortization | displayMoney }}
+                  </div>
+              </div>
               <div class="columns">
                   <div class="column is-4">
                       <label for="">Principal Amount</label>
@@ -241,18 +252,18 @@ export default {
   computed: {
     ...mapGetters(['isAuthenticated']),
     computedSampleLoan () {
-      if (!!this.sampleLoan.amortization && !!this.sampleLoan.term && !!this.sampleLoan.interest) {
-        // Calculate Principal
-        let principalAmount = parseInt(this.sampleLoan.amortization.replace(/,/g, '')) * this.sampleLoan.term
+      if (!!this.sampleLoan.principalAmount && !!this.sampleLoan.term && !!this.sampleLoan.interest) {
+        const principalAmount = parseInt(this.sampleLoan.principalAmount.replace(/,/g, ''))
         const interestRate = this.sampleLoan.interest * this.sampleLoan.term
         let udi = (principalAmount * interestRate) / 100
+        let amortization = principalAmount / this.sampleLoan.term
 
         if (!this.sampleLoan.is_advance) {
-          principalAmount = (parseInt(this.sampleLoan.amortization.replace(/,/g, '')) * this.sampleLoan.term) - udi
-          udi = (principalAmount * interestRate) / 100
+          amortization = (principalAmount + udi) / this.sampleLoan.term
         }
 
         const totalAmount = principalAmount + udi
+
         let grossCashOut = 0
         const llrf = (principalAmount / 1000) * (this.sampleLoan.term + 1)
         const processingFee = 150
@@ -279,7 +290,8 @@ export default {
           processingFee,
           feeOthers,
           totalDeductions,
-          netCashout
+          netCashout,
+          amortization
         }
       }
 
@@ -293,6 +305,7 @@ export default {
         feeOthers: 0,
         totalDeductions: 0,
         netCashout: 0,
+        amortization: 0
       }
     }    
   },
