@@ -154,6 +154,9 @@
                 <b-table-column field="others" label="Others" v-slot="props">
                   {{ props.row.fee_others |displayMoney }}
                 </b-table-column>
+                <b-table-column field="net_cash_out" label="Net Cash Out" v-slot="props">
+                  {{ props.row.net_cash_out | displayMoney }}
+                </b-table-column>
                 <b-table-column field="running_balance" label="Running Balance" v-slot="props">
                   {{ props.row.running_balance |displayMoney }}
                 </b-table-column>
@@ -174,6 +177,9 @@
                     <th></th>
                     <th></th>
                     <th></th>
+                    <th>
+                      <h1 class="is-size-4">{{ loanTotalNetCashOut | displayMoney }}</h1>
+                    </th>
                     <th>
                         <h1 class="is-size-4">{{ loanTotalRunningBalance | displayMoney }}</h1>
                     </th>
@@ -708,7 +714,13 @@ export default {
     },
     clientPotentialAP () {
       return this.selectedClient.pension - this.totalAmortization
-    }
+    },
+    loanTotalNetCashOut () {
+      const loans = [...this.loans]
+      return loans.reduce((partial_sum, a) => {
+        return partial_sum + parseFloat(a.net_cash_out)
+      }, 0);
+    },
   },
   watch: {
     selectedLoanRows(newSelectedLoanRows, _) {
