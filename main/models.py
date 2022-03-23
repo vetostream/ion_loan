@@ -67,7 +67,7 @@ class Loan(Super_Model):
     udi = models.DecimalField(max_digits=10, decimal_places=2, null=True)
     gross_cash_out =  models.DecimalField(max_digits=10, decimal_places=2, null=True)
     net_cash_out =  models.DecimalField(max_digits=10, decimal_places=2, null=True)
-    net_adjustment = models.DecimalField(max_digits=10, decimal_places=2, null=True, help_text="To deduct on net cash out when there is outstanding balance")
+    net_adjustment = models.DecimalField(max_digits=10, decimal_places=2, null=True, help_text="To deduct on net cash out when there is outstanding balance", blank=True)
     is_cash_advance = models.BooleanField(default=False)
     add_fee_others = models.BooleanField(default=True)
     co_maker = models.CharField(max_length=150, null=True, blank=True)
@@ -147,10 +147,10 @@ class Loan_Detail(Super_Model):
     amount = models.DecimalField(max_digits=10, decimal_places=2, null=False)
     balance = models.DecimalField(max_digits=10, decimal_places=2, null=False)
     date_payment = models.DateField()
-    date_paid = models.DateField(null=True)
+    date_paid = models.DateField(null=True, blank=True)
     collection_detail = GenericRelation(Collection_Detail)
-    receivable = models.DecimalField(max_digits=10, decimal_places=2, null=True)
-    payable = models.DecimalField(max_digits=10, decimal_places=2, null=True)
+    receivable = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    payable = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
 
 
 class Transaction(Super_Model):
