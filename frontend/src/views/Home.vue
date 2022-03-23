@@ -127,28 +127,33 @@
 
               <b-table :data="loans" :selected.sync="selectedLoan" focusable checkable :checked-rows.sync="selectedLoanRows" narrowed striped
                 :is-row-checkable="(row) => row.running_balance != 0">
-                <b-table-column field="control_number" label="Loan Control Number" v-slot="props">
+                <b-table-column field="control_number" label="LCN" v-slot="props">
                   {{ props.row.control_number }}
                 </b-table-column>
-                <b-table-column field="principal_amount" label="Principal Amount" v-slot="props">
+                <b-table-column field="principal_amount" label="Princp. Amt" v-slot="props">
                   {{ props.row.principal_amount | displayMoney }}
+                </b-table-column>
+                <b-table-column field="principal_amount" label="Advance" v-slot="props">
+                  <!-- {{ props.row.principal_amount | displayMoney }} -->
+                  <b-icon icon="check" size="is-small" v-if="props.row.is_advance"></b-icon>
+                  <b-icon icon="times" size="is-small" v-else></b-icon>
                 </b-table-column>
                 <b-table-column field="udi" label="UDI" v-slot="props">
                   {{ props.row.udi | displayMoney }}
                 </b-table-column>
-                <b-table-column field="amortization" label="Amortization" v-slot="props">
+                <b-table-column field="amortization" label="Inst." v-slot="props">
                   {{ props.row.amortization | displayMoney }}
                 </b-table-column>
-                <b-table-column field="term" label="Term in Months" v-slot="props">
+                <b-table-column field="term" label="Term" v-slot="props">
                   {{ props.row.term}}
                 </b-table-column>
-                <b-table-column field="interest" label="Interest %" v-slot="props">
+                <b-table-column field="interest" label="Int %" v-slot="props">
                   {{ props.row.interest}}
                 </b-table-column>
                 <b-table-column field="llrf" label="L.L.R.F" v-slot="props">
                   {{ props.row.llrf | displayMoney }}
                 </b-table-column>
-                <b-table-column field="processing_fee" label="Processing Fee" v-slot="props">
+                <b-table-column field="processing_fee" label="P.Fee" v-slot="props">
                   {{ props.row.processing_fee | displayMoney }}
                 </b-table-column>
                 <b-table-column field="others" label="Others" v-slot="props">
@@ -168,7 +173,8 @@
                     </th>
                     <th></th>
                     <th></th>
-                    <th></th>                    
+                    <th></th>
+                    <th></th>
                     <th>
                       <h1 class="is-size-4">{{ totalAmortization | displayMoney }}</h1>
                     </th>
@@ -333,8 +339,11 @@
                 </div>
               </div>
               <div class="columns">
-                <div class="column is-offset-6">
+                <div class="column is-6">
                   <b-checkbox v-model="newLoan.is_advance">Advanced</b-checkbox>
+                </div>
+                <div class="column is-6">
+                  <b-checkbox v-model="newLoan.add_fee_others">Fee Others?</b-checkbox>
                 </div>
               </div>
             </section>
@@ -396,7 +405,7 @@
                 label="Cancel"
                 @click="() => {
                   newCAModal = false;
-                  newLoan = {is_advance: true};
+                  newLoan = {is_advance: true, add_fee_others: true};
                 }"/>
               <b-button
                 label="Submit"
@@ -483,7 +492,7 @@ export default {
 
       // models
       newClient: {},
-      newLoan: {is_advance: true},
+      newLoan: {is_advance: true, add_fee_others: true},
       newCA: {is_advance: true, is_cash_advance: true},
       loans: [],
       selectedLoanRows: [],

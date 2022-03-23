@@ -97,6 +97,9 @@
                 <div class="column">
                   <b-checkbox v-model="sampleLoan.is_advance">Advanced</b-checkbox>
                 </div>
+                <div class="column">
+                  <b-checkbox v-model="sampleLoan.add_fee_others">Fee Others?</b-checkbox>
+                </div>
               </div>
               <hr>
               <div class="columns">
@@ -181,7 +184,7 @@
                       ( {{ computedSampleLoan.processingFee | displayMoney }} )
                   </div>
               </div>
-              <div class="columns">
+              <div class="columns" v-if="sampleLoan.add_fee_others">
                   <div class="column is-4">
                       <!-- <label for="">Processing Fee</label> -->
                   </div>
@@ -220,7 +223,7 @@
                 label="Close"
                 @click="() => {
                   calculatorModal = false;
-                  sampleLoan = {is_advance: true};
+                  sampleLoan = {is_advance: true, add_fee_others: true};
                 }"/>
             </footer>
         </div>
@@ -246,7 +249,7 @@ export default {
       currencyMask,
       labelPosition: 'inside',
       calculatorModal: false,
-      sampleLoan: {is_advance: true},
+      sampleLoan: {is_advance: true, add_fee_others: true},
     }
   },
   computed: {
@@ -267,7 +270,12 @@ export default {
         let grossCashOut = 0
         const llrf = (principalAmount / 1000) * (parseInt(this.sampleLoan.term) + 1)
         const processingFee = 150
-        const feeOthers = udi * 0.05
+        
+        let feeOthers = udi * 0.05
+
+        if (!this.sampleLoan.add_fee_others) {
+          feeOthers = 0
+        }
 
         const totalDeductions = llrf + processingFee + feeOthers
 

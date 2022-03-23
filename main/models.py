@@ -1,5 +1,4 @@
 import datetime
-from email.policy import default
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
@@ -63,6 +62,8 @@ class Loan(Super_Model):
     net_cash_out =  models.DecimalField(max_digits=10, decimal_places=2, null=True)
     net_adjustment = models.DecimalField(max_digits=10, decimal_places=2, null=True, help_text="To deduct on net cash out when there is outstanding balance")
     is_cash_advance = models.BooleanField(default=False)
+    add_fee_others = models.BooleanField(default=True)
+    co_maker = models.CharField(max_length=150, null=True, blank=True)
 
     def __str__(self):
         return f"{self.control_number} - {self.client.first_name} {self.client.last_name} - {self.principal_amount}"
@@ -80,6 +81,9 @@ class Loan(Super_Model):
         else:
             self.llrf = 0
             self.processing_fee = 0
+            self.fee_others = 0
+
+        if not self.add_fee_others:
             self.fee_others = 0
 
         total_deductions = round(self.llrf + self.processing_fee + self.fee_others, 2)
