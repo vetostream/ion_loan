@@ -5,6 +5,7 @@ from main.serializers import ClientSerializer, LoanSerializer, CollectionSeriali
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from django.db.models import Q
 
 
 CONTENT_TYPES = {
@@ -19,8 +20,9 @@ class ClientViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         lastname = self.request.query_params.get('lastname', None)
         if lastname:
+            lastname = lastname.strip()
             return Client.objects.filter(
-                last_name__istartswith=lastname
+                Q(last_name__istartswith=lastname) | Q(first_name__istartswith=lastname)
             )
         return Client.objects.all()
 
