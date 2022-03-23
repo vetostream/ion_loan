@@ -52,12 +52,6 @@
                     <p>{{selectedClient.account_number}}</p>
                   </div>
                 </div>
-                <div class="columns">
-                  <div class="column">
-                    <label for="">Co-Maker Full Name</label>
-                    <p>{{selectedClient.co_maker}}</p>
-                  </div>
-                </div>
               </div>
             </div>
           </div>
@@ -265,13 +259,6 @@
                         <b-input v-model="newClient.sss_no"></b-input>
                     </b-field>
                 </div>
-              </div>
-              <div class="columns">
-                  <div class="column">
-                      <b-field label="Co-Maker Full Name" :label-position="labelPosition">
-                          <b-input v-model="newClient.co_maker"></b-input>
-                      </b-field>
-                  </div>
               </div>
             </section>
             <footer class="modal-card-foot">
@@ -640,7 +627,7 @@ export default {
         })
         this.newLoanModal = false
         this.newCAModal = false
-        this.newLoan = {is_advance: true}
+        this.newLoan = {is_advance: true, add_fee_others: true}
         this.fetchLoans()
       } catch (err) {
         this.$buefy.toast.open({

@@ -15,6 +15,11 @@ class Super_Model(models.Model):
 
 
 class Client(Super_Model):
+    CLASSIFICATION_TYPES = [
+        ('pension', 'Pension'),
+        ('salary', 'Salary')
+    ]
+
     first_name = models.CharField(max_length=50, null=False)
     middle_name = models.CharField(max_length=50, null=True, blank=True)
     last_name = models.CharField(max_length=50, null=False)
@@ -26,6 +31,8 @@ class Client(Super_Model):
     co_maker = models.CharField(max_length=150, null=True, blank=True)
     bank_name = models.CharField(max_length=150, null=True, blank=True)
     account_number = models.CharField(max_length=150, null=True, blank=True)
+    classification = models.CharField(max_length=50, choices=CLASSIFICATION_TYPES, default='pension')
+    pension_type = models.CharField(max_length=50, null=True, blank=True)
 
     def __str__(self):
         return f"{self.last_name}, {self.first_name} ({self.birth_date})"
