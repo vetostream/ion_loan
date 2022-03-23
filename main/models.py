@@ -98,15 +98,20 @@ class Loan(Super_Model):
 
     @property
     def running_balance(self):
+        initial_balance = self.principal_amount
+
+        if not self.is_advance:
+            initial_balance += self.udi
+
         # Check Collection Detail for total amount collected
         total_collections = Collection_Detail.objects.filter(
             loan=self,
         ).aggregate(Sum('amount_used'))
 
         if not total_collections.get('amount_used__sum', None):
-            return self.principal_amount
+            return initial_balance
 
-        return self.principal_amount - total_collections['amount_used__sum']
+        return initial_balance - total_collections['amount_used__sum']
 
 
 class Collection(Super_Model):
@@ -161,6 +166,9 @@ class Transaction(Super_Model):
     description = models.CharField(max_length=255, null=False)
     amount = models.DecimalField(max_digits=10, decimal_places=2, null=False)
     transaction_side = models.CharField(max_length=10, choices=TRANSACTION_TYPE, null=False)
+
+    def __str__(self):
+        return f"{self.description} / {self.account} / {self.post_date.strftime('%m/%d/%Y')} / {self.amount} / {self.transaction_side}"
 
     def save(self, *args, **kwargs):
         if self.post_date is None:

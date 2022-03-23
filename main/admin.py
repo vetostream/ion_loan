@@ -1,7 +1,8 @@
 from django.contrib import admin
-from main.models import Loan, Loan_Detail, Client, Collection, Collection_Detail
+from main.models import Loan, Loan_Detail, Client, Collection, Collection_Detail, Transaction
 
 admin.site.register(Client)
+admin.site.register(Transaction)
 
 class Loan_Detail_Inline(admin.TabularInline):
     model = Loan_Detail
