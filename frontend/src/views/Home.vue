@@ -39,11 +39,19 @@
                     <label for="">SSS Number</label>
                     <p>{{selectedClient.sss_no}}</p>
                   </div>
+                  <div class="column">
+                    <label for="">Classification</label>
+                    <p>{{selectedClient.classification}}</p>
+                  </div>
                 </div>
                 <div class="columns">
                   <div class="column">
                     <label for="">Bank Name</label>
                     <p>{{selectedClient.bank_name}}</p>
+                  </div>
+                  <div class="column" v-if="selectedClient.classification === 'pension'">
+                    <label for="">Pensioner Category</label>
+                    <p>{{selectedClient.pension_type}}</p>
                   </div>
                 </div>
                 <div class="columns">
@@ -238,6 +246,32 @@
               </div>
               <div class="columns">
                 <div class="column">
+                  <b-field label="Classification*" :label-position="labelPosition">
+                      <b-select placeholder="Select Classification" expanded v-model="newClient.classification">
+                          <option
+                              v-for="option in classifications"
+                              :value="option.value"
+                              :key="option.value">
+                              {{ option.display }}
+                          </option>
+                      </b-select>
+                  </b-field>
+                </div>
+                <div class="column">
+                  <b-field label="Pensioner Category" :label-position="labelPosition">
+                      <b-select placeholder="Select Category if Pensioner" expanded v-model="newClient.pension_type">
+                          <option
+                              v-for="option in pensionCategories"
+                              :value="option.value"
+                              :key="option.value">
+                              {{ option.display }}
+                          </option>
+                      </b-select>
+                  </b-field>
+                </div>
+              </div>
+              <div class="columns">
+                <div class="column">
                     <b-field label="Bank Name*" :label-position="labelPosition">
                         <b-input v-model="newClient.bank_name"></b-input>
                     </b-field>
@@ -250,7 +284,7 @@
               </div>
               <div class="columns">
                 <div class="column">
-                    <b-field label="Pension Amount*" :label-position="labelPosition">
+                    <b-field label="Pension/Income Amount*" :label-position="labelPosition">
                         <b-input v-mask="currencyMask" v-model="newClient.pension"></b-input>
                     </b-field>
                 </div>
@@ -497,6 +531,18 @@ export default {
       loanTypes: [
         {value: 'pension', display: 'Pension'},
         {value: 'salary', display: 'Salary'},
+      ],
+      classifications: [
+        {value: 'pension', display: 'Pensioner'},
+        {value: 'salary', display: 'Salary'},
+      ],
+      pensionCategories: [
+        {value: 'RT', display: 'RT'},
+        {value: 'SD', display: 'SD'},
+        {value: 'GD', display: 'GD'},
+        {value: 'EC', display: 'EC'},
+        {value: 'SP', display: 'SP'},
+        {value: 'ST', display: 'ST'},
       ],
 
       // columns
