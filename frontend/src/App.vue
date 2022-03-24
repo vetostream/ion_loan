@@ -299,13 +299,27 @@
             </footer>
         </div>
     </b-modal>
-    <!-- End Modals -->    
+    <!-- End Modals -->
+
+    <!-- Loading -->
+    <b-loading :is-full-page="true" v-model="isLoading">
+      <b-icon
+          pack="fas"
+          icon="sync-alt"
+          size="is-large"
+          custom-class="fa-spin">
+      </b-icon>
+      Processing Request. Please wait.
+    </b-loading>
+    <!-- End Loading -->
   </div>
 </template>
 
 <script>
 import { mapGetters, mapActions } from 'vuex'
 import createNumberMask from 'text-mask-addons/dist/createNumberMask'
+import { createEntry } from '@/api/transaction.js'
+import moment from 'moment'
 
 const currencyMask = createNumberMask({
   prefix: '',
@@ -318,6 +332,7 @@ export default {
   data() {
     return {
       currencyMask,
+      isLoading: false,
       labelPosition: 'inside',
       calculatorModal: false,
       journalModal: false,
@@ -404,6 +419,32 @@ export default {
     signOut () {
       this.logout()
       this.$router.push('/login')
+    },
+    async createJournal () {
+        try {
+            this.isLoading = true
+
+            const entry = {...this.newEntry}
+            entry.amount = parseFloat(entry.amount.replace(/,/g, ''))
+            entry.post_date = moment(entry.post_date).format('YYYY-MM-DD')
+
+            const response = await createEntry(entry)
+
+            this.newEntry = {}
+            this.journalModal = false
+            this.$buefy.toast.open({
+                message: `Journal Entry Created!`,
+                type: 'is-success'
+            })
+
+        } catch (err) {
+            this.$buefy.toast.open({
+                message: `Something went wrong: ${err.message}`,
+                type: 'is-danger'
+            })
+        } finally {
+          this.isLoading = false
+        }
     }
   }
 }

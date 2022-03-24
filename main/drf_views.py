@@ -207,3 +207,7 @@ class TransactionViewSet(viewsets.ModelViewSet):
                 post_date__gte=start_date,
                 post_date__lte=end_date
             ).order_by('post_date')
+
+    def perform_create(self, serializer):
+        serializer.save(created_by=self.request.user)
+        super().perform_create(serializer)
