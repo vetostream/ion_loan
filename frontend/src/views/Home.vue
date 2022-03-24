@@ -132,11 +132,16 @@
                 <b-table-column field="control_number" label="LCN" v-slot="props">
                   {{ props.row.control_number }}
                 </b-table-column>
+                <b-table-column field="maturity_date" label="Maturity Date" v-slot="props">
+                  {{ props.row.maturity_date | shortDate }}
+                </b-table-column>
+                <b-table-column field="date_granted" label="Date Granted" v-slot="props">
+                  {{ props.row.date_granted | shortDate }}
+                </b-table-column>
                 <b-table-column field="principal_amount" label="Princp. Amt" v-slot="props">
                   {{ props.row.principal_amount | displayMoney }}
                 </b-table-column>
-                <b-table-column field="principal_amount" label="Advance" v-slot="props">
-                  <!-- {{ props.row.principal_amount | displayMoney }} -->
+                <b-table-column field="is_advance" label="Advance" v-slot="props">
                   <b-icon icon="check" size="is-small" v-if="props.row.is_advance"></b-icon>
                   <b-icon icon="times" size="is-small" v-else></b-icon>
                 </b-table-column>
@@ -173,6 +178,8 @@
                             <h1 class="is-size-4">TOTALS</h1>
                         </div>
                     </th>
+                    <th></th>
+                    <th></th>
                     <th></th>
                     <th></th>
                     <th></th>

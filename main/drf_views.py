@@ -26,10 +26,14 @@ class ClientViewSet(viewsets.ModelViewSet):
             )
         return Client.objects.all()
 
-
 class LoanViewSet(viewsets.ModelViewSet):
     queryset = Loan.objects.none()
     serializer_class = LoanSerializer
+
+
+    def perform_create(self, serializer):
+        serializer.save(created_by=self.request.user)
+        super().perform_create(serializer)
 
     def get_queryset(self):
         print(self.request.user)

@@ -15,7 +15,6 @@ class Super_Model(models.Model):
     class Meta:
         abstract = True
 
-
 class Client(Super_Model):
     CLASSIFICATION_TYPES = [
         ('pension', 'Pension'),
