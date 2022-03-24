@@ -1,4 +1,5 @@
 from datetime import datetime, date
+from gc import collect
 from dateutil.relativedelta import relativedelta
 from main.models import Client, Collection_Detail, Loan, Loan_Detail, Collection, Transaction
 from main.serializers import ClientSerializer, LoanSerializer, CollectionSerializer, CollectionDetailSerializer, TransactionSerializer
@@ -103,8 +104,10 @@ class LoanViewSet(viewsets.ModelViewSet):
             Transaction.objects.create(
                 account=Transaction.LIABILITIES,
                 description=f"{loan.control_number} | {loan.client.last_name} {loan.client.first_name}",
+                loan=loan,
                 transaction_side=Transaction.CREDIT,
-                amount=net_cash_out
+                amount=net_cash_out,
+                created_by=self.request.user
             )
 
         return Response({'message': 'Loan Approved'}, status=status.HTTP_201_CREATED)
@@ -172,7 +175,9 @@ class CollectionViewSet(viewsets.ModelViewSet):
             description=f"COLLECTION-{collection.post_date.strftime('%m/%d/%Y')}-{collection.reference_code} | {collection.client.last_name} {collection.client.first_name}",
             transaction_side=Transaction.DEBIT,
             amount=collection.collection_amount,
-            post_date=collection.post_date
+            collection=collection,
+            post_date=collection.post_date,
+            created_by=self.request.user
         )
 
         super().perform_create(serializer)

@@ -23,7 +23,7 @@
                     Approved
                 </b-navbar-item>
             </b-navbar-dropdown> -->
-            <b-navbar-dropdown label="Financial Statements" boxed>
+            <b-navbar-dropdown label="Financial Reports" boxed>
                 <b-navbar-item tag="router-link" :to="{ path: '/cashFlowStatement'}">
                   Daily Cash Flow Statement
                 </b-navbar-item>
@@ -44,6 +44,13 @@
             </b-navbar-dropdown> -->
         </template>
         <template #end v-if="isAuthenticated">
+            <b-navbar-item tag="div">
+                <div class="buttons">
+                    <b-button class="button is-warning is-light" icon-left="sticky-note" @click="journalModal=true">
+                        Create Journal Entry
+                    </b-button>
+                </div>
+            </b-navbar-item>
             <b-navbar-item tag="div">
                 <div class="buttons">
                     <b-button class="button is-warning is-light" icon-left="calculator" @click="calculatorModal=true">
@@ -228,6 +235,70 @@
             </footer>
         </div>
     </b-modal>
+
+    <b-modal v-model="journalModal" :width="640" scroll="keep">
+        <div class="modal-card">
+            <header class="modal-card-head">
+              <p class="modal-card-title">Create Journal Entry</p>
+            </header>
+            <section class="modal-card-body">
+              <div class="columns">
+                  <div class="column is-6">
+                      <b-field label="Post Date" :label-position="labelPosition">
+                          <b-input v-model="newEntry.post_date" placeholder="MM/DD/YYYY" v-mask="'##/##/####'"></b-input>
+                      </b-field>
+                  </div>
+                  <div class="column is-6">
+                      <b-field label="Amount" :label-position="labelPosition">
+                          <b-input v-model="newEntry.amount" v-mask="currencyMask"></b-input>
+                      </b-field>
+                  </div>
+              </div>
+              <div class="columns">
+                <div class="column">
+                  <b-field label="Transaction Side*" :label-position="labelPosition">
+                      <b-select placeholder="Select Side" expanded v-model="newEntry.transaction_side">
+                          <option
+                              v-for="option in transactionSides"
+                              :value="option.value"
+                              :key="option.value">
+                              {{ option.display }}
+                          </option>
+                      </b-select>
+                  </b-field>
+                </div>
+                <div class="column">
+                  <b-field label="Account" :label-position="labelPosition">
+                      <b-select placeholder="Select Account" expanded v-model="newEntry.account">
+                          <option
+                              v-for="option in accounts"
+                              :value="option.value"
+                              :key="option.value">
+                              {{ option.display }}
+                          </option>
+                      </b-select>
+                  </b-field>
+                </div>
+              </div>
+              <div class="columns">
+                  <div class="column is-12">
+                      <b-field label="Description" :label-position="labelPosition">
+                          <b-input v-model="newEntry.description" maxlength="200" type="textarea"></b-input>
+                      </b-field>
+                  </div>
+              </div>
+            </section>
+            <footer class="modal-card-foot">
+              <b-button
+                label="Close"
+                @click="() => {
+                  journalModal = false;
+                  newEntry = {};
+                }"/>
+              <b-button type="is-success" @click="createJournal()">Submit</b-button>
+            </footer>
+        </div>
+    </b-modal>
     <!-- End Modals -->    
   </div>
 </template>
@@ -249,7 +320,19 @@ export default {
       currencyMask,
       labelPosition: 'inside',
       calculatorModal: false,
+      journalModal: false,
       sampleLoan: {is_advance: true, add_fee_others: true},
+      newEntry: {},
+      //selectOptions
+      transactionSides: [
+        {value: 'debit', display: 'Debit'},
+        {value: 'credit', display: 'Credit'},
+      ],
+      accounts: [
+        {value: 'assets', display: 'Assets'},
+        {value: 'liabilities', display: 'Liabilities'},
+        {value: 'equity', display: 'Equity'},
+      ],
     }
   },
   computed: {
