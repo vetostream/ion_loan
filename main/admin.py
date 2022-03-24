@@ -3,6 +3,7 @@ from main.models import Loan, Loan_Detail, Client, Collection, Collection_Detail
 
 admin.site.register(Client)
 admin.site.register(Transaction)
+admin.site.register(Collection_Detail)
 
 class Loan_Detail_Inline(admin.TabularInline):
     model = Loan_Detail

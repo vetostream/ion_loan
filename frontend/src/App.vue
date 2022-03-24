@@ -277,15 +277,16 @@ export default {
           feeOthers = 0
         }
 
-        const totalDeductions = llrf + processingFee + feeOthers
+        let totalDeductions = llrf + processingFee + feeOthers
 
         if (this.sampleLoan.is_advance) {
+          totalDeductions += udi
           grossCashOut = principalAmount - udi
         } else {
           grossCashOut = principalAmount
         }
 
-        const netCashout = grossCashOut - totalDeductions
+        const netCashout = principalAmount  - totalDeductions
 
         return {
           principalAmount,

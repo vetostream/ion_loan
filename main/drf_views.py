@@ -32,6 +32,7 @@ class LoanViewSet(viewsets.ModelViewSet):
     serializer_class = LoanSerializer
 
     def get_queryset(self):
+        print(self.request.user)
         lastname = self.request.query_params.get('client_last_name', None)
         loan_status = self.request.query_params.get('loan_status', None)
         client_id = self.request.query_params.get('client_id', None)

@@ -21,9 +21,6 @@ class ClientSerializer(serializers.ModelSerializer):
         return LoanSerializer(obj.loan_set.filter(loan_status='approved'), many=True).data
 
     def get_collections(self, obj):
-        # my_collection_details = Collection_Detail.objects.filter(collection__client=obj)
-        # serialized_collections = CollectionDetailSerializer(my_collection_details, many=True).data
-
         # return serialized_collections
         my_collections = obj.collection_set.all()
         serialized_collections = CollectionSerializer(my_collections, many=True)
@@ -33,7 +30,6 @@ class ClientSerializer(serializers.ModelSerializer):
 
 class LoanDetailSerializer(serializers.ModelSerializer):
     loan_amount = serializers.SerializerMethodField()
-    is_paid = serializers.SerializerMethodField()
     loan_control_number = serializers.SerializerMethodField()
 
     class Meta:
@@ -42,9 +38,6 @@ class LoanDetailSerializer(serializers.ModelSerializer):
 
     def get_loan_amount(self, obj):
         return obj.loan.principal_amount
-
-    def get_is_paid(self, obj):
-        return obj.collection_detail.count() > 0
 
     def get_loan_control_number(self, obj):
         return obj.loan.control_number
