@@ -17,7 +17,6 @@ def login_view(request):
     data = json.loads(request.body)
     username = data.get('username')
     password = data.get('password')
-    print(data)
     user = authenticate(username=username, password=password)
 
     if user is not None:
