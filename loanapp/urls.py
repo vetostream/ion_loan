@@ -45,6 +45,7 @@ urlpatterns = [
 
     # Reports
     path('api/v1/reports/cash_flow_statement/<date:start_date>/<date:end_date>/', cash_flow_statement),
+    path('api/v1/functions/calculate_opening_cash/<date:start_date>/', retrieve_opening_cash_balance),
     path('api/v1/reports/cash_flow_statement/<date:start_date>/', cash_flow_statement),
     path('api/v1/reports/computation_report/<int:loan_id>/', computation_report),
     path('api/v1/reports/promissory_report/<int:loan_id>/', promissory_report),

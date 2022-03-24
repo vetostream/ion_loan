@@ -8,6 +8,7 @@ from django.db.models import Sum
 from .utils import generate_to_pdf
 from num2words import num2words
 
+
 @ensure_csrf_cookie
 def set_csrf_token(request):
     return JsonResponse({"details": "CSRF cookie set"})
@@ -142,3 +143,25 @@ def disclosure_of_loan(request, loan_id):
 
     pdf = generate_to_pdf("disclosure_of_loan.html", context, f"disclosure-form-{loan_id}")
     return FileResponse(open(pdf, 'rb'), content_type="application/pdf")
+
+def retrieve_opening_cash_balance(request, start_date):
+    # Fetch Transactions Before start_date
+    opening_balance = 0
+
+    debit_transactions = Transaction.objects.filter(
+        post_date__lt=start_date,
+        transaction_side='debit'
+    ).aggregate(Sum('amount'))
+    credit_transactions = Transaction.objects.filter(
+        post_date__lt=start_date,
+        transaction_side='credit'
+    ).aggregate(Sum('amount'))
+
+    opening_balance = (debit_transactions['amount__sum'] or 0) - (credit_transactions['amount__sum'] or 0)
+
+    side = 'debit'
+
+    if opening_balance < 0:
+        side = 'credit'
+
+    return JsonResponse({'opening_balance': abs(opening_balance), 'side': side}, safe=False)

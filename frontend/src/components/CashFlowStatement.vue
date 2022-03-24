@@ -49,6 +49,12 @@
                 </b-field>
             </div>
         </div>
+        <!-- <div class="columns">
+            <div class="column is-12 is-flex is-justify-content-space-between">
+                <h3>Opening Cash Balanace</h3>
+                <p>{{this.openingCash.opening_balance | displayMoney }}</p>
+            </div>
+        </div> -->
         <b-table :data="dailyTransactions" :columns="type === 'daily' ? columns : rangedColumns">
             <template #footer>
                 <th>
@@ -74,7 +80,7 @@
 </template>
 
 <script>
-import { fetchTransactionsByDate, fetchRangedTransactions } from '@/api/transaction.js'
+import { fetchTransactionsByDate, fetchRangedTransactions, calculateOpeningCash } from '@/api/transaction.js'
 import moment from 'moment'
 import Cleave from 'cleave.js'
 
@@ -114,6 +120,7 @@ export default {
     data() {
         return {
             dailyTransactions: [],
+            openingCash: null,
             columns: [
                 {
                     field: 'description',
@@ -234,20 +241,30 @@ export default {
     methods: {
         async fetchTransactions() {
             let transactions = null
+            let openingCash = {}
             if (!this.filterDate) {
                 const now = moment().format("YYYY-MM-DD")
                 transactions = await fetchTransactionsByDate(now)
+                openingCash = await calculateOpeningCash(moment().format('YYYY-MM-DD'))
             } else {
                 transactions = await fetchTransactionsByDate(moment(this.filterDate).format("YYYY-MM-DD"))
+                openingCash = await calculateOpeningCash(moment(this.filterDate).format('YYYY-MM-DD'))
             }
 
-            this.dailyTransactions = transactions.data.map((transaction) => {
+            this.openingCash = openingCash.data
+
+            const dailyTransactions = transactions.data.map((transaction) => {
                 return {
                     ...transaction,
                     debit_amount: transaction.transaction_side === 'debit' ? `${toCurrency.format(transaction.amount)}` : '',
                     credit_amount: transaction.transaction_side === 'credit' ? `-${toCurrency.format(transaction.amount)}` : '',
                 }
             });
+            this.dailyTransactions = [{
+                description: 'BEGINNING BALANCE',
+                debit_amount: this.openingCash.side === 'debit' ? `${toCurrency.format(this.openingCash.opening_balance)}` : '',
+                credit_amount: this.openingCash.side === 'credit' ? `${toCurrency.format(this.openingCash.opening_balance)}` : ''
+            }].concat(dailyTransactions)
         },
         async fetchTransactionsByRange() {
             const startDate = moment(this.startDate).format("YYYY-MM-DD")

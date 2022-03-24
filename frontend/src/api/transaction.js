@@ -1,6 +1,7 @@
 import baseApi from './base';
 
 const resource = 'transactions/'
+const subroutes = 'functions/'
 
 const fetchTransactionsByDate = (transaction_date) => {
     return baseApi.get(resource, { params: {transaction_date} })
@@ -18,9 +19,14 @@ const createEntry = (data) => {
     return baseApi.post(resource, data)
 }
 
+const calculateOpeningCash = (startDate) => {
+    return baseApi.get(`${subroutes}calculate_opening_cash/${startDate}`)
+}
+
 export {
     fetchTransactionsByDate,
     fetchRangedTransactions,
     createExpense,
-    createEntry
+    createEntry,
+    calculateOpeningCash
 }
