@@ -128,34 +128,38 @@
               </div>
 
               <b-table :data="loans" :selected.sync="selectedLoan" focusable checkable :checked-rows.sync="selectedLoanRows" narrowed striped
-                :is-row-checkable="(row) => row.running_balance != 0">
+                :is-row-checkable="(row) => row.running_balance != 0"
+                >
                 <b-table-column field="control_number" label="LCN" v-slot="props">
                   {{ props.row.control_number }}
-                </b-table-column>
-                <b-table-column field="maturity_date" label="Maturity Date" v-slot="props">
-                  {{ props.row.maturity_date | shortDate }}
                 </b-table-column>
                 <b-table-column field="date_granted" label="Date Granted" v-slot="props">
                   {{ props.row.date_granted | shortDate }}
                 </b-table-column>
-                <b-table-column field="principal_amount" label="Princp. Amt" v-slot="props">
-                  {{ props.row.principal_amount | displayMoney }}
+                <b-table-column field="start_payment" label="First Deduction" v-slot="props">
+                  {{ props.row.start_payment | shortDate }}
+                </b-table-column>
+                <b-table-column field="maturity_date" label="Maturity Date" v-slot="props">
+                  {{ props.row.maturity_date | shortDate }}
+                </b-table-column>
+                <b-table-column field="term" label="Term" v-slot="props">
+                  {{ props.row.term}}
                 </b-table-column>
                 <b-table-column field="is_advance" label="Advance" v-slot="props">
                   <b-icon icon="check" size="is-small" v-if="props.row.is_advance"></b-icon>
                   <b-icon icon="times" size="is-small" v-else></b-icon>
+                </b-table-column>
+                <b-table-column field="interest" label="Int %" v-slot="props">
+                  {{ props.row.interest}}
+                </b-table-column>
+                <b-table-column field="principal_amount" label="Princp. Amt" v-slot="props">
+                  {{ props.row.principal_amount | displayMoney }}
                 </b-table-column>
                 <b-table-column field="udi" label="UDI" v-slot="props">
                   {{ props.row.udi | displayMoney }}
                 </b-table-column>
                 <b-table-column field="amortization" label="Inst." v-slot="props">
                   {{ props.row.amortization | displayMoney }}
-                </b-table-column>
-                <b-table-column field="term" label="Term" v-slot="props">
-                  {{ props.row.term}}
-                </b-table-column>
-                <b-table-column field="interest" label="Int %" v-slot="props">
-                  {{ props.row.interest}}
                 </b-table-column>
                 <b-table-column field="llrf" label="L.L.R.F" v-slot="props">
                   {{ props.row.llrf | displayMoney }}
@@ -184,11 +188,12 @@
                     <th></th>
                     <th></th>
                     <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
                     <th>
                       <h1 class="is-size-4">{{ totalAmortization | displayMoney }}</h1>
                     </th>
-                    <th></th>
-                    <th></th>
                     <th></th>
                     <th></th>
                     <th></th>
@@ -470,8 +475,83 @@
                 }"/>
             </footer>
         </div>
-    </b-modal>    
+    </b-modal>
     <!-- End Modals -->
+
+    <!-- Start Sidebar -->
+    <b-sidebar
+      type="is-light"
+      fullheight
+      right
+      id="loan-sidebar"
+      v-model="openSidebar"
+      :can-cancel="false"
+    >
+      <p class="is-size-3 mb-2" v-if="selectedLoan">LOAN {{ selectedLoan.control_number }}</p>
+      <div class="columns" v-if="selectedLoan">
+        <div class="column">
+            <b-button
+                label="Close"
+                icon-left="times"
+                expanded
+                @click="()=> {
+                  openSidebar=false
+                  selectedLoan=null
+                }"
+                />
+        </div>
+        <div class="column" v-if="selectedLoan.payments.length == 0">
+            <b-button
+                label="Delete"
+                type="is-danger"
+                icon-left="trash"
+                expanded
+                @click="confirmLoanDelete"
+                />
+        </div>
+      </div>
+      <b-tabs type="is-boxed" expanded v-if="selectedLoan">
+          <b-tab-item label="Payments">
+            <b-table :data="selectedLoan.payments" narrowed striped>
+              <b-table-column field="index" label="#" v-slot="props">
+                {{ props.index + 1 }}
+              </b-table-column>
+              <b-table-column field="reference_code" label="Ref Code" v-slot="props">
+                {{ props.row.collection.reference_code }}
+              </b-table-column>
+              <b-table-column field="post_date" label="Date" v-slot="props">
+                {{ props.row.collection.post_date | shortDate }}
+              </b-table-column>
+              <b-table-column field="amount_used" label="Amount" v-slot="props">
+                {{ props.row.amount_used | displayMoney }}
+              </b-table-column>
+              <template #empty>
+                <div class="has-text-centered">No Results Found</div>
+              </template>
+            </b-table>
+          </b-tab-item>
+          <b-tab-item label="Schedule">
+            <b-table :data="selectedLoan.loan_detail" narrowed striped>
+              <b-table-column field="index" label="#" v-slot="props">
+                {{ props.index + 1 }}
+              </b-table-column>
+              <b-table-column field="date_payment" label="Due Date" v-slot="props">
+                {{ props.row.date_payment | shortDate }}
+              </b-table-column>
+              <b-table-column field="amount" label="Amount Due" v-slot="props">
+                {{ props.row.amount | displayMoney }}
+              </b-table-column>
+              <b-table-column field="balance" label="Running Balance" v-slot="props">
+                {{ props.row.balance | displayMoney }}
+              </b-table-column>
+              <template #empty>
+                <div class="has-text-centered">No Results Found</div>
+              </template>
+            </b-table>
+          </b-tab-item>
+      </b-tabs>
+    </b-sidebar>
+    <!-- End Sidebar -->
 
     <!-- Loading -->
     <b-loading :is-full-page="true" v-model="isLoading">
@@ -495,7 +575,7 @@ import createNumberMask from 'text-mask-addons/dist/createNumberMask'
 // endpoints
 import { createClient } from '@/api/client.js'
 import { createLoan } from '@/api/loan.js'
-import { approveLoan, searchLoans } from '@/api/loan.js'
+import { approveLoan, searchLoans, deleteLoan } from '@/api/loan.js'
 import { createCollection, fetchCollections } from '@/api/collection.js'
 
 const currencyMask = createNumberMask({
@@ -534,6 +614,9 @@ export default {
       newCAModal: false,
       collectionDetailModal : false,
 
+      // sidebar
+      openSidebar: false,
+
       //selectOptions
       loanTypes: [
         {value: 'pension', display: 'Pension'},
@@ -566,7 +649,7 @@ export default {
               field: 'amount',
               label: 'Amount',
           },
-      ],
+      ]
     }
   },
   methods: {
@@ -599,6 +682,39 @@ export default {
       return details.reduce((partial_sum, a) => {
         return partial_sum + parseFloat(a.amount_used)
       }, 0);
+    },
+    confirmLoanDelete () {
+      this.$buefy.dialog.confirm({
+          title: 'Are you sure?',
+          message: `Deleting Loan ${this.selectedLoan.control_number} will delete the posted net cash out transaction.`,
+          cancelText: 'Cancel',
+          confirmText: 'Delete',
+          type: 'is-danger',
+          onConfirm: () => this.trashLoan()
+      })
+    },
+    async trashLoan () {
+
+      try {
+        this.isLoading = true
+        await deleteLoan(this.selectedLoan.id)
+        
+        
+        this.fetchLoans()
+        this.$buefy.toast.open({
+            message: 'Loan Deleted Successfully!',
+            type: 'is-success'
+        })
+        this.selectedLoan = null
+        this.openSidebar = false
+      } catch (err) {
+        this.$buefy.toast.open({
+          message: `Something went wrong: ${err.message}`,
+          type: 'is-danger'
+        })
+      } finally {
+        this.isLoading = false
+      }
     },
     async createCollection() {
         try {
@@ -776,6 +892,11 @@ export default {
       if (newSelectedLoanRows.length === 0) {
         this.newCollection = {}
       }
+    },
+    selectedLoan() {
+      if (!!this.selectedLoan) {
+        this.openSidebar = true
+      }
     }
   }
 }
@@ -789,5 +910,11 @@ export default {
   #computation-table {
     max-height: 500px;
     overflow: scroll;
+  }
+
+  #loan-sidebar .sidebar-content {
+    width: 30% !important;
+    padding: 3em;
+    background: #fff;
   }
 </style>

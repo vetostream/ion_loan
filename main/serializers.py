@@ -49,6 +49,7 @@ class LoanSerializer(serializers.ModelSerializer):
     running_balance = serializers.SerializerMethodField()
     loan_detail = serializers.SerializerMethodField()
     amortization = serializers.SerializerMethodField()
+    payments = serializers.SerializerMethodField()
 
     class Meta:
         model = Loan
@@ -66,11 +67,15 @@ class LoanSerializer(serializers.ModelSerializer):
     def get_loan_detail(self, obj):
         return LoanDetailSerializer(obj.loan_detail_set.all(), many=True).data
 
+    def get_payments(self, obj):
+        return CollectionDetailWithoutLoanSerializer(obj.collection_detail_set.all(), many=True).data
+
     def get_amortization(self, obj):
         if obj.loan_detail_set.count() == 0:
             return 0
 
         return obj.loan_detail_set.first().amount
+
 
 class CollectionDetailSerializer(serializers.ModelSerializer):
     loan = LoanSerializer(read_only=True)
@@ -85,6 +90,19 @@ class CollectionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Collection
+        fields = '__all__'
+
+
+class CollectionWithoutDetailSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Collection
+        fields = '__all__'
+
+
+class CollectionDetailWithoutLoanSerializer(serializers.ModelSerializer):
+    collection = CollectionWithoutDetailSerializer(read_only=True)
+    class Meta:
+        model = Collection_Detail
         fields = '__all__'
 
 
