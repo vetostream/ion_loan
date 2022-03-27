@@ -372,11 +372,19 @@
                 </div>
               </div>
               <div class="columns">
-                <div class="column is-6">
+                <div class="column">
                   <b-checkbox v-model="newLoan.is_advance">Advanced</b-checkbox>
                 </div>
-                <div class="column is-6">
-                  <b-checkbox v-model="newLoan.add_fee_others">Fee Others?</b-checkbox>
+                <div class="column">
+                  <label for="">U.D.I</label>
+                  <p>{{ calculatedUDI | displayMoney }}</p>
+                </div>
+              </div>
+              <div class="columns">
+                <div class="column is-offset-6">
+                    <b-field label="Fee Others*" :label-position="labelPosition">
+                        <b-input v-model="calculatedOthers"></b-input>
+                    </b-field>
                 </div>
               </div>
             </section>
@@ -629,6 +637,7 @@ export default {
       pensionCategories: [
         {value: 'RT', display: 'RT'},
         {value: 'SD', display: 'SD'},
+        {value: 'SD-ED', display: 'SD-ED'},
         {value: 'GD', display: 'GD'},
         {value: 'EC', display: 'EC'},
         {value: 'SP', display: 'SP'},
@@ -857,6 +866,28 @@ export default {
       }
 
       return []
+    },
+    calculatedUDI () {
+      if (!!this.newLoan.principal_amount && !!this.newLoan.term && !!this.newLoan.interest) {
+        const principalAmount = parseInt(this.newLoan.principal_amount.replace(/,/g, ''))
+        const interestRate = this.newLoan.interest * this.newLoan.term
+        const udi = (principalAmount * interestRate) / 100
+        return udi
+      } else {
+        return 0
+      }
+    },
+    calculatedOthers: {
+      get: function () {
+        if (this.calculatedUDI) {
+          this.newLoan.fee_others = (0.05 * this.calculatedUDI).toFixed(2)
+          return (0.05 * this.calculatedUDI).toFixed(2)
+        }
+        return 0
+      },
+      set: function (value) {
+        this.newLoan.fee_others = value
+      }
     },
     canCreateCollection() {
         if (!!this.newCollection.amount && !!this.newCollection.reference_code && !!this.newCollection.post_date) {

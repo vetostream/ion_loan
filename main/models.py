@@ -62,8 +62,8 @@ class Loan(Super_Model):
     loan_type = models.CharField(max_length=50, choices=LOAN_TYPES, default='pension')
     is_advance = models.BooleanField(default=False)
     loan_status = models.CharField(max_length=50, choices=LOAN_STATUS, default='pending')
-    fee_others = models.DecimalField(max_digits=5, decimal_places=2, null=True)
-    llrf = models.DecimalField(max_digits=5, decimal_places=2, null=True)
+    fee_others = models.DecimalField(max_digits=10, decimal_places=2, null=True)
+    llrf = models.DecimalField(max_digits=10, decimal_places=2, null=True)
     processing_fee = models.DecimalField(max_digits=5, decimal_places=2, null=True)
     udi = models.DecimalField(max_digits=10, decimal_places=2, null=True)
     gross_cash_out =  models.DecimalField(max_digits=10, decimal_places=2, null=True)
@@ -81,17 +81,18 @@ class Loan(Super_Model):
         interest_rate = round(self.interest * self.term, 2)
         self.udi = round((self.principal_amount * interest_rate) / 100, 2)
 
+        print(f"UDI {self.udi}")
+
         # calculate llrf
         if not self.is_cash_advance:
             self.llrf = round((self.principal_amount / 1000) * (self.term + 1), 2)
             self.processing_fee = round(decimal.Decimal(150.0), 2) #fixed
-            self.fee_others = round(decimal.Decimal(0.05) * self.udi, 2)
+
+            if not self.fee_others:
+                self.fee_others = round(decimal.Decimal(0.05) * self.udi, 2)
         else:
             self.llrf = 0
             self.processing_fee = 0
-            self.fee_others = 0
-
-        if not self.add_fee_others:
             self.fee_others = 0
 
         total_deductions = round(self.llrf + self.processing_fee + self.fee_others, 2)
