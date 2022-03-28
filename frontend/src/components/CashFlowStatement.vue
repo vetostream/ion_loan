@@ -246,7 +246,7 @@ export default {
             }
         },
         endingBalance () {
-            if (!!this.debitTotal && !!this.creditTotal && !!this.openingCash) {
+            if ((!!this.debitTotal || !!this.creditTotal) && !!this.openingCash) {
                 if (this.openingCash.side === 'debit') {
                     return (parseFloat(this.openingCash.opening_balance) + this.debitTotal) - this.creditTotal
                 } else {
