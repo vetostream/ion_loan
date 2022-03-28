@@ -57,7 +57,7 @@
                 <p class="is-size-4 has-text-right">{{ openingCash.opening_balance | displayMoney }}</p>
             </div>
         </div>
-        <b-table :data="dailyTransactions" :columns="type === 'daily' ? columns : rangedColumns" class="m-0 p-0">
+        <b-table :data="dailyTransactions" :columns="type === 'daily' ? columns : rangedColumns" class="m-0 p-0" :loading="isLoading">
             <template #footer>
                 <th>
                     <div class="th-wrap">
@@ -180,6 +180,7 @@ export default {
             rangedDate: '',
             startDate: null,
             endDate: null,
+            isLoading: false
         }
     },
     async created() {
@@ -269,6 +270,7 @@ export default {
     },
     methods: {
         async fetchTransactions() {
+            this.isLoading = true
             let transactions = null
             let openingCash = {}
             if (!this.filterDate) {
@@ -289,6 +291,7 @@ export default {
                     credit_amount: transaction.transaction_side === 'credit' ? `-${toCurrency.format(transaction.amount)}` : '',
                 }
             });
+            this.isLoading = false
             // this.dailyTransactions = [{
             //     description: 'BEGINNING BALANCE',
             //     debit_amount: this.openingCash.side === 'debit' ? `${toCurrency.format(this.openingCash.opening_balance)}` : '',
@@ -296,6 +299,7 @@ export default {
             // }].concat(dailyTransactions)
         },
         async fetchTransactionsByRange() {
+            this.isLoading = true
             const startDate = moment(this.startDate).format("YYYY-MM-DD")
             const endDate = moment(this.endDate).format("YYYY-MM-DD")
 
@@ -315,6 +319,7 @@ export default {
                         credit_amount: transaction.transaction_side === 'credit' ? `-${toCurrency.format(transaction.amount)}` : '',
                     }
                 });
+            this.isLoading = false
         },
         resetToday() {
             this.filterDate = null
