@@ -49,13 +49,15 @@
                 </b-field>
             </div>
         </div>
-        <!-- <div class="columns">
-            <div class="column is-12 is-flex is-justify-content-space-between">
-                <h3>Opening Cash Balanace</h3>
-                <p>{{this.openingCash.opening_balance | displayMoney }}</p>
+        <div class="columns m-0 pb-0">
+            <div class="column is-6 pb-0">
+                <p class="is-size-4">BEGINNING BALANCE</p>
             </div>
-        </div> -->
-        <b-table :data="dailyTransactions" :columns="type === 'daily' ? columns : rangedColumns">
+            <div class="column is-6 pb-0">
+                <p class="is-size-4 has-text-right">{{ openingCash.opening_balance | displayMoney }}</p>
+            </div>
+        </div>
+        <b-table :data="dailyTransactions" :columns="type === 'daily' ? columns : rangedColumns" class="m-0 p-0">
             <template #footer>
                 <th>
                     <div class="th-wrap">
@@ -64,10 +66,10 @@
                 </th>
                 <th v-if="type !== 'daily'"></th>
                 <th>
-                    <h1 class="is-size-4 has-text-success">{{ debitTotal | displayMoney }}</h1>
+                    <h1 class="is-size-4 has-text-success has-text-right">{{ debitTotal | displayMoney }}</h1>
                 </th>
                 <th>
-                    <h1 class="is-size-4 has-text-danger">{{ creditTotal | displayMoney }}</h1>
+                    <h1 class="is-size-4 has-text-danger has-text-right">{{ creditTotal | displayMoney }}</h1>
                 </th>
             </template>
             <template #empty>
@@ -76,6 +78,14 @@
                 </div>
             </template>
         </b-table>
+        <div class="columns m-0 pb-0">
+            <div class="column is-6 pb-0">
+                <p class="is-size-4">ENDING BALANCE</p>
+            </div>
+            <div class="column is-6 pb-0">
+                <p class="is-size-4 has-text-right">{{ endingBalance | displayMoney }}</p>
+            </div>
+        </div>
     </div>
 </template>
 
@@ -120,7 +130,9 @@ export default {
     data() {
         return {
             dailyTransactions: [],
-            openingCash: null,
+            openingCash: {
+                opening_balance: 0
+            },
             columns: [
                 {
                     field: 'description',
@@ -129,10 +141,12 @@ export default {
                 {
                     field: 'debit_amount',
                     label: 'DEBIT',
+                    numeric: true,
                 },
                 {
                     field: 'credit_amount',
                     label: 'CREDIT',
+                    numeric: true,
                 }
             ],
             rangedColumns: [
@@ -147,10 +161,12 @@ export default {
                 {
                     field: 'debit_amount',
                     label: 'DEBIT',
+                    numeric: true,
                 },
                 {
                     field: 'credit_amount',
                     label: 'CREDIT',
+                    numeric: true,
                 }
             ],
             filterDate: null,
@@ -225,6 +241,19 @@ export default {
             } else {
                 return "Daily Cash Flow Statement"
             }
+        },
+        endingBalance () {
+            if (!!this.debitTotal && !!this.creditTotal && !!this.openingCash) {
+                if (this.openingCash.side === 'debit') {
+                    return (parseFloat(this.openingCash.opening_balance) + this.debitTotal) - this.creditTotal
+                } else {
+                    return this.debitTotal - (this.creditTotal +  parseFloat(this.openingCash.opening_balance))
+                }
+            } else if (!!this.openingCash) {
+                return this.openingCash.opening_balance
+            }
+
+            return 0
         }
     },
     watch: {
@@ -253,38 +282,39 @@ export default {
 
             this.openingCash = openingCash.data
 
-            const dailyTransactions = transactions.data.map((transaction) => {
+            this.dailyTransactions = transactions.data.map((transaction) => {
                 return {
                     ...transaction,
                     debit_amount: transaction.transaction_side === 'debit' ? `${toCurrency.format(transaction.amount)}` : '',
                     credit_amount: transaction.transaction_side === 'credit' ? `-${toCurrency.format(transaction.amount)}` : '',
                 }
             });
-            this.dailyTransactions = [{
-                description: 'BEGINNING BALANCE',
-                debit_amount: this.openingCash.side === 'debit' ? `${toCurrency.format(this.openingCash.opening_balance)}` : '',
-                credit_amount: this.openingCash.side === 'credit' ? `${toCurrency.format(this.openingCash.opening_balance)}` : ''
-            }].concat(dailyTransactions)
+            // this.dailyTransactions = [{
+            //     description: 'BEGINNING BALANCE',
+            //     debit_amount: this.openingCash.side === 'debit' ? `${toCurrency.format(this.openingCash.opening_balance)}` : '',
+            //     credit_amount: this.openingCash.side === 'credit' ? `${toCurrency.format(this.openingCash.opening_balance)}` : ''
+            // }].concat(dailyTransactions)
         },
         async fetchTransactionsByRange() {
             const startDate = moment(this.startDate).format("YYYY-MM-DD")
             const endDate = moment(this.endDate).format("YYYY-MM-DD")
 
+            const openingCash = await calculateOpeningCash(startDate)
             this.rangedDate = `${moment(startDate).format("MMMM Do, YYYY")} to ${moment(endDate).format("MMMM Do, YYYY")}`
 
             const transactions = await fetchRangedTransactions({
                 start_date: startDate,
                 end_date: endDate
             })
-
-           this.dailyTransactions = transactions.data.map((transaction) => {
-                return {
-                    post_date_human: moment(transaction.post_date).format("MM/DD/YYYY"),
-                    ...transaction,
-                    debit_amount: transaction.transaction_side === 'debit' ? `${toCurrency.format(transaction.amount)}` : '',
-                    credit_amount: transaction.transaction_side === 'credit' ? `-${toCurrency.format(transaction.amount)}` : '',
-                }
-            });
+            this.openingCash = openingCash.data
+            this.dailyTransactions = transactions.data.map((transaction) => {
+                    return {
+                        post_date_human: moment(transaction.post_date).format("MM/DD/YYYY"),
+                        ...transaction,
+                        debit_amount: transaction.transaction_side === 'debit' ? `${toCurrency.format(transaction.amount)}` : '',
+                        credit_amount: transaction.transaction_side === 'credit' ? `-${toCurrency.format(transaction.amount)}` : '',
+                    }
+                });
         },
         resetToday() {
             this.filterDate = null
