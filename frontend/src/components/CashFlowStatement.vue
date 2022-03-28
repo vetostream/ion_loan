@@ -251,7 +251,11 @@ export default {
                     return this.debitTotal - (this.creditTotal +  parseFloat(this.openingCash.opening_balance))
                 }
             } else if (!!this.openingCash) {
-                return this.openingCash.opening_balance
+                if (this.openingCash.side === 'credit') {
+                    return 0 - parseFloat(this.openingCash.opening_balance)
+                } else {
+                    return parseFloat(this.openingCash.opening_balance)
+                }
             }
 
             return 0
