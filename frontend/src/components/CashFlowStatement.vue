@@ -54,7 +54,8 @@
                 <p class="is-size-4">BEGINNING BALANCE</p>
             </div>
             <div class="column is-6 pb-0">
-                <p class="is-size-4 has-text-right">{{ openingCash.opening_balance | displayMoney }}</p>
+                <p class="is-size-4 has-text-right" v-if="openingCash.side === 'debit'">{{ openingCash.opening_balance | displayMoney }}</p>
+                <p class="is-size-4 has-text-right" v-else>-{{ openingCash.opening_balance | displayMoney }}</p>
             </div>
         </div>
         <b-table :data="dailyTransactions" :columns="type === 'daily' ? columns : rangedColumns" class="m-0 p-0" :loading="isLoading">
@@ -131,6 +132,7 @@ export default {
         return {
             dailyTransactions: [],
             openingCash: {
+                side: 'debit',
                 opening_balance: 0
             },
             columns: [
