@@ -51,6 +51,11 @@ class Loan(Super_Model):
         ('approved', 'Approved')
     ]
 
+    LOAN_MODE = [
+        ('semi_monthly', 'Semi Monthly'),
+        ('monthly', 'Monthly')
+    ]
+
     client = models.ForeignKey(Client, on_delete=models.CASCADE)
     term = models.IntegerField(null=False)
     interest = models.DecimalField(max_digits=5, decimal_places=2, null=False)
@@ -72,6 +77,7 @@ class Loan(Super_Model):
     is_cash_advance = models.BooleanField(default=False)
     add_fee_others = models.BooleanField(default=True)
     co_maker = models.CharField(max_length=150, null=True, blank=True)
+    loan_mode = models.CharField(max_length=50, choices=LOAN_MODE, default='monthly')
 
     def __str__(self):
         return f"{self.control_number} - {self.client.first_name} {self.client.last_name} - {self.principal_amount}"

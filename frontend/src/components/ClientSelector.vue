@@ -3,7 +3,7 @@
         <b-autocomplete
             :data="clients"
             :loading="isFetching"
-            placeholder="Last Name"
+            placeholder="Search using Last Name or First Name"
             icon="search"
             field="pretty_result"
             @input="getAsyncData"

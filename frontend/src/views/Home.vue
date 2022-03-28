@@ -373,6 +373,20 @@
               </div>
               <div class="columns">
                 <div class="column">
+                  <b-field label="Mode of Payment*" :label-position="labelPosition">
+                      <b-select placeholder="Select Mode of Payment" expanded v-model="newLoan.loan_mode">
+                          <option
+                              v-for="option in loan_modes"
+                              :value="option.value"
+                              :key="option.value">
+                              {{ option.display }}
+                          </option>
+                      </b-select>
+                  </b-field>
+                </div>
+              </div>
+              <div class="columns">
+                <div class="column">
                   <b-checkbox v-model="newLoan.is_advance">Advanced</b-checkbox>
                 </div>
                 <div class="column">
@@ -647,7 +661,7 @@ export default {
 
       // models
       newClient: {},
-      newLoan: {is_advance: true, add_fee_others: true},
+      newLoan: {is_advance: true, add_fee_others: true, loan_mode: 'monthly'},
       newCA: {is_advance: true, is_cash_advance: true},
       loans: [],
       selectedLoanRows: [],
@@ -670,6 +684,10 @@ export default {
       loanTypes: [
         {value: 'pension', display: 'Pension'},
         {value: 'salary', display: 'Salary'},
+      ],
+      loan_modes: [
+        {value: 'semi_monthly', display: 'Semi Monthly'},
+        {value: 'monthly', display: 'Monthly'},
       ],
       classifications: [
         {value: 'pension', display: 'Pensioner'},

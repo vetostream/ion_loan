@@ -15,14 +15,6 @@
             <b-navbar-item tag="router-link" :to="{ path: '/'}">
                 Dashboard
             </b-navbar-item>
-            <!-- <b-navbar-dropdown label="Loan" boxed>
-                <b-navbar-item tag="router-link" :to="{ path: '/loans/pending'}">
-                    Pending
-                </b-navbar-item>
-                <b-navbar-item tag="router-link" :to="{ path: '/loans/approved'}">
-                    Approved
-                </b-navbar-item>
-            </b-navbar-dropdown> -->
             <b-navbar-dropdown label="Financial Reports" boxed>
                 <b-navbar-item tag="router-link" :to="{ path: '/cashFlowStatement'}">
                   Daily Cash Flow Statement
@@ -31,17 +23,6 @@
                   Date Ranged Cash Flow Statement
                 </b-navbar-item>
             </b-navbar-dropdown>
-            <!-- <b-navbar-dropdown label="Create Actions" boxed>
-              <b-navbar-item tag="router-link" :to="{ path: '/createClient'}">
-                  Create Client
-              </b-navbar-item>
-              <b-navbar-item tag="router-link" :to="{ path: '/createLoan'}">
-                  Create Loan
-              </b-navbar-item>
-              <b-navbar-item tag="router-link" :to="{ path: '/createExpense'}">
-                  Create Expense
-              </b-navbar-item>
-            </b-navbar-dropdown> -->
         </template>
         <template #end v-if="isAuthenticated">
             <b-navbar-item tag="div">
@@ -99,13 +80,22 @@
                         <b-input v-model="sampleLoan.interest"></b-input>
                     </b-field>
                 </div>
+                <div class="column">
+                  <b-field label="Mode of Payment*" :label-position="labelPosition">
+                      <b-select placeholder="Select Mode of Payment" expanded v-model="sampleLoan.loan_mode">
+                          <option
+                              v-for="option in loan_modes"
+                              :value="option.value"
+                              :key="option.value">
+                              {{ option.display }}
+                          </option>
+                      </b-select>
+                  </b-field>
+                </div>
               </div>
               <div class="columns">
                 <div class="column">
                   <b-checkbox v-model="sampleLoan.is_advance">Advanced</b-checkbox>
-                </div>
-                <div class="column">
-                  <b-checkbox v-model="sampleLoan.add_fee_others">Fee Others?</b-checkbox>
                 </div>
               </div>
               <hr>
@@ -336,12 +326,16 @@ export default {
       labelPosition: 'inside',
       calculatorModal: false,
       journalModal: false,
-      sampleLoan: {is_advance: true, add_fee_others: true},
+      sampleLoan: {is_advance: true, add_fee_others: true, loan_mode: 'monthly'},
       newEntry: {},
       //selectOptions
       transactionSides: [
         {value: 'debit', display: 'Debit'},
         {value: 'credit', display: 'Credit'},
+      ],
+      loan_modes: [
+        {value: 'semi_monthly', display: 'Semi Monthly'},
+        {value: 'monthly', display: 'Monthly'},
       ],
       accounts: [
         {value: 'assets', display: 'Assets'},
@@ -353,14 +347,19 @@ export default {
   computed: {
     ...mapGetters(['isAuthenticated']),
     computedSampleLoan () {
-      if (!!this.sampleLoan.principalAmount && !!this.sampleLoan.term && !!this.sampleLoan.interest) {
+      if (!!this.sampleLoan.principalAmount && !!this.sampleLoan.term && !!this.sampleLoan.interest && !!this.sampleLoan.loan_mode) {
         const principalAmount = parseInt(this.sampleLoan.principalAmount.replace(/,/g, ''))
         const interestRate = this.sampleLoan.interest * this.sampleLoan.term
         let udi = (principalAmount * interestRate) / 100
+
         let amortization = principalAmount / this.sampleLoan.term
 
         if (!this.sampleLoan.is_advance) {
           amortization = (principalAmount + udi) / this.sampleLoan.term
+        }
+
+        if (this.sampleLoan.loan_mode === 'semi_monthly') {
+          amortization = amortization / 2
         }
 
         const totalAmount = principalAmount + udi
