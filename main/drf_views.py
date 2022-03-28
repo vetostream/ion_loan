@@ -1,8 +1,8 @@
 from datetime import datetime, date
 from gc import collect
 from dateutil.relativedelta import relativedelta
-from main.models import Client, Collection_Detail, Loan, Loan_Detail, Collection, Transaction
-from main.serializers import ClientSerializer, LoanSerializer, CollectionSerializer, CollectionDetailSerializer, TransactionSerializer
+from main.models import Client, Collection_Detail, Loan, Loan_Detail, Collection, Transaction, Refund
+from main.serializers import ClientSerializer, LoanSerializer, CollectionSerializer, CollectionDetailSerializer, TransactionSerializer, RefundSerializer
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -46,7 +46,7 @@ class LoanViewSet(viewsets.ModelViewSet):
             return Loan.objects.filter(
                 client=client_id,
                 loan_status='approved'
-            )
+            ).order_by('date_granted')
 
         if lastname:
             return Loan.objects.filter(
@@ -123,12 +123,12 @@ class CollectionViewSet(viewsets.ModelViewSet):
         if client_id:
             return Collection.objects.filter(
                 client=client_id,
-            ).order_by('-post_date')
+            ).order_by('-post_date', 'pk')
 
         return Collection.objects.all()
 
     def perform_create(self, serializer):
-        collection = serializer.save()
+        collection = serializer.save(created_by=self.request.user)
         selected_loans_pk = self.request.data.get('selected_loans', None)
 
         selected_loans = Loan.objects.filter(pk__in=selected_loans_pk)
@@ -210,4 +210,32 @@ class TransactionViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(created_by=self.request.user)
+        super().perform_create(serializer)
+
+
+class RefundViewSet(viewsets.ModelViewSet):
+    queryset = Refund.objects.none()
+    serializer_class = RefundSerializer
+
+    def get_queryset(self):
+        return Refund.objects.all()
+
+    def perform_create(self, serializer):
+        refund = serializer.save(created_by=self.request.user)
+
+        # mark collection as refunded
+        refund.collection.is_refunded = True
+        refund.collection.save()
+
+        # Create Refund Transaction
+        Transaction.objects.create(
+            account=Transaction.LIABILITIES,
+            description=f"Refund | {refund.collection.client.last_name} {refund.collection.client.first_name}",
+            transaction_side=Transaction.CREDIT,
+            amount=refund.collection.refundable_amount,
+            refund=refund,
+            post_date=refund.refund_date,
+            created_by=self.request.user
+        )
+
         super().perform_create(serializer)

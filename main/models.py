@@ -132,6 +132,7 @@ class Collection(Super_Model):
     reference_code = models.TextField(max_length=300, null=False)
     collection_amount = models.DecimalField(max_digits=10, decimal_places=2, null=False)
     refundable_amount = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    is_refunded = models.BooleanField(default=False)
     post_date = models.DateField(null=False)
 
 
@@ -149,6 +150,12 @@ class Loan_Detail(Super_Model):
     date_paid = models.DateField(null=True, blank=True)
     receivable = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     payable = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+
+
+class Refund(Super_Model):
+    refund_date = models.DateField(null=True)
+    ref_code = models.CharField(max_length=50, null=False)
+    collection = models.ForeignKey(Collection, on_delete=models.CASCADE)
 
 
 class Transaction(Super_Model):
@@ -177,6 +184,7 @@ class Transaction(Super_Model):
     transaction_side = models.CharField(max_length=10, choices=TRANSACTION_TYPE, null=False)
     loan = models.ForeignKey(Loan, on_delete=models.CASCADE, null=True, blank=True)
     collection = models.ForeignKey(Collection, on_delete=models.CASCADE, null=True, blank=True)
+    refund = models.ForeignKey(Refund, on_delete=models.CASCADE, null=True, blank=True)
 
     def __str__(self):
         return f"{self.description} / {self.account} / {self.post_date.strftime('%m/%d/%Y')} / {self.amount} / {self.transaction_side}"

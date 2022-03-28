@@ -18,7 +18,7 @@ from django.urls import path, include, register_converter
 from datetime import datetime
 from rest_framework import routers
 
-from main.drf_views import ClientViewSet, LoanViewSet, CollectionViewSet, CollectionDetailViewSet, TransactionViewSet
+from main.drf_views import ClientViewSet, LoanViewSet, CollectionViewSet, CollectionDetailViewSet, RefundViewSet, TransactionViewSet
 from main.views import *
 
 router = routers.SimpleRouter()
@@ -27,6 +27,7 @@ router.register(r'loans', LoanViewSet)
 router.register(r'collections', CollectionViewSet)
 router.register(r'collectiondetails', CollectionDetailViewSet)
 router.register(r'transactions', TransactionViewSet)
+router.register(r'refunds', RefundViewSet)
 
 class DateConverter:
     regex = '\d{4}-\d{2}-\d{2}'

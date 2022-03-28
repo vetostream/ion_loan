@@ -60,9 +60,9 @@
             </b-navbar-item>
             <b-navbar-item tag="div">
                 <div class="buttons">
-                    <a class="button is-light" @click="signOut()">
+                    <b-button class="button is-warning is-light" @click="signOut()">
                         Log out
-                    </a>
+                    </b-button>
                 </div>
             </b-navbar-item>
         </template>
@@ -470,6 +470,11 @@ export default {
   margin-top: 1.5em;
   padding-top: 0;
   padding: 1.5em;
+  font-size: 14px;
+}
+
+.navbar {
+  background-color: #dfe2f2 !important;
 }
 
 </style>

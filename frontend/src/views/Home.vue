@@ -21,7 +21,7 @@
       <div class="tile is-vertical is-12">
         <div class="tile">
           <div class="tile is-parent is-vertical is-4">
-            <div class="tile is-child box notification is-success is-light">
+            <div class="tile is-child box">
               <ClientSelector v-on:client-selected="onClientSelected"/>
               <div class="px-3 py-3" v-if="selectedClient">
                 <div class="columns">
@@ -83,7 +83,7 @@
                   {{ props.row.refundable_amount | displayMoney }}
                 </b-table-column>
                 <b-table-column field="actions" label="Actions" centered v-slot="props">
-                  <b-button class="is-success is-light is-small" v-if="props.row.refundable_amount">Pay Refund</b-button>
+                  <b-button class="is-success is-light is-small" v-if="!props.row.is_refunded" @click="openRefund(props.row)">Pay Refund</b-button>
                   &nbsp;
                   <b-button class="is-small" @click="showCollectionDetail(props.row.collection_details)">Details</b-button>
                 </b-table-column>
@@ -484,6 +484,44 @@
             </footer>
         </div>
     </b-modal>
+    <b-modal v-model="refundModal" :width="640" scroll="keep">
+        <div class="modal-card">
+            <header class="modal-card-head">
+              <p class="modal-card-title">Trying to do a refund</p>
+            </header>
+            <section class="modal-card-body">
+              <div class="columns">
+                <div class="column">
+                  <label for="">Reference Code:</label>
+                  <p class="is-size-4">{{ newRefund.ref_code }}</p>
+                </div>
+                <div class="column">
+                  <label for="">Refundable Amount:</label>
+                  <p class="is-size-4">{{ newRefund.amount | displayMoney }}</p>
+                </div>
+              </div>
+              <div class="columns">
+                <div class="column">
+                    <b-field label="Refund Date" :label-position="labelPosition">
+                        <b-input v-mask="'##/##/####'" v-model="newRefund.refund_date" placeholder="MM/DD/YYYY"></b-input>
+                    </b-field>
+                </div>
+              </div>
+            </section>
+            <footer class="modal-card-foot">
+              <b-button
+                label="Close"
+                @click="() => {
+                  refundModal = false
+                  newRefund = {}
+                }"/>
+              <b-button
+                label="Refund"
+                class="is-success"
+                @click="createRefund"/>
+            </footer>
+        </div>
+    </b-modal>
     <!-- End Modals -->
 
     <!-- Start Sidebar -->
@@ -585,6 +623,7 @@ import { createClient } from '@/api/client.js'
 import { createLoan } from '@/api/loan.js'
 import { approveLoan, searchLoans, deleteLoan } from '@/api/loan.js'
 import { createCollection, fetchCollections } from '@/api/collection.js'
+import { createRefund } from '@/api/refund.js'
 
 const currencyMask = createNumberMask({
   prefix: '',
@@ -615,12 +654,14 @@ export default {
       newCollection: {},
       collections: [],
       collectionDetails: [],
+      newRefund: {},
 
       // modals
       newClientModal: false,
       newLoanModal: false,
       newCAModal: false,
       collectionDetailModal : false,
+      refundModal: false,
 
       // sidebar
       openSidebar: false,
@@ -701,6 +742,40 @@ export default {
           type: 'is-danger',
           onConfirm: () => this.trashLoan()
       })
+    },
+    openRefund (collection) {
+      this.newRefund = {
+        collection: collection.id,
+        ref_code: collection.reference_code,
+        amount: collection.refundable_amount,
+      }
+
+      this.refundModal = true
+    },
+    async createRefund () {
+      try {
+        this.isLoading = true
+
+        const refund = {...this.newRefund}
+        refund.refund_date = moment(refund.refund_date).format('YYYY-MM-DD')
+
+        await createRefund(refund)
+
+        this.newRefund = {}
+        this.refundModal = false
+        this.fetchPayments()
+        this.$buefy.toast.open({
+            message: 'Collection Refunded',
+            type: 'is-success'
+        })
+      } catch (err) {
+        this.$buefy.toast.open({
+          message: `Something went wrong: ${err.message}`,
+          type: 'is-danger'
+        })
+      } finally {
+        this.isLoading = false
+      }
     },
     async trashLoan () {
 
