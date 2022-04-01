@@ -3,11 +3,9 @@
     <b-navbar shadow spaced>
         <template #brand>
             <b-navbar-item>
-              <a>
                 <h1 class="is-size-5">
                   ION
                 </h1>
-              </a>
             </b-navbar-item>
         </template>
 
@@ -450,11 +448,37 @@ export default {
 </script>
 
 <style>
+:root {
+  --primary: #D77A61;
+}
+
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   color: #2c3e50;
+}
+
+.table tr.is-selected {
+  background-color: var(--primary) !important;
+}
+
+.input:focus, .select select:focus {
+  border-color: var(--primary) !important;
+  box-shadow: 0 0 0 0.125em rgb(243 119 44 / 28%) !important;
+}
+
+.b-table .table:focus {
+  border-color: #FFF !important;
+  box-shadow: none !important;
+}
+
+.tabs li.is-active a {
+  color: var(--primary) !important;
+}
+
+.select:not(.is-multiple):not(.is-loading)::after {
+  border-color: var(--primary) !important;
 }
 
 #canvas {
@@ -473,7 +497,67 @@ export default {
 }
 
 .navbar {
-  background-color: #dfe2f2 !important;
+  background-color: #223843 !important;
+}
+
+.navbar .navbar-item {
+  color: #fff !important;
+}
+
+
+/* .navbar-item.has-dropdown:focus .navbar-link, .navbar-item.has-dropdown:hover .navbar-link, .navbar-item.has-dropdown.is-active .navbar-link {
+  background-color: #D77A61 !important;
+} */
+
+a.navbar-item:focus, a.navbar-item:hover, a.navbar-link:hover, a.navbar-link:focus, a.navbar-link:active {
+  color: #000 !important;
+}
+
+/* a.navbar-item:focus, .navbar-dropdown {
+  color: #000 !important;
+} */
+.navbar-dropdown > .navbar-item {
+  color: #000 !important;
+}
+
+.navbar-link:not(.is-arrowless)::after {
+  border-color: #FFF !important;
+}
+
+.navbar-link:not(.is-arrowless)::after:hover {
+  border-color: #000 !important;
+}
+
+.is-warning, .is-info {
+  background: #D77A61 !important;
+  color: #fff !important;
+}
+
+.is-success {
+  background: #223843 !important;
+  color: #FFF !important;
+}
+
+.modal-card-head {
+  background-color: var(--primary) !important;
+}
+
+.b-checkbox.checkbox input[type=checkbox]:checked + .check {
+    background: var(--primary) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3Cpath style='fill:%23fff' d='M 0.04038059,0.6267767 0.14644661,0.52071068 0.42928932,0.80355339 0.3232233,0.90961941 z M 0.21715729,0.80355339 0.85355339,0.16715729 0.95961941,0.2732233 0.3232233,0.90961941 z'%3E%3C/path%3E%3C/svg%3E") no-repeat center center !important;
+    border-color: var(--primary) !important;
+}
+
+.modal-card-title {
+    color: #FFF !important;
+}
+
+a.navbar-item, a.navbar-link {
+  color: #FFF !important;
+}
+
+html, body {
+    height: 100vh;
+    background: #EFF1F3;
 }
 
 </style>

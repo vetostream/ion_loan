@@ -2,7 +2,7 @@ import subprocess
 from django.conf import settings
 from django.template.loader import render_to_string
 
-def generate_to_pdf(template, context, pdf_name):
+def generate_to_pdf(template, context, pdf_name, page_size=None):
     rendered_html = render_to_string(template, context)
 
     html_file = f'{pdf_name}.html' 
@@ -16,7 +16,10 @@ def generate_to_pdf(template, context, pdf_name):
         file.writelines(rendered_html)
 
     # convert html to pdf
-    convert_process = subprocess.Popen(['wkhtmltopdf', html_path, pdf_path])
+    if not page_size:
+        convert_process = subprocess.Popen(['wkhtmltopdf', html_path, pdf_path])
+    else:
+        convert_process = subprocess.Popen(['wkhtmltopdf', '--page-size', page_size, html_path, pdf_path])
 
     convert_process.wait()
 

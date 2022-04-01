@@ -2,17 +2,17 @@
   <div class="home">
     <div class="columns">
       <div class="column is-1">
-        <b-button class="button is-info is-light" @click="newClientModal=true" rounded>
+        <b-button class="button is-info is-light" @click="newClientModal=true" expanded>
             New Client
         </b-button>
       </div>
       <div class="column is-1" v-if="selectedClient">
-        <b-button class="button is-info is-light" @click="newLoanModal=true" rounded>
+        <b-button class="button is-info is-light" @click="newLoanModal=true" expanded>
             New Loan
         </b-button>
       </div>
       <div class="column is-1" v-if="selectedClient">
-        <b-button class="button is-info is-light" @click="newCAModal=true" rounded>
+        <b-button class="button is-info is-light" @click="newCAModal=true" expanded>
             New CA
         </b-button>
       </div>     
@@ -58,6 +58,12 @@
                   <div class="column">
                     <label for="">Account Number</label>
                     <p>{{selectedClient.account_number}}</p>
+                  </div>
+                </div>
+                <div class="columns">
+                  <div class="column">
+                    <label for="">Address</label>
+                    <p>{{selectedClient.address}}</p>
                   </div>
                 </div>
               </div>
@@ -179,7 +185,7 @@
                 <template #footer>
                     <th>
                         <div class="th-wrap">
-                            <h1 class="is-size-4">TOTALS</h1>
+                            <h1 class="is-size-6 has-text-weight-bold">TOTALS</h1>
                         </div>
                     </th>
                     <th></th>
@@ -192,16 +198,16 @@
                     <th></th>
                     <th></th>
                     <th>
-                      <h1 class="is-size-4">{{ totalAmortization | displayMoney }}</h1>
+                      <h1 class="is-size-6 has-text-weight-bold">{{ totalAmortization | displayMoney }}</h1>
                     </th>
                     <th></th>
                     <th></th>
                     <th></th>
                     <th>
-                      <h1 class="is-size-4">{{ loanTotalNetCashOut | displayMoney }}</h1>
+                      <h1 class="is-size-6 has-text-weight-bold">{{ loanTotalNetCashOut | displayMoney }}</h1>
                     </th>
                     <th>
-                        <h1 class="is-size-4">{{ loanTotalRunningBalance | displayMoney }}</h1>
+                        <h1 class="is-size-6 has-text-weight-bold">{{ loanTotalRunningBalance | displayMoney }}</h1>
                     </th>
                 </template>
                 <template #empty>
@@ -609,6 +615,11 @@
               </template>
             </b-table>
           </b-tab-item>
+          <b-tab-item label="Documents">
+            <b-button @click="printReport('computation')" expanded class="my-1">Computation Report</b-button>
+            <b-button @click="printReport('promissory')" expanded class="my-1">Promissory Note</b-button>
+            <b-button @click="printReport('disclosure')" expanded class="my-1">Disclosure of Loan</b-button>
+          </b-tab-item>
       </b-tabs>
     </b-sidebar>
     <!-- End Sidebar -->
@@ -697,6 +708,7 @@ export default {
         {value: 'RT', display: 'RT'},
         {value: 'SD', display: 'SD'},
         {value: 'SD-ED', display: 'SD-ED'},
+        {value: 'RT-SD', display: 'RT-SD'},
         {value: 'GD', display: 'GD'},
         {value: 'EC', display: 'EC'},
         {value: 'SP', display: 'SP'},
@@ -721,6 +733,15 @@ export default {
     }
   },
   methods: {
+    printReport (type) {
+        if (type === 'computation') {
+            window.open(`${process.env.VUE_APP_API_ENDPOINT_URL}reports/computation_report/${this.selectedLoan.id}/`)
+        } else if (type === 'promissory') {
+            window.open(`${process.env.VUE_APP_API_ENDPOINT_URL}reports/promissory_report/${this.selectedLoan.id}/`)
+        } else {
+            window.open(`${process.env.VUE_APP_API_ENDPOINT_URL}reports/disclosure_of_loan/${this.selectedLoan.id}/`)
+        }
+    },
     onClientSelected (value) {
       this.selectedClient = value
       this.fetchLoans()

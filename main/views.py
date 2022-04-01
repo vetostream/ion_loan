@@ -119,7 +119,7 @@ def promissory_report(request, loan_id):
         'loan_detail': loan.loan_detail_set.all()
     }
 
-    pdf = generate_to_pdf("promissory_report.html", context, f"promissory-report-{loan_id}")
+    pdf = generate_to_pdf("promissory_report.html", context, f"promissory-report-{loan_id}", page_size='Legal')
 
     return FileResponse(open(pdf, 'rb'), content_type="application/pdf")
 
@@ -141,7 +141,8 @@ def disclosure_of_loan(request, loan_id):
         'installment': installment
     }
 
-    pdf = generate_to_pdf("disclosure_of_loan.html", context, f"disclosure-form-{loan_id}")
+    # or Folio?
+    pdf = generate_to_pdf("disclosure_of_loan.html", context, f"disclosure-form-{loan_id}", page_size='Legal')
     return FileResponse(open(pdf, 'rb'), content_type="application/pdf")
 
 def retrieve_opening_cash_balance(request, start_date):
