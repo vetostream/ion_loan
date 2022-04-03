@@ -15,55 +15,115 @@
         <b-button class="button is-info is-light" @click="newCAModal=true" expanded>
             New CA
         </b-button>
-      </div>     
+      </div>
     </div>
     <div class="tile is-ancestor">
       <div class="tile is-vertical is-12">
         <div class="tile">
-          <div class="tile is-parent is-vertical is-4">
+          <div class="tile is-parent is-vertical is-5">
             <div class="tile is-child box">
-              <ClientSelector v-on:client-selected="onClientSelected"/>
+              <div class="columns">
+                <div class="column">
+                  <ClientSelector v-on:client-selected="onClientSelected"/>
+                </div>
+                <div class="column is-3" v-if="selectedClient">
+                  <b-button class="button is-info is-light is-medium" @click="editClient" expanded>
+                      Edit Client
+                  </b-button>
+                </div>
+              </div>
               <div class="px-3 py-3" v-if="selectedClient">
                 <div class="columns">
-                  <div class="column">
-                    <label for="">Pension Amount</label>
-                    <p>{{selectedClient.pension | displayMoney}}</p>
+                  <div class="column" id="first-section-client">
+                    <div class="columns">
+                      <div class="column">
+                        <label for="">Birthdate</label>
+                        <p>{{ selectedClient.birth_date | shortDate }}</p>
+                      </div>
+                      <div class="column">
+                        <label for="">Age</label>
+                        <p>{{ selectedClient.birth_date | getAge }}</p>
+                      </div>
+                    </div>
+                    <div class="columns">
+                      <div class="column">
+                        <label for="">Pension Amount</label>
+                        <p>{{selectedClient.pension | displayMoney}}</p>
+                      </div>
+                      <div class="column">
+                        <label for="">Potential AP</label>
+                        <p>{{clientPotentialAP | displayMoney}}</p>
+                      </div>
+                    </div>
+                    <div class="columns">
+                      <div class="column">
+                        <label for="">SSS Number</label>
+                        <p>{{selectedClient.sss_no}}</p>
+                      </div>
+                      <div class="column">
+                        <label for="">Classification</label>
+                        <p>{{selectedClient.classification}}</p>
+                      </div>
+                    </div>
+                    <div class="columns">
+                      <div class="column">
+                        <label for="">Bank Name</label>
+                        <p>{{selectedClient.bank_name}}</p>
+                      </div>
+                      <div class="column" v-if="selectedClient.classification === 'pension'">
+                        <label for="">Pensioner Category</label>
+                        <p>{{selectedClient.pension_type}}</p>
+                      </div>
+                    </div>
+                    <div class="columns">
+                      <div class="column">
+                        <label for="">Account Number</label>
+                        <p>{{selectedClient.account_number}}</p>
+                      </div>
+                      <div class="column">
+                        <label for="">Contact Number</label>
+                        <p>{{ selectedClient.contact_number }}</p>
+                      </div>
+                    </div>
+                    <div class="columns">
+                      <div class="column">
+                        <label for="">Address</label>
+                        <p>{{selectedClient.address}}</p>
+                      </div>
+                    </div>
                   </div>
                   <div class="column">
-                    <label for="">Potential AP</label>
-                    <p>{{clientPotentialAP | displayMoney}}</p>
-                  </div>
-                </div>
-                <div class="columns">
-                  <div class="column">
-                    <label for="">SSS Number</label>
-                    <p>{{selectedClient.sss_no}}</p>
-                  </div>
-                  <div class="column">
-                    <label for="">Classification</label>
-                    <p>{{selectedClient.classification}}</p>
-                  </div>
-                </div>
-                <div class="columns">
-                  <div class="column">
-                    <label for="">Bank Name</label>
-                    <p>{{selectedClient.bank_name}}</p>
-                  </div>
-                  <div class="column" v-if="selectedClient.classification === 'pension'">
-                    <label for="">Pensioner Category</label>
-                    <p>{{selectedClient.pension_type}}</p>
-                  </div>
-                </div>
-                <div class="columns">
-                  <div class="column">
-                    <label for="">Account Number</label>
-                    <p>{{selectedClient.account_number}}</p>
-                  </div>
-                </div>
-                <div class="columns">
-                  <div class="column">
-                    <label for="">Address</label>
-                    <p>{{selectedClient.address}}</p>
+                    <div class="columns">
+                      <div class="column">
+                        <p class="is-size-6 has-text-weight-bold">Dependents</p>
+                      </div>
+                    </div>
+                    <div class="columns">
+                      <div class="column">
+                        <ul>
+                          <li class="my-3" v-if="selectedClient.dependent_1_name">
+                            <p>{{ selectedClient.dependent_1_name }}</p>
+                            <p>{{ selectedClient.dependent_1_dob }}</p>
+                          </li>
+                          <li class="my-3" v-if="selectedClient.dependent_2_name">
+                            <p>{{ selectedClient.dependent_2_name }}</p>
+                            <p>{{ selectedClient.dependent_2_dob }}</p>
+                          </li>
+                          <li class="my-3" v-if="selectedClient.dependent_3_name">
+                            <p>{{ selectedClient.dependent_3_name }}</p>
+                            <p>{{ selectedClient.dependent_3_dob }}</p>
+                          </li>
+                          <li class="my-3" v-if="selectedClient.dependent_4_name">
+                            <p>{{ selectedClient.dependent_4_name }}</p>
+                            <p>{{ selectedClient.dependent_4_dob }}</p>
+                          </li>
+                          <li class="my-3" v-if="selectedClient.dependent_5_name">
+                            <p>{{ selectedClient.dependent_5_name }}</p>
+                            <p>{{ selectedClient.dependent_5_dob }}</p>
+                          </li>
+                        </ul>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -92,6 +152,8 @@
                   <b-button class="is-success is-light is-small" v-if="!props.row.is_refunded" @click="openRefund(props.row)">Pay Refund</b-button>
                   &nbsp;
                   <b-button class="is-small" @click="showCollectionDetail(props.row.collection_details)">Details</b-button>
+                  &nbsp;
+                  <b-button type="is-danger is-small" icon-right="trash" @click="confirmCollectionDelete(props.row)"/>
                 </b-table-column>
                 <template #empty>
                   <div class="has-text-centered">No Results Found</div>
@@ -312,6 +374,67 @@
                     </b-field>
                 </div>
               </div>
+              <hr>
+              <div class="columns">
+                <div class="column">
+                  <b-field label="Dependent Name" :label-position="labelPosition">
+                      <b-input v-model="newClient.dependent_1_name"></b-input>
+                  </b-field>
+                </div>
+                <div class="column">
+                  <b-field label="Birthdate" :label-position="labelPosition">
+                    <b-input v-mask="'##/##/####'" v-model="newClient.dependent_1_dob" placeholder="MM/DD/YYYY"></b-input>
+                  </b-field>
+                </div>
+              </div>
+              <div class="columns">
+                <div class="column">
+                  <b-field label="Dependent Name" :label-position="labelPosition">
+                      <b-input v-model="newClient.dependent_2_name"></b-input>
+                  </b-field>
+                </div>
+                <div class="column">
+                  <b-field label="Birthdate" :label-position="labelPosition">
+                    <b-input v-mask="'##/##/####'" v-model="newClient.dependent_2_dob" placeholder="MM/DD/YYYY"></b-input>
+                  </b-field>
+                </div>
+              </div>
+              <div class="columns">
+                <div class="column">
+                  <b-field label="Dependent Name" :label-position="labelPosition">
+                      <b-input v-model="newClient.dependent_3_name"></b-input>
+                  </b-field>
+                </div>
+                <div class="column">
+                  <b-field label="Birthdate" :label-position="labelPosition">
+                    <b-input v-mask="'##/##/####'" v-model="newClient.dependent_3_dob" placeholder="MM/DD/YYYY"></b-input>
+                  </b-field>
+                </div>
+              </div>
+              <div class="columns">
+                <div class="column">
+                  <b-field label="Dependent Name" :label-position="labelPosition">
+                      <b-input v-model="newClient.dependent_4_name"></b-input>
+                  </b-field>
+                </div>
+                <div class="column">
+                  <b-field label="Birthdate" :label-position="labelPosition">
+                    <b-input v-mask="'##/##/####'" v-model="newClient.dependent_4_dob" placeholder="MM/DD/YYYY"></b-input>
+                  </b-field>
+                </div>
+              </div>
+              <div class="columns">
+                <div class="column">
+                  <b-field label="Dependent Name" :label-position="labelPosition">
+                      <b-input v-model="newClient.dependent_5_name"></b-input>
+                  </b-field>
+                </div>
+                <div class="column">
+                  <b-field label="Birthdate" :label-position="labelPosition">
+                    <b-input v-mask="'##/##/####'" v-model="newClient.dependent_5_dob" placeholder="MM/DD/YYYY"></b-input>
+                  </b-field>
+                </div>
+              </div>
             </section>
             <footer class="modal-card-foot">
               <b-button
@@ -389,6 +512,20 @@
                           </option>
                       </b-select>
                   </b-field>
+                </div>
+              </div>
+              <div class="columns">
+                <div class="column">
+                    <b-field label="Co Maker (1)" :label-position="labelPosition">
+                        <b-input v-model="newLoan.co_maker"></b-input>
+                    </b-field>
+                </div>
+              </div>
+             <div class="columns">
+                <div class="column">
+                    <b-field label="Co Maker (2)" :label-position="labelPosition">
+                        <b-input v-model="newLoan.co_maker_2"></b-input>
+                    </b-field>
                 </div>
               </div>
               <div class="columns">
@@ -616,11 +753,201 @@
             </b-table>
           </b-tab-item>
           <b-tab-item label="Documents">
+            <b-field label="Name" :label-position="labelPosition">
+                <b-input v-model="reportDetail.nameOne"></b-input>
+            </b-field>
+            <b-field label="Name" :label-position="labelPosition">
+                <b-input v-model="reportDetail.nameTwo"></b-input>
+            </b-field>
+            <b-field label="Name" :label-position="labelPosition">
+                <b-input v-model="reportDetail.nameThree"></b-input>
+            </b-field>
             <b-button @click="printReport('computation')" expanded class="my-1">Computation Report</b-button>
             <b-button @click="printReport('promissory')" expanded class="my-1">Promissory Note</b-button>
             <b-button @click="printReport('disclosure')" expanded class="my-1">Disclosure of Loan</b-button>
           </b-tab-item>
       </b-tabs>
+      <div v-if="selectedLoan" class="container-fluid">
+        <div class="columns mt-3">
+          <div class="column">
+            <b-field label="Notes">
+                <b-input maxlength="500" type="textarea" v-model="selectedLoan.notes"></b-input>
+            </b-field>
+          </div>
+        </div>
+        <div class="columns">
+          <div class="column">
+            <b-button class="is-success is-pulled-right" @click="saveNotes">Save Notes</b-button>
+          </div>
+        </div>
+      </div>
+    </b-sidebar>
+    <b-sidebar
+      type="is-light"
+      fullheight
+      right
+      id="loan-sidebar"
+      v-model="sidebarClient"
+      :can-cancel="false"
+    >
+      <p class="is-size-3 mb-2">Edit Client</p>
+      <section class="edit-client" v-if="editingClient">
+        <div class="columns">
+          <div class="column">
+            <b-field label="First Name*" :label-position="labelPosition">
+                <b-input v-model="editingClient.first_name"></b-input>
+            </b-field>
+          </div>
+          <div class="column">
+              <b-field label="Middle Name" :label-position="labelPosition">
+                  <b-input v-model="editingClient.middle_name"></b-input>
+              </b-field>
+          </div>
+          <div class="column">
+              <b-field label="Last Name*" :label-position="labelPosition">
+                  <b-input v-model="editingClient.last_name"></b-input>
+              </b-field>
+          </div>
+        </div>
+        <div class="columns">
+          <div class="column is-12">
+              <b-field label="Address*" :label-position="labelPosition">
+                  <b-input v-model="editingClient.address"></b-input>
+              </b-field>
+          </div>
+        </div>
+        <div class="columns">
+          <div class="column">
+              <b-field label="Contact No" :label-position="labelPosition">
+                  <b-input v-model="editingClient.contact_number"></b-input>
+              </b-field>
+          </div>
+          <div class="column">
+            <b-field label="Date of Birth*" :label-position="labelPosition">
+              <b-input v-mask="'##/##/####'" v-model="editingClient.birth_date" placeholder="MM/DD/YYYY"></b-input>
+            </b-field>
+          </div>
+        </div>
+        <div class="columns">
+          <div class="column">
+            <b-field label="Classification*" :label-position="labelPosition">
+                <b-select placeholder="Select Classification" expanded v-model="editingClient.classification">
+                    <option
+                        v-for="option in classifications"
+                        :value="option.value"
+                        :key="option.value">
+                        {{ option.display }}
+                    </option>
+                </b-select>
+            </b-field>
+          </div>
+          <div class="column">
+            <b-field label="Pensioner Category" :label-position="labelPosition">
+                <b-select placeholder="Select Category if Pensioner" expanded v-model="editingClient.pension_type">
+                    <option
+                        v-for="option in pensionCategories"
+                        :value="option.value"
+                        :key="option.value">
+                        {{ option.display }}
+                    </option>
+                </b-select>
+            </b-field>
+          </div>
+        </div>
+        <div class="columns">
+          <div class="column">
+              <b-field label="Bank Name*" :label-position="labelPosition">
+                  <b-input v-model="editingClient.bank_name"></b-input>
+              </b-field>
+          </div>
+          <div class="column">
+              <b-field label="Account Number*" :label-position="labelPosition">
+                  <b-input v-model="editingClient.account_number"></b-input>
+              </b-field>
+          </div>
+        </div>
+        <div class="columns">
+          <div class="column">
+              <b-field label="Pension/Income Amount*" :label-position="labelPosition">
+                  <b-input v-model="editingClient.pension"></b-input>
+              </b-field>
+          </div>
+          <div class="column">
+              <b-field label="SSS Number" :label-position="labelPosition">
+                  <b-input v-model="editingClient.sss_no"></b-input>
+              </b-field>
+          </div>
+        </div>
+        <hr>
+        <div class="columns">
+          <div class="column">
+            <b-field label="Dependent Name" :label-position="labelPosition">
+                <b-input v-model="editingClient.dependent_1_name"></b-input>
+            </b-field>
+          </div>
+          <div class="column">
+            <b-field label="Birthdate" :label-position="labelPosition">
+              <b-input v-mask="'##/##/####'" v-model="editingClient.dependent_1_dob" placeholder="MM/DD/YYYY"></b-input>
+            </b-field>
+          </div>
+        </div>
+        <div class="columns">
+          <div class="column">
+            <b-field label="Dependent Name" :label-position="labelPosition">
+                <b-input v-model="editingClient.dependent_2_name"></b-input>
+            </b-field>
+          </div>
+          <div class="column">
+            <b-field label="Birthdate" :label-position="labelPosition">
+              <b-input v-mask="'##/##/####'" v-model="editingClient.dependent_2_dob" placeholder="MM/DD/YYYY"></b-input>
+            </b-field>
+          </div>
+        </div>
+        <div class="columns">
+          <div class="column">
+            <b-field label="Dependent Name" :label-position="labelPosition">
+                <b-input v-model="editingClient.dependent_3_name"></b-input>
+            </b-field>
+          </div>
+          <div class="column">
+            <b-field label="Birthdate" :label-position="labelPosition">
+              <b-input v-mask="'##/##/####'" v-model="editingClient.dependent_3_dob" placeholder="MM/DD/YYYY"></b-input>
+            </b-field>
+          </div>
+        </div>
+        <div class="columns">
+          <div class="column">
+            <b-field label="Dependent Name" :label-position="labelPosition">
+                <b-input v-model="editingClient.dependent_4_name"></b-input>
+            </b-field>
+          </div>
+          <div class="column">
+            <b-field label="Birthdate" :label-position="labelPosition">
+              <b-input v-mask="'##/##/####'" v-model="editingClient.dependent_4_dob" placeholder="MM/DD/YYYY"></b-input>
+            </b-field>
+          </div>
+        </div>
+        <div class="columns">
+          <div class="column">
+            <b-field label="Dependent Name" :label-position="labelPosition">
+                <b-input v-model="editingClient.dependent_5_name"></b-input>
+            </b-field>
+          </div>
+          <div class="column">
+            <b-field label="Birthdate" :label-position="labelPosition">
+              <b-input v-mask="'##/##/####'" v-model="editingClient.dependent_5_dob" placeholder="MM/DD/YYYY"></b-input>
+            </b-field>
+          </div>
+        </div>
+        <div class="columns">
+          <div class="column">
+            <b-button @click="sidebarClient=false" expanded>Cancel</b-button>
+          </div>
+          <div class="column">
+            <b-button class="is-success" @click="patchClient" expanded>Save Changes</b-button>
+          </div>
+        </div>
+      </section>
     </b-sidebar>
     <!-- End Sidebar -->
 
@@ -644,10 +971,9 @@ import moment from 'moment';
 import createNumberMask from 'text-mask-addons/dist/createNumberMask'
 
 // endpoints
-import { createClient } from '@/api/client.js'
-import { createLoan } from '@/api/loan.js'
-import { approveLoan, searchLoans, deleteLoan } from '@/api/loan.js'
-import { createCollection, fetchCollections } from '@/api/collection.js'
+import { createClient, updateClient } from '@/api/client.js'
+import { approveLoan, searchLoans, deleteLoan, updateLoan, createLoan } from '@/api/loan.js'
+import { createCollection, fetchCollections, deleteCollection } from '@/api/collection.js'
 import { createRefund } from '@/api/refund.js'
 
 const currencyMask = createNumberMask({
@@ -661,6 +987,11 @@ export default {
   name: 'Home',
   components: {
     ClientSelector
+  },
+  filters: {
+    getAge (dob) {
+      return moment().diff(dob, 'years')
+    }
   },
   data() {
     return {
@@ -680,6 +1011,12 @@ export default {
       collections: [],
       collectionDetails: [],
       newRefund: {},
+      reportDetail: {
+        nameOne: '',
+        nameTwo: '',
+        nameThree: ''
+      },
+      editingClient: {},
 
       // modals
       newClientModal: false,
@@ -690,6 +1027,7 @@ export default {
 
       // sidebar
       openSidebar: false,
+      sidebarClient: false,
 
       //selectOptions
       loanTypes: [
@@ -737,10 +1075,14 @@ export default {
         if (type === 'computation') {
             window.open(`${process.env.VUE_APP_API_ENDPOINT_URL}reports/computation_report/${this.selectedLoan.id}/`)
         } else if (type === 'promissory') {
-            window.open(`${process.env.VUE_APP_API_ENDPOINT_URL}reports/promissory_report/${this.selectedLoan.id}/`)
+            window.open(`${process.env.VUE_APP_API_ENDPOINT_URL}reports/promissory_report/${this.selectedLoan.id}/?name_one=${this.reportDetail.nameOne}&name_two=${this.reportDetail.nameTwo}&name_three=${this.reportDetail.nameThree}`)
         } else {
             window.open(`${process.env.VUE_APP_API_ENDPOINT_URL}reports/disclosure_of_loan/${this.selectedLoan.id}/`)
         }
+    },
+    editClient () {
+      this.editingClient = {...this.selectedClient}
+      this.sidebarClient = true
     },
     onClientSelected (value) {
       this.selectedClient = value
@@ -782,6 +1124,21 @@ export default {
           onConfirm: () => this.trashLoan()
       })
     },
+    confirmCollectionDelete (collection) {
+      let verbiage = 'Deleting this Collection will also delete associated loan payments.'
+      if (collection.is_refunded) {
+        verbiage = `${verbiage} Including refunded transaction and will change the outcome of transaction history.`
+      }
+
+      this.$buefy.dialog.confirm({
+          title: 'Are you sure?',
+          message: verbiage,
+          cancelText: 'Cancel',
+          confirmText: 'Delete',
+          type: 'is-danger',
+          onConfirm: () => this.trashCollection(collection.id)
+      })
+    },
     openRefund (collection) {
       this.newRefund = {
         collection: collection.id,
@@ -790,6 +1147,48 @@ export default {
       }
 
       this.refundModal = true
+    },
+    async patchClient () {
+      try {
+        this.isLoading = true
+
+        await updateClient(this.editingClient.id, this.editingClient)
+
+        this.selectedClient = this.editingClient
+
+        this.$buefy.toast.open({
+            message: 'Client Updated',
+            type: 'is-warning'
+        })
+      } catch (err) {
+        this.$buefy.toast.open({
+          message: `Something went wrong: ${err.message}`,
+          type: 'is-danger'
+        })
+      } finally {
+        this.isLoading = false
+      }
+    },
+    async saveNotes () {
+      try {
+        this.isLoading = true
+
+        await updateLoan(this.selectedLoan.id, {notes: this.selectedLoan.notes})
+        
+        
+        this.fetchLoans()
+        this.$buefy.toast.open({
+            message: 'Loan Notes Saved.',
+            type: 'is-warning'
+        })
+      } catch (err) {
+        this.$buefy.toast.open({
+          message: `Something went wrong: ${err.message}`,
+          type: 'is-danger'
+        })
+      } finally {
+        this.isLoading = false
+      }
     },
     async createRefund () {
       try {
@@ -805,7 +1204,7 @@ export default {
         this.fetchPayments()
         this.$buefy.toast.open({
             message: 'Collection Refunded',
-            type: 'is-success'
+            type: 'is-warning'
         })
       } catch (err) {
         this.$buefy.toast.open({
@@ -826,10 +1225,31 @@ export default {
         this.fetchLoans()
         this.$buefy.toast.open({
             message: 'Loan Deleted Successfully!',
-            type: 'is-success'
+            type: 'is-warning'
         })
         this.selectedLoan = null
         this.openSidebar = false
+      } catch (err) {
+        this.$buefy.toast.open({
+          message: `Something went wrong: ${err.message}`,
+          type: 'is-danger'
+        })
+      } finally {
+        this.isLoading = false
+      }
+    },
+    async trashCollection (collectionId) {
+      try {
+        this.isLoading = true
+        await deleteCollection(collectionId)
+        
+        this.fetchLoans()
+        this.fetchPayments()
+
+        this.$buefy.toast.open({
+            message: 'Collection was Deleted!',
+            type: 'is-warning'
+        })
       } catch (err) {
         this.$buefy.toast.open({
           message: `Something went wrong: ${err.message}`,
@@ -858,7 +1278,7 @@ export default {
             this.newCollection = {}
             this.$buefy.toast.open({
                 message: 'Collection Successfully Posted!',
-                type: 'is-success'
+                type: 'is-warning'
             })
             this.fetchLoans()
             this.fetchPayments()
@@ -881,7 +1301,7 @@ export default {
 
         this.$buefy.toast.open({
           message: `Client Successfully Created!`,
-          type: 'is-success'
+          type: 'is-warning'
         })
 
         this.newClientModal = false
@@ -915,7 +1335,7 @@ export default {
 
         this.$buefy.toast.open({
             message: 'Loan Created Successfully!',
-            type: 'is-success'
+            type: 'is-warning'
         })
         this.newLoanModal = false
         this.newCAModal = false
@@ -1053,7 +1473,7 @@ export default {
   }
 
   #computation-table {
-    max-height: 500px;
+    max-height: 521px;
     overflow: scroll;
   }
 
@@ -1061,5 +1481,9 @@ export default {
     width: 30% !important;
     padding: 3em;
     background: #fff;
+  }
+
+  #first-section-client {
+    border-right: 1px solid #bfbfbf;
   }
 </style>

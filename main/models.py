@@ -34,6 +34,17 @@ class Client(Super_Model):
     account_number = models.CharField(max_length=150, null=True, blank=True)
     classification = models.CharField(max_length=50, choices=CLASSIFICATION_TYPES, default='pension')
     pension_type = models.CharField(max_length=50, null=True, blank=True)
+    dependent_1_name = models.CharField(max_length=250, null=True, blank=True)
+    dependent_2_name = models.CharField(max_length=250, null=True, blank=True)
+    dependent_3_name = models.CharField(max_length=250, null=True, blank=True)
+    dependent_4_name = models.CharField(max_length=250, null=True, blank=True)
+    dependent_5_name = models.CharField(max_length=250, null=True, blank=True)
+    dependent_1_dob = models.CharField(max_length=15, null=True, blank=True)
+    dependent_2_dob = models.CharField(max_length=15, null=True, blank=True)
+    dependent_3_dob = models.CharField(max_length=15, null=True, blank=True)
+    dependent_4_dob = models.CharField(max_length=15, null=True, blank=True)
+    dependent_5_dob = models.CharField(max_length=15, null=True, blank=True)
+
 
     def __str__(self):
         return f"{self.last_name}, {self.first_name} ({self.birth_date})"
@@ -77,7 +88,9 @@ class Loan(Super_Model):
     is_cash_advance = models.BooleanField(default=False)
     add_fee_others = models.BooleanField(default=True)
     co_maker = models.CharField(max_length=150, null=True, blank=True)
+    co_maker_2 = models.CharField(max_length=150, null=True, blank=True)
     loan_mode = models.CharField(max_length=50, choices=LOAN_MODE, default='monthly')
+    notes = models.TextField(max_length=300, null=True, blank=True)
 
     def __str__(self):
         return f"{self.control_number} - {self.client.first_name} {self.client.last_name} - {self.principal_amount}"

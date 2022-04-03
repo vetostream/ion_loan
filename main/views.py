@@ -116,7 +116,10 @@ def promissory_report(request, loan_id):
         'total_deductions': total_deductions,
         'installment': installment,
         'principal_amount_words': num2words(loan.principal_amount).upper(),
-        'loan_detail': loan.loan_detail_set.all()
+        'loan_detail': loan.loan_detail_set.all(),
+        'name_one': request.GET.get('name_one', ''),
+        'name_two': request.GET.get('name_two', ''),
+        'name_three': request.GET.get('name_three', '')
     }
 
     pdf = generate_to_pdf("promissory_report.html", context, f"promissory-report-{loan_id}", page_size='Legal')

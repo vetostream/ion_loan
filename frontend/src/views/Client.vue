@@ -471,7 +471,7 @@ export default {
                 }
                 this.$buefy.toast.open({
                     message: 'Collection Successfully Posted!',
-                    type: 'is-success'
+                    type: 'is-warning'
                 })
 
                 // Refetch Client
@@ -503,7 +503,7 @@ export default {
 
                 this.$buefy.toast.open({
                     message: 'Collection Successfully Posted!',
-                    type: 'is-success'
+                    type: 'is-warning'
                 })
 
                 // Refetch Client

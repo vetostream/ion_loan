@@ -10,7 +10,12 @@ const fetchCollections = (params) => {
     return baseApi.get(resource, { params })
 }
 
+const deleteCollection = (id) => {
+    return baseApi.delete(`${resource}${id}/`)
+}
+
 export {
     createCollection,
-    fetchCollections
+    fetchCollections,
+    deleteCollection
 }

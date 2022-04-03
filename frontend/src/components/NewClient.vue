@@ -135,7 +135,7 @@ export default {
 
                 this.$buefy.toast.open({
                     message: `Client Successfully Created!`,
-                    type: 'is-success'
+                    type: 'is-warning'
                 })
 
                 this.client = {}

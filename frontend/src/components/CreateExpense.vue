@@ -90,7 +90,7 @@ export default {
 
                 this.$buefy.toast.open({
                     message: `Expense Successfully Posted!`,
-                    type: 'is-success'
+                    type: 'is-warning'
                 })
 
             } catch (err) {

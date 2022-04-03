@@ -10,6 +10,10 @@ const getClient = (id) => {
     return baseApi.get(`${resource}${id}`)
 }
 
+const updateClient = (id, data) => {
+    return baseApi.patch(`${resource}${id}/`, data)
+}
+
 const searchClients = (lastname) => {
     return baseApi.get(`${resource}`, {
         params: {
@@ -21,5 +25,6 @@ const searchClients = (lastname) => {
 export {
     createClient,
     getClient,
-    searchClients
+    searchClients,
+    updateClient
 }

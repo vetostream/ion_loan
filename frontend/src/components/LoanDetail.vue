@@ -347,7 +347,7 @@ export default {
                 })
                 this.$buefy.toast.open({
                     message: 'Loan Approved!',
-                    type: 'is-success'
+                    type: 'is-warning'
                 })
                 this.is_approved = true
             } catch (err) {

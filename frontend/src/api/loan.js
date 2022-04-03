@@ -22,10 +22,15 @@ const searchLoans = (params) => {
     return baseApi.get(`${resource}`, { params })
 }
 
+const updateLoan = (id, data) => {
+    return baseApi.patch(`${resource}${id}/`, data)
+}
+
 export {
     createLoan,
     getLoan,
     searchLoans,
     approveLoan,
-    deleteLoan
+    deleteLoan,
+    updateLoan
 }

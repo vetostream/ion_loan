@@ -185,7 +185,7 @@ export default {
                 this.selectedClient = null
                 this.$buefy.toast.open({
                     message: 'Loan Request Saved Successfully.',
-                    type: 'is-success'
+                    type: 'is-warning'
                 })
             } catch (err) {
                 this.$buefy.toast.open({

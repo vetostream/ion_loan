@@ -431,7 +431,7 @@ export default {
             this.journalModal = false
             this.$buefy.toast.open({
                 message: `Journal Entry Created!`,
-                type: 'is-success'
+                type: 'is-warning'
             })
 
         } catch (err) {
@@ -494,6 +494,7 @@ export default {
   padding-top: 0;
   padding: 1.5em;
   font-size: 14px;
+  background: #EFF1F3 !important;
 }
 
 .navbar {
