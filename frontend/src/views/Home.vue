@@ -91,6 +91,22 @@
                         <p>{{selectedClient.address}}</p>
                       </div>
                     </div>
+                    <div class="columns">
+                      <div class="column">
+                        <label for="">Spouse</label>
+                        <p>{{selectedClient.spouse_name}}</p>
+                      </div>
+                    </div>
+                    <div class="columns">
+                      <div class="column">
+                        <label for="">Date of Birth</label>
+                        <p>{{selectedClient.spouse_dob}}</p>
+                      </div>
+                      <div class="column">
+                        <label for="">Date of Death</label>
+                        <p>{{ selectedClient.spouse_dod }}</p>
+                      </div>
+                    </div>
                   </div>
                   <div class="column">
                     <div class="columns">
@@ -375,6 +391,25 @@
                 </div>
               </div>
               <hr>
+              <div class="columns">
+                <div class="column">
+                  <b-field label="Spouse Name" :label-position="labelPosition">
+                      <b-input v-model="newClient.spouse_name"></b-input>
+                  </b-field>
+                </div>
+              </div>
+              <div class="columns">
+                <div class="column">
+                  <b-field label="Spouse Date of Birth" :label-position="labelPosition">
+                      <b-input v-mask="'##/##/####'" v-model="newClient.spouse_dob" placeholder="MM/DD/YYYY"></b-input>
+                  </b-field>
+                </div>
+                <div class="column">
+                  <b-field label="Spouse Date of Death" :label-position="labelPosition">
+                    <b-input v-mask="'##/##/####'" v-model="newClient.spouse_dod" placeholder="MM/DD/YYYY"></b-input>
+                  </b-field>
+                </div>
+              </div>
               <div class="columns">
                 <div class="column">
                   <b-field label="Dependent Name" :label-position="labelPosition">
@@ -879,6 +914,25 @@
           </div>
         </div>
         <hr>
+        <div class="columns">
+          <div class="column">
+            <b-field label="Spouse Name" :label-position="labelPosition">
+                <b-input v-model="editingClient.spouse_name"></b-input>
+            </b-field>
+          </div>
+        </div>
+        <div class="columns">
+          <div class="column">
+            <b-field label="Spouse Date of Birth" :label-position="labelPosition">
+                <b-input v-mask="'##/##/####'" v-model="editingClient.spouse_dob" placeholder="MM/DD/YYYY"></b-input>
+            </b-field>
+          </div>
+          <div class="column">
+            <b-field label="Spouse Date of Death" :label-position="labelPosition">
+              <b-input v-mask="'##/##/####'" v-model="editingClient.spouse_dod" placeholder="MM/DD/YYYY"></b-input>
+            </b-field>
+          </div>
+        </div>
         <div class="columns">
           <div class="column">
             <b-field label="Dependent Name" :label-position="labelPosition">
@@ -1473,7 +1527,7 @@ export default {
   }
 
   #computation-table {
-    max-height: 521px;
+    max-height: 665px;
     overflow: scroll;
   }
 

@@ -59,6 +59,10 @@
             border-top: 1px solid #000;
             border-bottom: 1px solid #000;
         }
+
+        table, tr, td, th, tbody, thead, tfoot {
+            page-break-inside: avoid !important;
+        }
     </style>
 </head>
 <body>
@@ -119,6 +123,18 @@
                 <td>{{ aggregate.total_others|intcomma }}</td>
             </tr>
             {% endfor %}
+            <tr class="green">
+                <td>TOTAL</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td>{{ totals.total_principal_loan|intcomma }}</td>
+                <td>{{ totals.total_udi|intcomma }}</td>
+                <td>{{ totals.total_cashout|intcomma }}</td>
+                <td>{{ totals.total_llrf|intcomma }}</td>
+                <td>{{ totals.total_pfee|intcomma }}</td>
+                <td>{{ totals.total_others|intcomma }}</td>
+            </tr>
         </tfoot>
     </table>
 </body>

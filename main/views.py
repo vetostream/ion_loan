@@ -191,8 +191,18 @@ def loan_masterlist(request, year, month):
             total_others=Sum('fee_others')
         )
 
+    totals = loans.aggregate(
+        total_principal_loan=Sum('principal_amount'),
+        total_udi=Sum('udi'),
+        total_cashout=Sum('net_cash_out'),
+        total_llrf=Sum('llrf'),
+        total_pfee=Sum('processing_fee'),
+        total_others=Sum('fee_others')
+    )
+
     context = {
         'aggregates': aggregates,
+        'totals': totals,
         'loan_date': loan_date.replace(month=month),
         'transactions': transactions
     }
