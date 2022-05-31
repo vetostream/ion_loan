@@ -14,6 +14,9 @@
                 Dashboard
             </b-navbar-item>
             <b-navbar-dropdown label="Financial Reports" boxed>
+                <b-navbar-item tag="router-link" :to="{ path: '/loanMasterlist'}">
+                  Loan Masterlist
+                </b-navbar-item>
                 <b-navbar-item tag="router-link" :to="{ path: '/cashFlowStatement'}">
                   Daily Cash Flow Statement
                 </b-navbar-item>

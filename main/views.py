@@ -1,12 +1,15 @@
+from datetime import datetime
 import json
 from django.contrib.auth import authenticate, login, logout
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import ensure_csrf_cookie
-from django.http import FileResponse, JsonResponse
+from django.http import FileResponse, JsonResponse, HttpResponse
+from django.db.models.functions import TruncMonth
 from .models import Transaction, Loan
 from django.db.models import Sum
 from .utils import generate_to_pdf
 from num2words import num2words
+from dateutil.relativedelta import relativedelta
 
 
 @ensure_csrf_cookie
@@ -169,3 +172,31 @@ def retrieve_opening_cash_balance(request, start_date):
         side = 'credit'
 
     return JsonResponse({'opening_balance': abs(opening_balance), 'side': side}, safe=False)
+
+def loan_masterlist(request, year, month):
+    loan_date = datetime.now().replace(year=year, month=month, day=1) + relativedelta(months=1)
+    loans = Loan.objects.filter(date_granted__lt=loan_date)
+
+    # We just want the monthly transactions
+    offset_date = loan_date.replace(month=month)
+    transactions = loans.filter(date_granted__gte=offset_date).order_by('date_granted')
+
+    aggregates = loans.annotate(
+        month=TruncMonth('date_granted')).values('month').order_by('-month').annotate(
+            total_principal_loan=Sum('principal_amount'),
+            total_udi=Sum('udi'),
+            total_cashout=Sum('net_cash_out'),
+            total_llrf=Sum('llrf'),
+            total_pfee=Sum('processing_fee'),
+            total_others=Sum('fee_others')
+        )
+
+    context = {
+        'aggregates': aggregates,
+        'loan_date': loan_date.replace(month=month),
+        'transactions': transactions
+    }
+
+    # or Folio?
+    pdf = generate_to_pdf("loan_masterlist.html", context, f"loan-masterlist-{year}", page_size='Legal', orientation="landscape")
+    return FileResponse(open(pdf, 'rb'), content_type="application/pdf")

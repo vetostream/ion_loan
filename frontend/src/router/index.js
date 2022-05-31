@@ -8,6 +8,7 @@ import CreateExpense from '../components/CreateExpense.vue'
 import Client from '../views/Client.vue'
 import Login from '../views/Login.vue'
 import CashFlowStatement from '../components/CashFlowStatement.vue'
+import LoanMasterlist from '../components/LoanMasterlist.vue'
 import Home from '../views/Home.vue'
 import store from "@/store"
 
@@ -78,6 +79,12 @@ const routes = [
     props: {
       initialType: 'daily'
     },
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/loanMasterlist',
+    name: 'LoanMasterlist',
+    component: LoanMasterlist,
     meta: { requiresAuth: true }
   },
   {

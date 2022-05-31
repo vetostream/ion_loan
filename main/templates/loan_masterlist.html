@@ -1,0 +1,125 @@
+{% load humanize %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>{{ report_title }}</title>
+
+    <style type="text/css">
+        body {
+            margin: 0 auto;
+            width: 80%;
+            display: grid;
+        }
+        .styled-table {
+            margin-left: auto;
+            margin-right: auto;
+            border-collapse: collapse;
+            margin: 25px 0;
+            font-size: 0.9em;
+            font-family: sans-serif;
+            min-width: 400px;
+        }
+
+        table {
+            width: 100%;
+        }
+
+        .styled-table thead tr {
+            color: black;
+            text-align: left;
+        }
+
+        .styled-table th,
+        .styled-table td {
+            padding: 12px 15px;
+        }
+
+        .styled-table tbody {
+            font-size: 16px;
+        }
+
+        .debit {
+            color: #009879;
+        }
+
+        .credit {
+            color: red
+        }
+
+        .green {
+            background-color: #adf7b6;
+            font-weight: bold;
+        }
+
+        .light-blue {
+            background-color: #a0ced9;
+        }
+        
+        .styled-table tfoot tr {
+            border-top: 1px solid #000;
+            border-bottom: 1px solid #000;
+        }
+    </style>
+</head>
+<body>
+    <h3>Loan Masterlist</h3>
+    <h4>{{ loan_date|date:"F Y"}}</h4>
+
+    <table class="styled-table">
+        <thead class="light-blue">
+            <th>Date</th>
+            <th>Name of Pensioner</th>
+            <th>CTRL No</th>
+            <th>Terms</th>
+            <th>Principal Loan</th>
+            <th>UDI</th>
+            <th>Cash-out</th>
+            <th>LLRF</th>
+            <th>P/FEE</th>
+            <th>VAT</th>
+        </thead>
+        <tbody>
+            {% if transactions %}
+            {% for loan in transactions %}
+            <tr>
+                {% ifchanged loan.date_granted %}
+                <td>{{ loan.date_granted|date:"M j"}}</td>
+                {% else %}
+                <td></td>
+                {% endifchanged %}
+                <td>{{ loan.client.last_name }}, {{ loan.client.first_name }}</td>
+                <td>{{ loan.control_number }}</td>
+                <td>{{ loan.term }}</td>
+                <td>{{ loan.principal_amount|intcomma }}</td>
+                <td>{{ loan.udi|intcomma }}</td>
+                <td>{{ loan.net_cash_out|intcomma }}</td>
+                <td>{{ loan.llrf|intcomma }}</td>
+                <td>{{ loan.processing_fee|intcomma }}</td>
+                <td>{{ loan.fee_others|intcomma }}</td>
+            </tr>
+            {% endfor %}
+            {% else %}
+            <tr>
+                <td>NO TRANSACTIONS</td>
+            </tr>
+            {% endif %}
+        </tbody>
+        <tfoot>
+            {% for aggregate in aggregates %}
+            <tr class="green">
+                <td>{{ aggregate.month|date:'F Y' }}</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td>{{ aggregate.total_principal_loan|intcomma }}</td>
+                <td>{{ aggregate.total_udi|intcomma }}</td>
+                <td>{{ aggregate.total_cashout|intcomma }}</td>
+                <td>{{ aggregate.total_llrf|intcomma }}</td>
+                <td>{{ aggregate.total_pfee|intcomma }}</td>
+                <td>{{ aggregate.total_others|intcomma }}</td>
+            </tr>
+            {% endfor %}
+        </tfoot>
+    </table>
+</body>
+</html>
