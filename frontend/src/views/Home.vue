@@ -573,9 +573,21 @@
                 </div>
               </div>
               <div class="columns">
-                <div class="column is-offset-6">
+                <div class="column">
                     <b-field label="Fee Others*" :label-position="labelPosition">
                         <b-input v-model="calculatedOthers"></b-input>
+                    </b-field>
+                </div>
+                <div class="column">
+                    <b-field label="Processing Fee*" :label-position="labelPosition">
+                        <b-input v-model="newLoan.processing_fee"></b-input>
+                    </b-field>
+                </div>
+              </div>
+              <div class="columns">
+                <div class="column">
+                    <b-field label="LLRF*" :label-position="labelPosition">
+                        <b-input v-model="calculatedLLRF"></b-input>
                     </b-field>
                 </div>
               </div>
@@ -1057,7 +1069,7 @@ export default {
 
       // models
       newClient: {},
-      newLoan: {is_advance: true, add_fee_others: true, loan_mode: 'monthly'},
+      newLoan: {is_advance: true, add_fee_others: true, loan_mode: 'monthly', processing_fee: '150.00'},
       newCA: {is_advance: true, is_cash_advance: true},
       loans: [],
       selectedLoanRows: [],
@@ -1393,7 +1405,7 @@ export default {
         })
         this.newLoanModal = false
         this.newCAModal = false
-        this.newLoan = {is_advance: true, add_fee_others: true}
+        this.newLoan = {is_advance: true, add_fee_others: true, processing_fee: '150.00'}
         this.fetchLoans()
       } catch (err) {
         this.$buefy.toast.open({
@@ -1475,6 +1487,19 @@ export default {
       },
       set: function (value) {
         this.newLoan.fee_others = value
+      }
+    },
+    calculatedLLRF: {
+      get: function () {
+        if (this.newLoan.principal_amount && this.newLoan.term) {
+          const principalAmount = parseInt(this.newLoan.principal_amount.replace(/,/g, ''))
+          return ((principalAmount / 1000) * (parseInt(this.newLoan.term) + 1)).toFixed(2)
+        }
+
+        return 0
+      },
+      set: function (value) {
+        this.newLoan.llrf = value
       }
     },
     canCreateCollection() {
