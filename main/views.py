@@ -210,3 +210,41 @@ def loan_masterlist(request, year, month):
     # or Folio?
     pdf = generate_to_pdf("loan_masterlist.html", context, f"loan-masterlist-{year}", page_size='Legal', orientation="landscape")
     return FileResponse(open(pdf, 'rb'), content_type="application/pdf")
+
+def cashloan_masterlist(request, year, month):
+    loan_date = datetime.now().replace(year=year, month=month, day=1) + relativedelta(months=1)
+    loans = Loan.objects.filter(date_granted__lt=loan_date, is_cash_advance=True)
+
+    # We just want the monthly transactions
+    offset_date = loan_date.replace(month=month)
+    transactions = loans.filter(date_granted__gte=offset_date).order_by('date_granted')
+
+    aggregates = loans.annotate(
+        month=TruncMonth('date_granted')).values('month').order_by('-month').annotate(
+            total_principal_loan=Sum('principal_amount'),
+            total_udi=Sum('udi'),
+            total_cashout=Sum('net_cash_out'),
+            total_llrf=Sum('llrf'),
+            total_pfee=Sum('processing_fee'),
+            total_others=Sum('fee_others')
+        )
+
+    totals = loans.aggregate(
+        total_principal_loan=Sum('principal_amount'),
+        total_udi=Sum('udi'),
+        total_cashout=Sum('net_cash_out'),
+        total_llrf=Sum('llrf'),
+        total_pfee=Sum('processing_fee'),
+        total_others=Sum('fee_others')
+    )
+
+    context = {
+        'aggregates': aggregates,
+        'totals': totals,
+        'loan_date': loan_date.replace(month=month),
+        'transactions': transactions
+    }
+
+    # or Folio?
+    pdf = generate_to_pdf("loan_masterlist.html", context, f"cashloan-masterlist-{year}", page_size='Legal', orientation="landscape")
+    return FileResponse(open(pdf, 'rb'), content_type="application/pdf")

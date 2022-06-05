@@ -1,10 +1,10 @@
 <template>
     <div class="container-fluid">
-        <h1 class="is-size-4">
-            Loan Masterlist
-        </h1>
         <div class="columns">
             <div class="column is-half">
+                <h1 class="is-size-4">
+                    Pension Loan Masterlist
+                </h1>                
                 <div class="columns mt-1">
                     <div class="column is-3">
                         <b-field label="Month">
@@ -27,6 +27,35 @@
                 <div class="columns">
                     <div class="column is-6">
                         <b-button type="is-warning" expanded @click="generateReport">Generate Report</b-button>
+                    </div>
+                </div>
+            </div>
+            <div class="column is-half">
+                <h1 class="is-size-4">
+                    Cash Loan Masterlist
+                </h1>                
+                <div class="columns mt-1">
+                    <div class="column is-3">
+                        <b-field label="Month">
+                            <b-select placeholder="Select a month" expanded v-model="cashMonth">
+                                <option
+                                    v-for="option in months"
+                                    :value="option.value"
+                                    :key="option.value">
+                                    {{ option.name }}
+                                </option>
+                            </b-select>
+                        </b-field>
+                    </div>
+                    <div class="column is-3">
+                        <b-field label="Year">
+                            <b-input v-cleave="masks.dateField" placeholder="YYYY" v-model="cashYear" id="filter-date"></b-input>
+                        </b-field>
+                    </div>
+                </div>
+                <div class="columns">
+                    <div class="column is-6">
+                        <b-button type="is-warning" expanded @click="generateCashLoanReport">Generate Report</b-button>
                     </div>
                 </div>
             </div>
@@ -78,11 +107,16 @@ export default {
                     datePattern: ['Y'],
                 }
             },
+            cashYear: null,
+            cashMonth: null,
         }
     },
     methods: {
         generateReport() {
             window.open(`${process.env.VUE_APP_API_ENDPOINT_URL}reports/loan_masterlist/${this.year}/${this.month}/`)
+        },
+        generateCashLoanReport () {
+            window.open(`${process.env.VUE_APP_API_ENDPOINT_URL}reports/cashloan_masterlist/${this.cashYear}/${this.cashMonth}/`)
         }
     }
 }
