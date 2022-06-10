@@ -12,7 +12,9 @@ from num2words import num2words
 from dateutil.relativedelta import relativedelta
 import xlsxwriter
 from django.conf import settings
-
+from openpyxl import Workbook
+from openpyxl.worksheet.table import Table, TableStyleInfo
+from openpyxl.styles import PatternFill
 
 @ensure_csrf_cookie
 def set_csrf_token(request):
@@ -314,5 +316,120 @@ def cash_receipts_xls(request):
 
 
     workbook.close()
+
+    return FileResponse(open(path, 'rb'), content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+
+def loan_masterlist_xls(request, year, month):
+    path = f"{settings.REPORTS_PATH}/loan-masterlist-{month}-{year}.xlsx"
+    loan_date = datetime.now().replace(year=year, month=month, day=1) + relativedelta(months=1)
+    loans = Loan.objects.filter(date_granted__lt=loan_date)
+
+    # We just want the monthly transactions
+    offset_date = loan_date.replace(month=month)
+    transactions = loans.filter(date_granted__gte=offset_date).order_by('date_granted')
+
+    aggregates = loans.annotate(
+        month=TruncMonth('date_granted')).values('month').order_by('-month').annotate(
+            total_principal_loan=Sum('principal_amount'),
+            total_udi=Sum('udi'),
+            total_cashout=Sum('net_cash_out'),
+            total_llrf=Sum('llrf'),
+            total_pfee=Sum('processing_fee'),
+            total_others=Sum('fee_others')
+        )
+
+    totals = loans.aggregate(
+        total_principal_loan=Sum('principal_amount'),
+        total_udi=Sum('udi'),
+        total_cashout=Sum('net_cash_out'),
+        total_llrf=Sum('llrf'),
+        total_pfee=Sum('processing_fee'),
+        total_others=Sum('fee_others')
+    )
+
+    wb = Workbook()
+    ws = wb.active
+    ws.title = f'{year}'
+
+    # styles
+    green_fill = PatternFill(start_color="0099CC00", end_color="0099CC00", fill_type = "solid")
+    white_fill = PatternFill(start_color="00FFFFFF", end_color="00FFFFFF", fill_type = "solid")
+    
+
+    # header2 = ws.cell(row=2, column=1, value="SSS PENSIONER'S LOAN MASTERLIST")
+    # header3 = ws.cell(row=3, column=1, value=f"{offset_date.strftime('%B, %Y')}")
+
+    header1 = ws.cell(row=1, column=1, value=f"D'Last Frontier Lending Corporation\nSSS PENSIONER'S LOAN MASTERLIST\n{offset_date.strftime('%B, %Y')}")
+    header1.fill = white_fill
+    ws.merge_cells('A1:L1')
+
+    ws.append(["Date", "Name of Pensioner", "CTRL No", "Term", "Principal Loan", "UDI", "Cash-out", "LLRF", "P/FEE", "VAT", "Misc. Income", "UDI Rebates"])
+
+    last_date = None
+    for row in transactions:
+        current_date = row.date_granted
+
+        if last_date != current_date:
+            show_date = row.date_granted.strftime("%b %d")
+        else:
+            show_date = ""
+
+        last_date = current_date
+
+        ws.append([
+            show_date,
+            f"{row.client.last_name}, {row.client.first_name}",
+            row.control_number,
+            row.term,
+            f"{row.principal_amount:,.2f}",
+            f"{row.udi:,.2f}",
+            f"{row.net_cash_out:,.2f}",
+            f"{row.llrf:,.2f}",
+            f"{row.processing_fee:,.2f}",
+            f"{row.fee_others:,.2f}",
+            "",
+            ""
+        ])
+
+    table = Table(displayName="Table1", ref=f"A2:L{transactions.count() + 2}")
+    style = TableStyleInfo(name="TableStyleMedium9", showFirstColumn=False,
+        showLastColumn=False, showRowStripes=False, showColumnStripes=False)
+    
+    table.tableStyleInfo = style
+
+    ws.add_table(table)
+
+    row_counter = transactions.count() + 3
+
+    for aggregate in aggregates:
+        _ = ws.cell(row=row_counter, column=1, value=f"{aggregate['month'].strftime('%B, %Y')}")
+        _.fill = green_fill
+        _ = ws.cell(row=row_counter, column=2, value="")
+        _.fill = green_fill
+        _ = ws.cell(row=row_counter, column=3, value="")
+        _.fill = green_fill
+        _ = ws.cell(row=row_counter, column=4, value="")
+        _.fill = green_fill
+        _ = ws.cell(row=row_counter, column=5, value=f"{aggregate['total_principal_loan']:,.2f}")
+        _.fill = green_fill
+        _ = ws.cell(row=row_counter, column=6, value=f"{aggregate['total_udi']:,.2f}")
+        _.fill = green_fill
+        _ = ws.cell(row=row_counter, column=7, value=f"{aggregate['total_cashout']:,.2f}")
+        _.fill = green_fill
+        _ = ws.cell(row=row_counter, column=8, value=f"{aggregate['total_llrf']:,.2f}")
+        _.fill = green_fill
+        _ = ws.cell(row=row_counter, column=9, value=f"{aggregate['total_pfee']:,.2f}")
+        _.fill = green_fill
+        _ = ws.cell(row=row_counter, column=10, value=f"{aggregate['total_others']:,.2f}")
+        _.fill = green_fill
+        _ = ws.cell(row=row_counter, column=11, value="")
+        _.fill = green_fill
+        _ = ws.cell(row=row_counter, column=12, value="")
+        _.fill = green_fill
+
+        row_counter += 1
+
+
+    wb.save(f"{path}")
 
     return FileResponse(open(path, 'rb'), content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")

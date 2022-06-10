@@ -53,6 +53,7 @@ urlpatterns = [
     path('api/v1/reports/disclosure_of_loan/<int:loan_id>/', disclosure_of_loan),
     path('api/v1/reports/loan_masterlist/<int:year>/<int:month>/', loan_masterlist),
     path('api/v1/reports/cashloan_masterlist/<int:year>/<int:month>/', cashloan_masterlist),
+    path('api/v1/reports/loan_masterlist_xls/<int:year>/<int:month>/', loan_masterlist_xls),
     path('api/v1/reports/cash_receipts/', cash_receipts_xls),
     path('api/v1/set_csrf/', set_csrf_token),
     path('api/v1/login/', login_view),
