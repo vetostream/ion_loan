@@ -188,3 +188,4 @@ data
 
 reports/*.html
 reports/*.pdf
+reports/*.xlsx

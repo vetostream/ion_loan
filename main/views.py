@@ -5,11 +5,13 @@ from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.http import FileResponse, JsonResponse, HttpResponse
 from django.db.models.functions import TruncMonth
-from .models import Transaction, Loan
+from .models import Transaction, Loan, Collection
 from django.db.models import Sum
 from .utils import generate_to_pdf
 from num2words import num2words
 from dateutil.relativedelta import relativedelta
+import xlsxwriter
+from django.conf import settings
 
 
 @ensure_csrf_cookie
@@ -248,3 +250,69 @@ def cashloan_masterlist(request, year, month):
     # or Folio?
     pdf = generate_to_pdf("loan_masterlist.html", context, f"cashloan-masterlist-{year}", page_size='Legal', orientation="landscape")
     return FileResponse(open(pdf, 'rb'), content_type="application/pdf")
+
+def cash_receipts_xls(request):
+    path = f"{settings.REPORTS_PATH}/cash-receipts.xlsx"
+    workbook = xlsxwriter.Workbook(path)
+    worksheet = workbook.add_worksheet()
+
+    collections = Collection.objects.order_by('post_date__month', 'post_date__day').values(
+        'client__first_name',
+        'client__last_name',
+        'client__bank_name',
+        'collection_amount',
+        'refundable_amount',
+        'post_date')
+
+    last_date = None
+
+    row_counter = 1
+
+    for collection in collections:
+        current_date = collection['post_date']
+
+        if last_date != current_date:
+            # Another date, Recreate Headers
+            if row_counter != 1:
+                row_counter += 4
+
+            worksheet.merge_range(f'A{row_counter}:D{row_counter}', 'D Last Frontier Lending Corporation')
+            row_counter += 1
+            worksheet.merge_range(f'A{row_counter}:D{row_counter}', 'CASH RECEIPT')
+            row_counter += 1
+            worksheet.merge_range(f'A{row_counter}:D{row_counter}', current_date.strftime('%m/%d/%Y'))
+
+            row_counter += 1
+            worksheet.write(row_counter, 0, "NAME")
+            worksheet.write(row_counter, 1, "BANKS")
+            worksheet.write(row_counter, 2, "AMOUNT")
+            worksheet.write(row_counter, 3, "LOAN")
+            worksheet.write(row_counter, 4, "AR")
+            worksheet.write(row_counter, 5, "AR")
+            worksheet.write(row_counter, 6, "AR")
+            worksheet.write(row_counter, 7, "AP")
+            row_counter += 2
+
+        worksheet.set_column(row_counter, 0, 25)
+
+        if collection['refundable_amount'] is not None:
+            total_loan_amount = collection['collection_amount'] + collection['refundable_amount']
+        else:
+            total_loan_amount = collection['collection_amount']
+
+        worksheet.write(row_counter, 0, f"{collection['client__last_name']}, {collection['client__first_name']}")
+        worksheet.write(row_counter, 1, collection['client__bank_name'])
+        worksheet.write(row_counter, 2, collection['collection_amount']) # collected amount
+        worksheet.write(row_counter, 3, total_loan_amount) # total loan amount
+        worksheet.write(row_counter, 4, "")
+        worksheet.write(row_counter, 5, "")
+        worksheet.write(row_counter, 6, "")
+        worksheet.write(row_counter, 7, collection['refundable_amount'])
+        row_counter +=1
+
+        last_date = current_date
+
+
+    workbook.close()
+
+    return FileResponse(open(path, 'rb'), content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")

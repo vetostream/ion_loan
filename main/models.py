@@ -160,7 +160,6 @@ class Collection(Super_Model):
     is_refunded = models.BooleanField(default=False)
     post_date = models.DateField(null=False)
 
-
 class Collection_Detail(Super_Model):
     collection = models.ForeignKey(Collection, on_delete=models.CASCADE, null=False, related_name="collection_details")
     amount_used = models.DecimalField(max_digits=10, decimal_places=2, null=False)
