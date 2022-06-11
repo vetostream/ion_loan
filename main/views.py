@@ -253,13 +253,14 @@ def cashloan_masterlist(request, year, month):
     pdf = generate_to_pdf("loan_masterlist.html", context, f"cashloan-masterlist-{year}", page_size='Legal', orientation="landscape")
     return FileResponse(open(pdf, 'rb'), content_type="application/pdf")
 
-def cash_receipts_xls(request):
-    path = f"{settings.REPORTS_PATH}/cash-receipts.xlsx"
+def cash_receipts_xls(request, year, month):
+    path = f"{settings.REPORTS_PATH}/cash-receipts-{month}-{year}.xlsx"
     wb = Workbook()
 
     ws = wb.active
+    ws.title = f'{month}'
 
-    collections = Collection.objects.order_by('post_date__month', 'post_date__day').values(
+    collections = Collection.objects.filter(post_date__month=month, post_date__year=year).order_by('post_date__month', 'post_date__day').values(
         'total_amount_to_pay',
         'client__first_name',
         'client__last_name',
@@ -330,7 +331,7 @@ def cash_receipts_xls(request):
 def loan_masterlist_xls(request, year, month):
     path = f"{settings.REPORTS_PATH}/loan-masterlist-{month}-{year}.xlsx"
     loan_date = datetime.now().replace(year=year, month=month, day=1) + relativedelta(months=1)
-    loans = Loan.objects.filter(date_granted__lt=loan_date)
+    loans = Loan.objects.filter(date_granted__lt=loan_date, loan_type='pension')
 
     # We just want the monthly transactions
     offset_date = loan_date.replace(month=month)

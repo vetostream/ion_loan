@@ -3,6 +3,37 @@
         <div class="columns">
             <div class="column is-half">
                 <h1 class="is-size-4">
+                    Cash Receipt
+                </h1>                
+                <div class="columns mt-1">
+                    <div class="column is-3">
+                        <b-field label="Month">
+                            <b-select placeholder="Select a month" expanded v-model="collectionMonth">
+                                <option
+                                    v-for="option in months"
+                                    :value="option.value"
+                                    :key="option.value">
+                                    {{ option.name }}
+                                </option>
+                            </b-select>
+                        </b-field>
+                    </div>
+                    <div class="column is-3">
+                        <b-field label="Year">
+                            <b-input v-cleave="masks.dateField" placeholder="YYYY" v-model="collectionYear" id="filter-date"></b-input>
+                        </b-field>
+                    </div>
+                </div>
+                <div class="columns">
+                    <div class="column is-6">
+                        <b-button type="is-warning" expanded @click="generateCashReceipt">Generate Report</b-button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="columns">
+            <div class="column is-half">
+                <h1 class="is-size-4">
                     Pension Loan Masterlist
                 </h1>                
                 <div class="columns mt-1">
@@ -109,6 +140,8 @@ export default {
             },
             cashYear: null,
             cashMonth: null,
+            collectionMonth: null,
+            collectionYear: null,
         }
     },
     methods: {
@@ -117,6 +150,9 @@ export default {
         },
         generateCashLoanReport () {
             window.open(`${process.env.VUE_APP_API_ENDPOINT_URL}reports/cashloan_masterlist/${this.cashYear}/${this.cashMonth}/`)
+        },
+        generateCashReceipt () {
+            window.open(`${process.env.VUE_APP_API_ENDPOINT_URL}reports/cash_receipts/${this.collectionYear}/${this.collectionMonth}/`)
         }
     }
 }
