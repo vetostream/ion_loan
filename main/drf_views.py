@@ -155,8 +155,10 @@ class CollectionViewSet(viewsets.ModelViewSet):
         selected_loans = Loan.objects.filter(pk__in=selected_loans_pk)
 
         collection_amount = collection.collection_amount
+        total_amount_to_pay = 0
 
         for loan in selected_loans:
+            total_amount_to_pay += loan.loan_detail_set.first().amount
             if collection_amount > 0:
                 amortization = loan.loan_detail_set.first().amount
 
@@ -189,6 +191,9 @@ class CollectionViewSet(viewsets.ModelViewSet):
             # There is AP for this collection
             collection.refundable_amount = collection_amount
             collection.save()
+
+        collection.total_amount_to_pay = total_amount_to_pay
+        collection.save()
 
         # Create a Transaction
         Transaction.objects.create(

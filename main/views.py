@@ -255,10 +255,12 @@ def cashloan_masterlist(request, year, month):
 
 def cash_receipts_xls(request):
     path = f"{settings.REPORTS_PATH}/cash-receipts.xlsx"
-    workbook = xlsxwriter.Workbook(path)
-    worksheet = workbook.add_worksheet()
+    wb = Workbook()
+
+    ws = wb.active
 
     collections = Collection.objects.order_by('post_date__month', 'post_date__day').values(
+        'total_amount_to_pay',
         'client__first_name',
         'client__last_name',
         'client__bank_name',
@@ -266,57 +268,63 @@ def cash_receipts_xls(request):
         'refundable_amount',
         'post_date')
 
+    # styles
+    white_fill = PatternFill(start_color="00FFFFFF", end_color="00FFFFFF", fill_type = "solid")
+    table_style = TableStyleInfo(name="TableStyleMedium9", showFirstColumn=False,
+        showLastColumn=False, showRowStripes=False, showColumnStripes=False)
+
     last_date = None
+    ws._current_row = 1
+    table_open_row = None
+    table_close_row = None
 
-    row_counter = 1
 
-    for collection in collections:
+    for index, collection in enumerate(collections):
         current_date = collection['post_date']
 
         if last_date != current_date:
-            # Another date, Recreate Headers
-            if row_counter != 1:
-                row_counter += 4
+            table_close_row = ws._current_row
 
-            worksheet.merge_range(f'A{row_counter}:D{row_counter}', 'D Last Frontier Lending Corporation')
-            row_counter += 1
-            worksheet.merge_range(f'A{row_counter}:D{row_counter}', 'CASH RECEIPT')
-            row_counter += 1
-            worksheet.merge_range(f'A{row_counter}:D{row_counter}', current_date.strftime('%m/%d/%Y'))
+            # Close and add table
+            if table_open_row != None:
+                table = Table(displayName=f"CashReceipt-{table_open_row}", ref=f"A{table_open_row}:I{table_close_row}")
+                table.tableStyleInfo = table_style
+                ws.add_table(table)
 
-            row_counter += 1
-            worksheet.write(row_counter, 0, "NAME")
-            worksheet.write(row_counter, 1, "BANKS")
-            worksheet.write(row_counter, 2, "AMOUNT")
-            worksheet.write(row_counter, 3, "LOAN")
-            worksheet.write(row_counter, 4, "AR")
-            worksheet.write(row_counter, 5, "AR")
-            worksheet.write(row_counter, 6, "AR")
-            worksheet.write(row_counter, 7, "AP")
-            row_counter += 2
+            # Recreate Headers
+            if ws._current_row != 1:
+                ws._current_row += 5
 
-        worksheet.set_column(row_counter, 0, 25)
+            header = ws.cell(row=ws._current_row, column=1, value=f"D'Last Frontier Lending Corporation\nCASH RECEIPTS\n{current_date.strftime('%B %d, %Y')}")
+            header.fill = white_fill
+            ws._current_row += 1
+            ws.append(["NAME", "BANKS", "AMOUNT", "LOAN", "AR\n(CLIENT)", "AR\n(PERSONNEL)", "AR\n(OTHERS)", "AP", "INTEREST"])
+            table_open_row = ws._current_row
 
-        if collection['refundable_amount'] is not None:
-            total_loan_amount = collection['collection_amount'] + collection['refundable_amount']
-        else:
-            total_loan_amount = collection['collection_amount']
+        ar_to_client = 0
+        if collection['collection_amount'] < collection['total_amount_to_pay']:
+            ar_to_client = collection['total_amount_to_pay'] - collection['collection_amount']
 
-        worksheet.write(row_counter, 0, f"{collection['client__last_name']}, {collection['client__first_name']}")
-        worksheet.write(row_counter, 1, collection['client__bank_name'])
-        worksheet.write(row_counter, 2, collection['collection_amount']) # collected amount
-        worksheet.write(row_counter, 3, total_loan_amount) # total loan amount
-        worksheet.write(row_counter, 4, "")
-        worksheet.write(row_counter, 5, "")
-        worksheet.write(row_counter, 6, "")
-        worksheet.write(row_counter, 7, collection['refundable_amount'])
-        row_counter +=1
+        ws.append([
+            f"{collection['client__last_name']}, {collection['client__first_name']}",
+            collection['client__bank_name'],
+            f"{collection['collection_amount']:,.2f}",
+            f"{collection['total_amount_to_pay']:,.2f}",
+            f"{ar_to_client:,.2f}",
+            "",
+            "",
+            f"{collection['refundable_amount'] or 0:,.2f}",
+            ""
+        ])
+
+        if index == len(collections) - 1:
+            table = Table(displayName=f"CashReceipt-{table_open_row}", ref=f"A{table_open_row}:I{ws._current_row}")
+            table.tableStyleInfo = table_style
+            ws.add_table(table)
 
         last_date = current_date
 
-
-    workbook.close()
-
+    wb.save(path)
     return FileResponse(open(path, 'rb'), content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
 
 def loan_masterlist_xls(request, year, month):
@@ -354,10 +362,6 @@ def loan_masterlist_xls(request, year, month):
     # styles
     green_fill = PatternFill(start_color="0099CC00", end_color="0099CC00", fill_type = "solid")
     white_fill = PatternFill(start_color="00FFFFFF", end_color="00FFFFFF", fill_type = "solid")
-    
-
-    # header2 = ws.cell(row=2, column=1, value="SSS PENSIONER'S LOAN MASTERLIST")
-    # header3 = ws.cell(row=3, column=1, value=f"{offset_date.strftime('%B, %Y')}")
 
     header1 = ws.cell(row=1, column=1, value=f"D'Last Frontier Lending Corporation\nSSS PENSIONER'S LOAN MASTERLIST\n{offset_date.strftime('%B, %Y')}")
     header1.fill = white_fill
@@ -391,7 +395,7 @@ def loan_masterlist_xls(request, year, month):
             ""
         ])
 
-    table = Table(displayName="Table1", ref=f"A2:L{transactions.count() + 2}")
+    table = Table(displayName="LoanMasterlistTable", ref=f"A2:L{transactions.count() + 2}")
     style = TableStyleInfo(name="TableStyleMedium9", showFirstColumn=False,
         showLastColumn=False, showRowStripes=False, showColumnStripes=False)
     
@@ -429,6 +433,31 @@ def loan_masterlist_xls(request, year, month):
 
         row_counter += 1
 
+    # totals
+    _ = ws.cell(row=row_counter, column=1, value="TOTALS")
+    _.fill = green_fill
+    _ = ws.cell(row=row_counter, column=2, value="")
+    _.fill = green_fill
+    _ = ws.cell(row=row_counter, column=3, value="")
+    _.fill = green_fill
+    _ = ws.cell(row=row_counter, column=4, value="")
+    _.fill = green_fill
+    _ = ws.cell(row=row_counter, column=5, value=f"{totals['total_principal_loan']:,.2f}")
+    _.fill = green_fill
+    _ = ws.cell(row=row_counter, column=6, value=f"{totals['total_udi']:,.2f}")
+    _.fill = green_fill
+    _ = ws.cell(row=row_counter, column=7, value=f"{totals['total_cashout']:,.2f}")
+    _.fill = green_fill
+    _ = ws.cell(row=row_counter, column=8, value=f"{totals['total_llrf']:,.2f}")
+    _.fill = green_fill
+    _ = ws.cell(row=row_counter, column=9, value=f"{totals['total_pfee']:,.2f}")
+    _.fill = green_fill
+    _ = ws.cell(row=row_counter, column=10, value=f"{totals['total_others']:,.2f}")
+    _.fill = green_fill
+    _ = ws.cell(row=row_counter, column=11, value="")
+    _.fill = green_fill
+    _ = ws.cell(row=row_counter, column=12, value="")
+    _.fill = green_fill
 
     wb.save(f"{path}")
 

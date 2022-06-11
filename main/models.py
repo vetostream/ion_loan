@@ -159,6 +159,7 @@ class Collection(Super_Model):
     refundable_amount = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     is_refunded = models.BooleanField(default=False)
     post_date = models.DateField(null=False)
+    total_amount_to_pay = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
 
 class Collection_Detail(Super_Model):
     collection = models.ForeignKey(Collection, on_delete=models.CASCADE, null=False, related_name="collection_details")
