@@ -298,6 +298,7 @@ def cash_receipts_xls(request, year, month):
 
             header = ws.cell(row=ws._current_row, column=1, value=f"D'Last Frontier Lending Corporation\nCASH RECEIPTS\n{current_date.strftime('%B %d, %Y')}")
             header.fill = white_fill
+            ws.merge_cells(f'A{ws._current_row}:I{ws._current_row}')
             ws._current_row += 1
             ws.append(["NAME", "BANKS", "AMOUNT", "LOAN", "AR\n(CLIENT)", "AR\n(PERSONNEL)", "AR\n(OTHERS)", "AP", "INTEREST"])
             table_open_row = ws._current_row
