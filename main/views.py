@@ -336,7 +336,7 @@ def loan_masterlist_xls(request, year, month):
 
     # We just want the monthly transactions
     offset_date = loan_date.replace(month=month)
-    transactions = loans.filter(date_granted__gte=offset_date).order_by('date_granted')
+    transactions = loans.filter(date_granted__gte=offset_date).order_by('date_granted', 'control_number')
 
     aggregates = loans.annotate(
         month=TruncMonth('date_granted')).values('month').order_by('-month').annotate(
