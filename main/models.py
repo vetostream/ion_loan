@@ -107,13 +107,13 @@ class Loan(Super_Model):
 
         # calculate llrf
         if not self.is_cash_advance:
-            if not self.processing_fee:
+            if self.processing_fee == '':
                 self.processing_fee = round(decimal.Decimal(150.0), 2) #fixed
 
-            if not self.llrf:
+            if self.llrf == '':
                 self.llrf = round((self.principal_amount / 1000) * (self.term + 1), 2)
 
-            if not self.fee_others:
+            if self.fee_others == '':
                 self.fee_others = round(decimal.Decimal(0.05) * self.udi, 2)
         else:
             self.llrf = 0

@@ -1493,6 +1493,7 @@ export default {
       get: function () {
         if (this.newLoan.principal_amount && this.newLoan.term) {
           const principalAmount = parseInt(this.newLoan.principal_amount.replace(/,/g, ''))
+          this.newLoan.llrf = ((principalAmount / 1000) * (parseInt(this.newLoan.term) + 1)).toFixed(2)
           return ((principalAmount / 1000) * (parseInt(this.newLoan.term) + 1)).toFixed(2)
         }
 
