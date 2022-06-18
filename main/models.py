@@ -1,6 +1,6 @@
 import datetime
-from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
-from django.contrib.contenttypes.models import ContentType
+
+from dateutil.relativedelta import relativedelta
 from django.db import models
 from django.db.models import Sum
 from django.contrib.auth.models import User
@@ -96,7 +96,7 @@ class Loan(Super_Model):
     notes = models.TextField(max_length=300, null=True, blank=True)
 
     def __str__(self):
-        return f"{self.control_number} - {self.client.first_name} {self.client.last_name} - {self.principal_amount}"
+        return f"{self.control_number}"
 
     def save(self, *args, **kwargs):
         # calculate UDI
@@ -150,6 +150,59 @@ class Loan(Super_Model):
             return initial_balance
 
         return initial_balance - total_collections['amount_used__sum']
+
+    def generate_udi_table(self):
+        # Lets first purge existing table
+        Udi_Table.objects.filter(loan=self).delete()
+        if self.is_advance:
+            udi_factor = (self.term * (self.term + 1)) / 2
+
+            per_month = self.udi / decimal.Decimal(udi_factor)
+            reversed_term_index = self.term
+            previous_principal = 0.0
+
+            for i in range(1, self.term+1):
+                payment = decimal.Decimal(per_month * reversed_term_index)
+
+                date_payment = self.start_payment + relativedelta(months=i-1)
+
+                if i == self.term:
+                    principal = decimal.Decimal(0.0)
+                else:
+                    if previous_principal == 0:
+                        principal = self.udi - payment
+                    else:
+                        principal = previous_principal - payment
+
+                previous_principal = principal
+                reversed_term_index -= 1
+
+                Udi_Table.objects.create(
+                    loan=self,
+                    payment=payment,
+                    principal=principal,
+                    date_payment=date_payment
+                )
+        else:
+            payment = decimal.Decimal(self.udi / self.term)
+            previous_principal = 0.0
+
+            for i in range(1, self.term+1):
+                if previous_principal == 0:
+                    principal = self.udi - payment
+                else:
+                    principal = previous_principal - payment
+
+                date_payment = self.start_payment + relativedelta(months=i-1)
+                previous_principal = principal
+
+                Udi_Table.objects.create(
+                    loan=self,
+                    payment=payment,
+                    principal=principal,
+                    date_payment=date_payment
+                )
+
 
 
 class Collection(Super_Model):
@@ -219,3 +272,10 @@ class Transaction(Super_Model):
             self.post_date = datetime.date.today()
 
         super().save(*args, **kwargs)
+
+
+class Udi_Table(Super_Model):
+    loan = models.ForeignKey(Loan, on_delete=models.CASCADE)
+    payment = models.DecimalField(max_digits=10, decimal_places=2, null=False)
+    principal = models.DecimalField(max_digits=10, decimal_places=2, null=False)
+    date_payment = models.DateField()

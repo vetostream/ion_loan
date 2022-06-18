@@ -1,4 +1,4 @@
-from main.models import Client, Collection_Detail, Loan, Loan_Detail, Collection, Transaction, Refund
+from main.models import Client, Collection_Detail, Loan, Loan_Detail, Collection, Transaction, Refund, Udi_Table
 from rest_framework import serializers
 
 
@@ -43,11 +43,18 @@ class LoanDetailSerializer(serializers.ModelSerializer):
         return obj.loan.control_number
 
 
+class UdiTableSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Udi_Table
+        fields = '__all__'
+
+
 class LoanSerializer(serializers.ModelSerializer):
     client_full_name = serializers.SerializerMethodField()
     client_birth_date = serializers.SerializerMethodField()
     running_balance = serializers.SerializerMethodField()
     loan_detail = serializers.SerializerMethodField()
+    udi_table = serializers.SerializerMethodField()
     amortization = serializers.SerializerMethodField()
     payments = serializers.SerializerMethodField()
 
@@ -66,6 +73,9 @@ class LoanSerializer(serializers.ModelSerializer):
 
     def get_loan_detail(self, obj):
         return LoanDetailSerializer(obj.loan_detail_set.all(), many=True).data
+
+    def get_udi_table(self, obj):
+        return UdiTableSerializer(obj.udi_table_set.all().order_by('date_payment'), many=True).data
 
     def get_payments(self, obj):
         return CollectionDetailWithoutLoanSerializer(obj.collection_detail_set.all(), many=True).data

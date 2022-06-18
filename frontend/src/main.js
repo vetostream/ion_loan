@@ -29,6 +29,10 @@ Vue.filter('shortDate', (value) => {
   return moment(value).format('MM/DD/YYYY')
 });
 
+Vue.filter('monthYearDate', (value) => {
+  return moment(value).format('MMM YYYY')
+});
+
 Vue.config.productionTip = false
 
 new Vue({

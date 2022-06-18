@@ -131,6 +131,9 @@ class LoanViewSet(viewsets.ModelViewSet):
                 created_by=self.request.user
             )
 
+            # Generate UDI TABLE
+            loan.generate_udi_table()
+
         return Response({'message': 'Loan Approved'}, status=status.HTTP_201_CREATED)
 
 

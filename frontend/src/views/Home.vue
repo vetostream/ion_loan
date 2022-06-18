@@ -11,11 +11,11 @@
             New Loan
         </b-button>
       </div>
-      <div class="column is-1" v-if="selectedClient">
+      <!-- <div class="column is-1" v-if="selectedClient">
         <b-button class="button is-info is-light" @click="newCAModal=true" expanded>
             New CA
         </b-button>
-      </div>
+      </div> -->
     </div>
     <div class="tile is-ancestor">
       <div class="tile is-vertical is-12">
@@ -793,6 +793,25 @@
               </b-table-column>
               <b-table-column field="balance" label="Running Balance" v-slot="props">
                 {{ props.row.balance | displayMoney }}
+              </b-table-column>
+              <template #empty>
+                <div class="has-text-centered">No Results Found</div>
+              </template>
+            </b-table>
+          </b-tab-item>
+          <b-tab-item label="UDI Table">
+            <b-table :data="selectedLoan.udi_table" narrowed striped>
+              <b-table-column field="index" label="#" v-slot="props">
+                {{ props.index + 1 }}
+              </b-table-column>
+              <b-table-column field="amount" label="Payment" v-slot="props">
+                {{ props.row.payment | displayMoney }}
+              </b-table-column>
+              <b-table-column field="balance" label="Principal" v-slot="props">
+                {{ props.row.principal | displayMoney }}
+              </b-table-column>
+              <b-table-column field="date_payment" label="Payment Schedule" v-slot="props">
+                {{ props.row.date_payment | monthYearDate }}
               </b-table-column>
               <template #empty>
                 <div class="has-text-centered">No Results Found</div>
