@@ -1,20 +1,20 @@
 from datetime import datetime
 import json
+from turtle import right
 from django.contrib.auth import authenticate, login, logout
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.http import FileResponse, JsonResponse, HttpResponse
 from django.db.models.functions import TruncMonth
-from .models import Transaction, Loan, Collection
+from .models import Transaction, Loan, Collection, Udi_Table
 from django.db.models import Sum
 from .utils import generate_to_pdf
 from num2words import num2words
 from dateutil.relativedelta import relativedelta
-import xlsxwriter
 from django.conf import settings
 from openpyxl import Workbook
 from openpyxl.worksheet.table import Table, TableStyleInfo
-from openpyxl.styles import PatternFill
+from openpyxl.styles import PatternFill, Alignment
 
 @ensure_csrf_cookie
 def set_csrf_token(request):
@@ -602,4 +602,129 @@ def cashloan_masterlist_xls(request, year, month):
 
     wb.save(f"{path}")
 
+    return FileResponse(open(path, 'rb'), content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+
+def udi_reports_xls(request, year):
+    path = f"{settings.REPORTS_PATH}/udi-report-{year}.xlsx"
+    udi_tables = Udi_Table.objects.filter(date_payment__year__gte=year).order_by('date_payment', 'date_payment__year', 'loan__control_number')
+
+    years = udi_tables.values_list('date_payment__year', flat=True)
+
+    wb = Workbook()
+
+    ws = wb.active
+    ws.title = f"{year}"
+    ws.append(["Date", "Name of Client", "CTRL No", "UDI Amount", "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"])
+
+    for udi_year in sorted(set(list(years))):
+        if udi_year != year:
+            wb.create_sheet(f"{udi_year}")
+            ws_active = wb[f"{udi_year}"]
+            ws_active.append(["Date", "Name of Client", "CTRL No", "UDI Amount", "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"])
+            
+
+    previous_year = year
+
+    for i, udi in enumerate(udi_tables):
+        if previous_year != udi.date_payment.year:
+            print(f"CAPTURING TOTAL FOR THIS YEAR: {previous_year}")
+            aggregates = udi_tables.filter(date_payment__year__lte=previous_year).values('date_payment__month').order_by('date_payment__month').annotate(
+                    total_payment=Sum('payment'),
+                )
+
+            print(f"AGGREGATE COUNTS: {aggregates}")
+
+            totals_row = [
+                "TOTALS",
+                "",
+                "",
+                "",
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+            ]
+
+            for aggregate in aggregates:
+                month_number = aggregate.get('date_payment__month')
+                totals_row[month_number + 3] = f"{aggregate.get('total_payment'):,.2f}"
+
+            ws.append(totals_row)
+
+        previous_year = udi.date_payment.year
+    
+        # Prepare known cols
+        row = [
+            udi.date_payment.strftime("%b %d"),
+            udi.loan.client.get_full_name(),
+            udi.loan.control_number,
+            f"{udi.payment:,.2f}",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+        ]
+
+        ws = wb[f"{udi.date_payment.year}"]
+
+        col_to_append = udi.date_payment.month + 3
+        row[col_to_append] = f"{udi.payment:,.2f}"
+        ws.append(row)
+
+
+    print(f"What is the final year? {previous_year}")
+    aggregates = udi_tables.filter(date_payment__year__lte=previous_year).values('date_payment__month').order_by('date_payment__month').annotate(
+            total_payment=Sum('payment'),
+        )
+
+    print(f"AGGREGATE COUNTS: {aggregates}")
+
+    final_totals_row = [
+        "TOTALS",
+        "",
+        "",
+        "",
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+    ]
+
+    for aggregate in aggregates:
+        month_number = aggregate.get('date_payment__month')
+        final_totals_row[month_number + 3] = f"{aggregate.get('total_payment'):,.2f}"
+
+    ws.append(final_totals_row)
+
+
+    # for row in ws:
+    #     for cell in row:
+    #         cell.alignment = Alignment(horizontal='right')
+
+
+    wb.save(f"{path}")
     return FileResponse(open(path, 'rb'), content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")

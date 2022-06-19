@@ -30,6 +30,23 @@
                     </div>
                 </div>
             </div>
+            <div class="column is-half">
+                <h1 class="is-size-4">
+                    UDI Reports
+                </h1>                
+                <div class="columns mt-1">
+                    <div class="column is-3">
+                        <b-field label="Year">
+                            <b-input v-cleave="masks.dateField" placeholder="YYYY" v-model="udiYear" id="filter-date"></b-input>
+                        </b-field>
+                    </div>
+                </div>
+                <div class="columns">
+                    <div class="column is-6">
+                        <b-button type="is-warning" expanded @click="generateUDI">Generate Report</b-button>
+                    </div>
+                </div>
+            </div>
         </div>
         <div class="columns">
             <div class="column is-half">
@@ -142,6 +159,7 @@ export default {
             cashMonth: null,
             collectionMonth: null,
             collectionYear: null,
+            udiYear: null,
         }
     },
     methods: {
@@ -153,6 +171,9 @@ export default {
         },
         generateCashReceipt () {
             window.open(`${process.env.VUE_APP_API_ENDPOINT_URL}reports/cash_receipts/${this.collectionYear}/${this.collectionMonth}/`)
+        },
+        generateUDI () {
+            window.open(`${process.env.VUE_APP_API_ENDPOINT_URL}reports/udi_reports/${this.udiYear}/`)
         }
     }
 }

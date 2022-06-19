@@ -51,6 +51,9 @@ class Client(Super_Model):
 
     def __str__(self):
         return f"{self.last_name}, {self.first_name} ({self.birth_date})"
+    
+    def get_full_name(self):
+        return f"{self.last_name}, {self.first_name}".upper()
 
 
 class Loan(Super_Model):
